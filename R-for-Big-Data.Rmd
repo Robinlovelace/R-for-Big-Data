@@ -1,0 +1,82 @@
+---
+title: "R for Big Data"
+author: "Colin Gillespie and Robin Lovelace"
+date: "03/17/2015"
+output: rmarkdown::tufte_handout
+---
+
+# Introduction
+
+## What is 'Big Data'?
+
+## Why R for Big Data?
+
+## Why not R for Big Data?
+
+## Alternatives to R
+
+# Principles of efficient R programming
+
+When dealing with small datasets, speed considerations
+are often irrelevant as powerful computers can solve
+the problem through 'brute force'. However, when you
+start dealing with larger datasets, a slight change in
+the *computational efficiency* of the implementation
+can make the difference between completing an analysis
+overnight and not completing it at all.
+
+*Computational efficiency* is analogous to energy efficiency
+and is a programmer's way of saying 'I get this much boom for
+my buck'? This is generally measured by *benchmarking*,
+testing the amount of
+computer time taken to perform a given task using different
+implementations. It is enlightening to perform such tests on
+a small sample of your data to decide how to write your
+final code so the processing completes quickly and without
+consuming excessive computer resources such as RAM. The below
+example illustrates the process of benchmarking.
+
+```{r}
+# TODO: Example of benchmarking here
+```
+
+
+
+# Manipulating large datasets 
+
+Rarely are datasets provided in a form that is analysis-ready.
+Usually, datasets must be manipulated, 'wrangled' or
+'munged' into a format that is suitable for performing the
+analysis that you want to do.
+
+## Data manipulation with **dplyr**
+
+## The **data.table** approach
+
+## Revolution R
+
+```{r}
+# TODO: more methods for data manipulation
+```
+
+# Connecting R to databases
+
+
+```{r}
+# (e.g. via dplyr and RODBC - maybe something like the new and superfast MonetDB)
+```
+
+## MonetDB
+
+# Analysing large datasets with R
+
+# Making sense of Big Data via visualisation
+
+```{r}
+# TODO (RL): Add analogy to refining to reduce volume
+```
+
+# Using C++ for 'heavy lifting' 
+
+
+

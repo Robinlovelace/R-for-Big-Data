@@ -1,0 +1,771 @@
+---
+title: 'R for Big Data: WRDTC Advanced Training Series'
+author: "Robin Lovelace, Michelle Morris and Mark Birkin"
+date: "May, 2015"
+output:
+  pdf_document:
+    fig_caption: yes
+    includes:
+      in_header: latex/cdrc-template.tex
+    number_sections: yes
+    toc: yes
+  word_document: default
+highlight: tango
+classoption: twoside
+bibliography: ~/Documents/Other.bib
+---
+
+```{r, include=FALSE, message=FALSE, results='hide'}
+# Note: requires all code to run (e.g. via Ctl-Alt-R) first time
+pkgs <- c("png", "grid", "knitr")
+# install.packages(pkgs) # uncomment this line to install packages
+lapply(pkgs, FUN = library, character.only = T)
+# opts_chunk$set(eval=FALSE) # to test doc options (no compile)
+```
+
+# Introduction
+
+This document provides a practical accompaniment to the first 
+White Rose Doctoral Training Centre
+(WRDTC) Advanced Training Course on Big Data. In it we briefly
+introduce R and its most user-friendly graphical user interface (GUI)
+RStudio and perform a few data analysis tasks. The aim is to provide you
+with the practical skills you need to undertake your own research on large
+and complex datasets. The tools we equip you with in this tutorial should also
+be useful in the real world.
+For the purposes of this tutorial,
+
+> Big Data is digital information that is unwieldy and difficult to process
+and analyse using convential tools.
+
+For more literal definitions of 'big data', such as
+datasets with more than 1 billion records, you may
+need to look elsewhere. The [RHadoop](https://github.com/RevolutionAnalytics/RHadoop) project, for example, allows R to
+interact with data-stores outside of memory. With
+**sparkr**, R can also interact with
+[https://spark.apache.org/](https://spark.apache.org/),
+the 'new kid on the block' for big data analysis.
+However, some experienced
+[R users](http://www.r-bloggers.com/how-about-a-snowdoop-package/) recommend keeping
+things simple by using R's **parallel**. These topics are beyond the scope of
+this document. 
+
+In any case, in order to run with large datasets,
+you still need to master walking. This tutorial teaches
+these foundations. The [**dplyr**](http://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) package,
+which this tutorial teaches, is ideal for datasets
+defined by the 3 characteristics listed above.
+
+The variety of new datasets becoming available
+is such data is such that no single tutorial can
+cover all feasible big datasets. Gaining a solid
+understanding of the underlying R *language*
+and clearly defining what you want to do is more
+important than knowing the 'right' function or
+package. In most cases there are many ways to solve
+a problem with R and the 'best' one depends on your
+needs, that could range from:
+
+- ease and speed of writing the code
+- speed of execution on the computer
+- durability of code: will it work in 20 years time?
+
+```{r drill, fig.cap= "A drill is analogous to a software tool: the question is 'can get the job done?', not 'is it the best?'", fig.height= 2, fig.width=2, echo=FALSE}
+grid.raster(readPNG("figures//746px-Pistol-grip_drill.svg.png"))
+```
+
+In this context it is useful to think of R as a tool
+for DIY: the question you ask when putting up a
+shelf should not be 'is this drill the BEST drill there
+is?' but 'is this drill a fast,
+robust and reliable way to get the job done?' (Fig. 1).
+
+Regardless of the 'big' dataset you hope to use,
+you can be confident of one thing:
+**it is unlikely to be ready to analyse.**
+This means that you must work to tidy the data,
+a task that typically takes around
+80% of the effort expended on data analysis projects
+[@tidy-data]. 
+
+To take one example, the image below was created in R
+using moderately complex code based on **ggmap**.
+It took some time to create the visualisation,
+yet 90% of the time I spent on the project was converting
+the data, a *messy* origin-destination matrix, into
+a *tidy* form.
+
+```{r melcy, echo=FALSE, fig.cap="A taster of the visualisations R can create."}
+grid.raster(readPNG("figures/mel-cycle-cent-close.png"))
+```
+
+During this course you will learn the nitty gritty of
+data tidying --- the bread and butter of big data analysis ---
+as well as some more glamorous activities such as visualising
+the results. You'll even learn how to reproduce the
+plot illustrated above.
+
+We will be using real datasets to demonstrate how R
+makes it easy to create reproducible code. With new
+and larger datasets come new dangers: as the datasets
+are big, they can more easily be re-sampled until the
+analyst gets a result they are happy with, potentially
+bringing "cherry-picking to an industrial level"
+[@taleb2012antifragile].
+
+R is becoming a global
+[*lingua franca*](http://en.wikipedia.org/wiki/Lingua_franca)
+for data analysis, processing, modelling and visualisation.
+Reasons for its growing popularity include:
+
+- R is powerful: if base R cannot solve a problem, chances are one of its 6,000+ add-on packages can.
+- R is flexible, with interfaces to major programming languages such as C/C++, [Python](http://cran.r-project.org/web/packages/rPython/index.html) and Java.
+- R is mature and widely used. R code written today will likely still work in 20 years time and that there are no major bugs.
+- R has a strong user community, meaning that there are many tutorials, help pages and support via email lists and sites such as [stackoverflow](http://stackoverflow.com/).
+
+# Getting started
+
+There are no **prerequisites** for completing this course,
+other than a computer and a desire to learn R.
+All the software, code and data to reproduce the
+results are free and should be easy to install and download.
+
+If you've not used R or similar programming languages
+before, it will take you longer. If you are a
+'newbie', please refer to more introductory texts,
+such as @Torfs2014 and @lovelace2014introduction.
+
+During this tutorial, it is recommended to
+save all your *working* R code in *commented*
+script files. To create a comment, using the hash (`#`)
+symbol, as illustrated below:
+
+```{r}
+# This is a comment
+print("Comment your code") # this is a comment
+```
+
+It will help your workflow to create sensibly named
+**script files**, like: `R4-big-data.R`.
+This is especially true for complex big data projects,
+where poorly structure folders can create havoc.
+For testing, you could create another script that is
+not yet production ready, like `tests.R`.
+
+The advantage of saving such scripts is that
+with them, you thoughts and analyses can be
+stored for eternity.
+R scripts are tiny, can be shared for free and be
+used by anyone worldwide yet they contain hugely
+valuable information about handling information that
+transcends mere anecdote. Quite literally, data
+can save the world. So let's get going and download some,
+while we set up our R session for this tutorial.
+
+## Setting up an R project
+
+It is strongly recommended that you use **RStudio**
+for this tutorial. If it is not already installed,
+install the *Desktop* version by following instructions here:
+http://www.rstudio.com/products/RStudio/ .
+
+RStudio has many advantages over the default R GUI.
+One of these is that it helps organise work into
+projects --- a self-contained folder with everything
+needed for a particular job.
+
+> **Challenge**: Set-up your own RStudio project using the panel in the top right of the RStudio environment. Search on-line for help if you get stuck. 
+
+Once you are 'in' the project, find your working directory by using
+the `getwd` function. Below is the result from my computer 
+(your result will vary depending on where you saved the data to):
+
+```{r}
+getwd()
+```
+
+We will save the data to the project 
+from within RStudio (R can also unzip files).
+Working in this way, with all data and code in a single
+project provides instant
+access to the example datasets we'll be using in this
+tutorial. Placing datasets carefully in project folders
+means that can easily be found using
+*relative pathnames*.
+
+## Installing packages
+
+Crucial to R's growth, power and versatility is the ease with which new
+components can be added. R's interface with the low-level C language
+allow some add-on packages to be faster than 'base R', making them
+ideal for handling large datasets. We install the packages used in this
+tutorial using the following code:
+
+```{r, results='hide', message=FALSE}
+pkgs <- c("dplyr", "readr", "tidyr", "rgdal", "ggmap", "downloader")
+# install.packages(pkgs) # uncomment this line to install packages
+lapply(pkgs, FUN = library, character.only = T)
+```
+
+## Getting the data
+
+The data that we will be using will not be particularly
+big, to avoid slowing down internet connections or
+crashing ageing computers. However, the datasets are
+not tiny either. The first dataset was
+harvested from Twitter servers using the **tweepy**
+Python library.
+
+To download this dataset, simply type this
+code into the R console:
+
+```{r, eval=FALSE}
+dir.create("big-data") # create data directory in your project
+# Enter install.packages(downloader) if the next line fails
+library(downloader)
+download("http://tinyurl.com/r-for-bd-1", "big-data/melb.csv")
+```
+
+This will save around 10 MB of plain text onto your computer.
+We have saved it as a file called called melb.csv
+in a new directory called  in a new folder called `big-data`.
+
+The dataset we'll use for the second example
+is only 3 MB but contains a huge amount of information about transport
+flows, in the city of Melbourne. It can be downloaded from
+http://tinyurl.com/r-for-bd-2 using the following code:
+
+```{r, eval=FALSE}
+download("http://tinyurl.com/r-for-bd-2", "big-data/victoria-jtw.csv")
+```
+
+The final dataset to download and save into the same
+folder is http://tinyurl.com/r-for-bd-4 . 
+
+```{r, eval=FALSE, echo=FALSE}
+download("http://tinyurl.com/r-for-bd-4", "big-data/vic.geojson")
+```
+
+
+> **Challenge**: Download the final dataset onto your computer, into the same directory as the other downloaded datasets. 
+
+# Exploring data
+
+Continuing with the principle of 'walk before you run',
+we will start two relatively conventional datasets,
+one from a survey of women and health in the UK, another
+from the World Bank. The principles used on small datasets
+apply equally (and become more important) in the larger, messier datasets
+presented in the next section.
+
+## Exploring the UK Women's Cohort Study
+
+Anonymised and 'scrambled' from the UK Woman's Cohort Study
+(see [ukwcs.leeds.ac.uk](http://www.ukwcs.leeds.ac.uk/))
+can be downloaded using the following code:
+
+```{r, eval=FALSE}
+download("http://tinyurl.com/r-for-bd-8", "big-data/UKWCS.xls")
+```
+
+We could use LibreOffice Calc or other spreadsheet programs to
+convert the .xls file to plain text. Instead, to 
+showcase R's flexibility, we use
+**readxl**, a recent package written largely in 'super-fast' C++ code
+[@Wickham2015]. 
+
+> **Challenge**: Install the package on your system so that the following command works. Bonus point: explain what '::' means in R.
+
+```{r}
+wcs <- readxl::read_excel("big-data/UKWCS.xls")
+```
+
+Before we get to grips with such 'Big Data',
+it is worth exploring more conventional datasets that 
+is provided in a form that is easy to analyse. To see how
+R works, let's first 'pull-out' a variable from the 46 variables
+from the overall dataset.
+
+```{r}
+edu <- wcs$highedu # extract variable on level of education
+edu[1:5] # display first 5 values of the variable
+edu_f <- as.factor(edu) # convert to type 'factor'
+summary(edu_f)
+```
+
+The above code is basic 'bread and butter' R, but there is a lot going
+on inside the commands. It is worth 'pulling apart' the syntax, to see 
+precisely what is going on. Note the following aspects of the code, that
+we will see repeated several times in the following sections.
+
+- `<-` is the 'assignment' operator in R, which creates new (or overwrites
+existing) objects the the R *environment*.
+- Note the `$` 'dollar' symbol which is used to select a specific variable
+from the overall object. (`$` can also be used to subset other data types.)
+- The use of square brackets (`[]`) to subset elements from within the object
+by specifying the elements to extract inside the 'box'.
+- The concise representation of `c(1, 2, 3, 4, 5)` with `1:5`.
+- The conversion to a different data class with `as.factor()`. This is necessary
+to enable R to sum each of the different values in the variable.
+
+Continuing with the theme of 'master walking befor you try to run', try
+plotting the dataset. `plot(edu_f)` is a good place to start!
+
+> **Challenge**: Experiment with different plotting commands in R. Try searching
+the internet and guess how the plots in Fig. 3 were created.
+
+```{r, echo=FALSE, fig.cap="Level of education of participants in the WCS"}
+ord <- c(2, 1, 4, 3, 5)
+# Re-code the variables of edu_f
+levels(edu_f) # observe current levels
+levels(edu_f) <- c("Alev", "Univ", "None", "Olev")
+levels(edu_f) <- levels(edu_f)[c(2, 1, 4, 3)] # re-ordering factors
+
+edu_fi <- summary(edu_f)
+Education <- factor(names(edu_fi), levels = names(edu_fi)[ord])
+
+p1 <- 
+  ggplot() + 
+  geom_bar(aes(edu_f)) + xlab("Level of education")
+
+bp <- 
+  ggplot() +
+  geom_bar(aes(x = "", y = edu_fi, fill = Education, order = ord),
+    width = 1, stat = "identity")
+
+pie <- bp + 
+  coord_polar("y", start = 0)
+
+blank_theme <- theme_minimal()+
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+
+pie2 <- pie + scale_fill_brewer(type = "qual") +  blank_theme +
+  theme(axis.text.x=element_blank()) 
+
+library(gridExtra)
+grid.arrange(p1, pie2, ncol = 2) 
+```
+
+A common requirement in data analysis, especially with Big Data sources,
+is to re-code categorical variable values. A simple way of doing this
+is by modifying the levels of factors, as illustrated below. (Other ways
+of doing this include using `switch()` and the 'regular expression' editing
+function `grep()`.)
+
+```{r}
+# Re-code the variables of edu_f
+levels(edu_f) # observe current levels
+levels(edu_f) <- c("Alev", "Univ", "None", "Olev")
+levels(edu_f) <- levels(edu_f)[c(2, 1, 4, 3)] # re-ordering factors
+```
+
+Now that all the values are consistent (consisting of 4 characters)
+try creating the same plots generated above but with the new data.
+
+## A simple model of smoking and health
+
+Imagine we are interested in the link between smoking,
+health and education.
+We can create a simple *contingency table* to illustrate the link
+between a dependent variable and a the smoking dependent variable
+using the function `table()`:
+
+```{r, eval=FALSE}
+table(edu_f, wcs$smoke)
+```
+
+```{r, echo=FALSE}
+kable(table(wcs$highedu, wcs$smoke))
+```
+
+Note that it's tricky to calculate the linkage
+in one's head. Try solving 
+this issue by re-runingn the command via `prop.table`.
+Note that the results of the table below do not coincide with the output of
+of the code (this is deliberate --- it should encourage you to check
+your work against prior expectations).
+
+> **Advanced Challenge**: try to
+reproduce the output presented in the table below using trial-and-error and
+using different search terms.
+
+```{r, eval=FALSE}
+x <- table(edu_f, wcs$smoke)
+prop.table(x)
+```
+
+```{r, echo=FALSE}
+x <- table(edu_f, wcs$smoke)
+xt <- rowSums(as.matrix(x))
+kable(x / xt * 100)
+```
+
+Note that the above command was identical as
+`prop.table(table(wcs$highedu, wcs$smoke))`.
+By using `prop.table()` we have added value to the raw data
+by highlighting the relationship between education level and smoking rate:
+almost 12% of people who have no educational awards smoke, whereas less than
+10% of people who have a university degree do. This is a small difference
+but can mean the difference between life and death as you age.
+
+Next we create a predictive model of waist size, with `pctefat` and `sweatim`
+as the explanatory variables. Which do you think is the best predictor?
+R is adept at helping to answer such questions.
+
+> **Chellenge**: try to find out what is going on in the regression model below
+and think about how you could use such techniques for you own data.
+
+```{r, fig.cap="Correlation plot illustrating links between fat consumption, sport (sweatim) and waist size."}
+fatmod <- lm(waistcm2 ~ pctefat, data = wcs)
+# summary(fatmod)
+# abline(fatmod, col = "red")
+cor(wcs$pctefat, wcs$waistcm2, use = "complete")
+fatmod2 <- lm(waistcm2 ~ pctefat + sweatim, data = wcs)
+summary(fatmod2)
+plot(wcs[c("pctefat", "waistcm2", "sweatim")])
+```
+
+As a final exercise for this section, we will predict, based on the far
+superior 'fatmod2', the waist size of two women. One is sporty
+(does sweat-inducing activity for 8 hours per day), the other is not (does 0
+hourse of sweat-inducing activity per day). Let's create a data frame to
+represent these people:
+
+```{r}
+w1 <- c(pctefat = 20, sweatim = 8)
+w2 <- c(pctefat = 25, sweatim = 0)
+ppl <- as.data.frame(rbind(w1, w2))
+predict(object = fatmod2, newdata = ppl)
+```
+
+Notice that woman 1 (`w1`) who does more sport, is predicted by our model
+to have a lower waist size than woman 2 who does no sport.
+
+## Exploring data from the world bank
+
+The data in this section comprises key
+information of levels of economic inequality worldwide.
+The simple analysis steps outlined below demonstrate how
+R can be used to interactively interrogate data,
+subset and sample and also create new variables.
+Finally in this section we will look at the **dplyr**
+approach to data analysis, which constitutes a new
+language --- a dialect of R --- in its own right.
+
+As before, the first stage is to load the data.
+The data is in the proprietary data format `.xlsx`
+which we could first convert to a `.csv` file and then
+load with `read.csv`. Download the
+data from here: http://tinyurl.com/r-for-bd-5 .
+Note that because this dataset is comparatively small, we
+save it in a separate directory called 'data'.
+(Likewise, very large datasets may be best saved on external hard-drives or
+databases.)
+
+```{r, eval=FALSE}
+dir.create("data")
+downloader::download("http://tinyurl.com/r-for-bd-5",
+  "data/world-bank-ineq.xlsx")
+```
+
+Again, use the **readxl** package to load the data:
+
+```{r, message=FALSE}
+# Create the data frame on inequality, idata
+idata <- readxl::read_excel("data/world-bank-ineq.xlsx")
+```
+
+To verify that `idata` is in fact a `data.frame`, and not
+some other *class* of data, type `class(idata)`.
+Typing `head(idata)` is another good way to view the data.
+Even easier, try exploring the data in RStudio's data viewer panel.
+
+> **Challenge**: Discover how the data viewer in RStudio works and how it differs from a conventional spreadsheet program.
+
+Some of most basic questions we can ask of a dataset are:
+
+1. What are its dimensions?
+2. What are the variable names?
+3. What does a snapshot of it look like?
+
+Of course, we could answer these questions by opening
+the dataset in Excel or, even more simply, by glancing
+at its attributes in the `Environment` pane in RStudio
+(Fig. 4). But that would be cheating!
+
+```{r idata, fig.cap="The 'idata' objected represented in the Enironment window in RStudio. Note the numbers 6922 and 9: the number of rows and columns. Try clicking where the cursor indicates.", fig.height= 2, echo=FALSE}
+grid.raster(readPNG("figures//environment.png"))
+```
+
+Try answering these questions now by asking R questions
+about the `idata` object. We'll start with the very basic
+commands regarding the dimensions of the object.
+
+```{r dims}
+nrow(idata) # how many rows?
+ncol(idata) # how many columns?
+```
+
+These commands may seem trivially simple, but they are
+useful and help get used to creating fast queries
+in R. Constantly asking questions to R about the data
+will ensure that you understand it. Note that there
+is *another* way to find out the object's dimensions,
+by using the `dim` command. Try this now. Note that
+the result provides the rows first and then the columns:
+R always refers to rows before columns.
+
+> **Challenge**: Enter R commands to answer questions 2 and 3 in the bullet points above. Note: there are multiple correct answers, including one that uses the `tail` function. You are welcome to search the Internet for clues!
+
+An issue that should be spotted early on is that `idata`
+has long, cumbersome names that will make the code verbose
+and hard to read. Therefore let's rename the variables:
+
+```{r}
+names(idata)[5:9] <- c("top10", "bot10", "gini", "b40_cons", "gdp_percap")
+```
+
+
+## Changing data classes
+
+As we will see with Twitter data in a subsequent section,
+the *class* of R objects is critical to how it performs.
+If a class is incorrectly specified (if numbers are treated
+as factors, for example), R will likely generate error messages.
+Try typing `mean(idata$gini)`, for example.
+
+We can re-assign the classes of the numeric variables
+one-by one:
+
+```{r, warning=FALSE}
+idata$gini <- as.numeric(as.character(idata$gini))
+mean(idata$gini, na.rm = TRUE) # now the mean is calculated
+```
+
+However, the purpose of programming languages is to *automate*
+arduous tasks and reduce typing. The following command
+re-classifies all of the numeric variables using
+the `apply` function (we'll seem more of `apply`'s relatives
+later):
+
+```{r, warning=FALSE}
+idata[5:9] <- apply(idata[5:9], 2,
+  function(x) as.numeric(as.character(x)))
+```
+
+The above code block may not make sense at the moment.
+For now it is best not to get caught up in the detail
+of what is happening and progress to the next section.
+Returning to the drill analogy depicted in Fig. 1,
+we do not need to know exactly how the internals of a
+drill works to use it (although it helps to understand
+the basics). Knowing that it *does* work is sometimes
+sufficient.
+
+> **Challenge**: explain what the `na.rm` argument specifies.
+
+## Interogating data
+
+> **Challenge**: Try extracting the mean, standard deviation and mode from each of the variables in `idata`. What is the correlation between countries' Gini index and the proportion of income earned by the wealthiest 10%?
+
+## Subsetting and sampling
+
+Clearly, the entire dataset is only of marginal utility.
+What we really should be looking at is a country-by-country
+analysis. To find out the average
+Gini index of a single country,
+for example, we need to *subset* the dataset.
+This can be done either by creating a new object:
+
+```{r}
+aus_idata <- idata[ idata$Country == "Australia", ]
+mean(aus_idata$gini, na.rm = TRUE)
+```
+
+or, for more concise but less explicit code,
+during the function:
+
+```{r}
+mean(idata$gini[idata$Country == "Australia"], na.rm = T)
+```
+
+a third way, which may be best when the same
+selection will be used multiple times,
+is to create a separate selection object:
+
+```{r}
+sel <- idata$Country == "Australia"
+mean(idata$top10[sel], na.rm = T)
+```
+
+To take a simple random sample of `idata` rows,
+we can use the `sample` function:
+
+```{r}
+i_sample <- idata[ sample(nrow(idata), size = 100), ]
+```
+
+The next logical question is: how to find the mean value
+of each country? The best way to do this is to use the
+`aggregate` function.
+
+> **Challenge**: use `aggregate` to query the average
+gini index of countries in the list (hint: start
+by asking R `?aggregate`. Which countries
+are most equal? Which are most unequal?
+
+```{r, echo=FALSE}
+# Note: Twitter example can go here (TODO: add Twitter data e.g.)
+```
+
+# Reformatting data: an example of origin-destination data
+
+Origin-destination 'flow' data (OD data for short) are a common way of
+representing transport behaviour. OD data is usually presented either as
+matrix (a 'flow matrix') or as a long, thin, table of 'OD pairs'. From
+a data analysis perspective the latter data format is more useful. 
+This example will demonstrate some advanced data manipulation tools in
+R that allow conversion between the two data types, using the recent
+R packages **tidyr** and **dplyr**.
+
+Before plotting any origins and destinations,
+we need a spatial frame of reference.
+This is the Australian state of Victoria:
+
+```{r vic, results='hide'}
+library(rgdal)
+vic <- readOGR("big-data/vic.geojson", layer = "OGRGeoJSON")
+# plot(vic) # plot the data
+```
+
+The flow data is stored in a large .csv file that we can load using
+the new and extremely fast **readr** package [@Wickham2015a]. Before
+loading the data using the code below, it's worth exploring the
+data in a spreadsheet program, that will be more familiar to many users
+and which allows exploration of the dataset's structure (Fig. 5).
+
+> **Challenge**: Take a look at the 'victoria-jtw.csv' data in 
+a spreadsheet program. Identify any issues with the data that may need to
+be resolved before it is plotted.
+
+```{r, echo=FALSE, fig.cap="The structure of the raw OD data: a mess!"}
+grid.raster(readPNG("figures/od-mess.png"))
+```
+
+
+```{r, results='hide'}
+f1 <- readr::read_csv("big-data/victoria-jtw.csv") 
+f1[1:4, 1:4] # view the dataset's messy structure (not shown)
+cnames <- names(f1)[-c(1:2)] # save the column names
+```
+
+From Fig. 5 and your own exploratios,
+it should be clear that the dataset is messy and in need of a
+'Spring clean'.
+It has unnusual dimensions, with only 437 rows but over 4000 columns!
+The challenge is to process this data into a 'tidy' form, so that it
+can be handled more easily and ultimately visualised.
+Intuitively, one would 
+start by removing the empty variable, and saving the correct
+column names with commands such as `f <- f[, -2]`
+to remove empty variable names and `names(f) <- as.character(f[1, ])` to
+save column names.
+
+However, this is an inefficient way to perform the cleaning operation.
+As a general principle, data (and especially large datasets) should be
+cleaned as close to the source as possible. We can solve the issue by 
+adding a single extra argument to `read_csv()`. This illustrates how knowing
+the details of R's functions (and reading the documentation - type
+`?read_csv` for more on this) can save a huge amount of time in the long run:
+
+```{r}
+f <- read_csv("big-data/victoria-jtw.csv", skip = 1) # read data in correctly
+f <- f[-2] # remove empty second row
+dim(f)
+```
+
+Still, `f` is a very clunky dataset, containing more than 4,000 columns
+yet only 436 rows of information. Many of the column names are repeated.
+This kind of data structure would be extremely difficult to process and
+convert into something useful using conventional spreadsheets such as
+Microsoft Excel and LibreOffice Calc. This kind of operation is where R excels.
+We will explore the contents of the data and extract only the information
+we're interested in. So far we've used `head()` to see the first few lines
+of code; now we'll use `tail()` to look at the last lines (result not shown):
+
+```{r, results='hide'}
+tail(f[1:3]) # note the last 3 zones are superfluous (not shown)
+f <- head(f, -3)
+```
+
+Note the use of `head` to remove the excess zones. Check this has worked using
+the tail command again. Next, remove all rows we're not interested in. Imagine
+we are especially interested in cycling for this scenario.
+
+```{r}
+# Select all columns containing relating to cycling
+names_cycle <- grep(pattern = "cycle", names(f)) 
+f <- f[c(1, names_cycle)] # retain only column names and cycling
+dim(f) 
+f <- f[1:(nrow(f) + 1)] # remove excess variables
+names(f) <- c("origin", as.character(f$`ORIGIN SA2`))
+```
+
+Notice that `f` is now a manageable size and is a standard OD matrix.
+This would be very tricky to achieve in many other programs.
+Even more impressive is R's ability to transform this into a long
+table of OD pairs, in a single function:
+
+```{r}
+fp <- gather(f, destination, flow, -origin)
+head(fp, 3)
+```
+
+The results show that from a massive, sprawling mess of a dataset we can
+produce order: R has converted the file into a neat dataset with 3
+clearly labelled columns: the origin, the destination, and the flow
+between them. Now it's time to plot this data, which
+requires joining it to the geographic dataset `vic`.
+
+```{r, message=FALSE, warning=FALSE}
+vic$SA2_NAME11[1:2] # take a look at the first few names
+vic_df <- data.frame(origin = as.character(vic$SA2_NAME11),
+  x = coordinates(vic)[,1], y = coordinates(vic)[,2])
+vic_df[1:2,]
+fp <- inner_join(fp, vic_df)
+vic_df2 <- rename(vic_df, destination = origin, xend = x, yend = y)
+fp <- inner_join(fp, vic_df2)
+fp <- fp[fp$flow > 20 & fp$origin != fp$destination,]
+fp[1:2,]
+```
+
+Now the data has been joined to geographic data, it is ready to plot:
+
+```{r, echo=FALSE, eval=FALSE}
+# saveRDS(p1, "data/p1.Rds")
+# p1 <- readRDS("data/p1.Rds")
+```
+
+
+```{r, message=FALSE, fig.cap="The spatial distribution of cycling flows in Melbourne."}
+b = c(0, 5, 10, 20, 50, 100, 400)
+
+ggplot() +
+  geom_segment(aes(x, y, xend = xend, yend = yend,
+    size = flow, color = flow), data = fp) +
+  geom_path(data = fortify(vic), aes(long, lat, group = group), fill = "grey") +
+  scale_size_continuous(range = c(0.02,3), guide = F) +
+  scale_color_gradientn(colours = rainbow(8), trans = 'log', breaks = b) +
+  theme_nothing(legend = T) +
+  coord_map(xlim = c(144.85, 145.05), ylim = c(-37.9, -37.75))
+```
+
+
+# References

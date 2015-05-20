@@ -202,9 +202,10 @@ ideal for handling large datasets. We install the packages used in this
 tutorial using the following code:
 
 ```{r, results='hide', message=FALSE}
-pkgs <- c("dplyr", "readr", "tidyr", "rgdal", "ggmap", "downloader")
+pkgs <- c("dplyr", "readr", "tidyr", "rgdal", "ggmap", "downloader", "readxl")
 # install.packages(pkgs) # uncomment this line to install packages
 lapply(pkgs, FUN = library, character.only = T)
+# if you have issues with dplyr, try install.packages("Rcpp", destdir = "~/")
 ```
 
 ## Getting the data
@@ -278,6 +279,8 @@ showcase R's flexibility, we use
 
 ```{r}
 wcs <- readxl::read_excel("big-data/UKWCS.xls")
+# If this fails, save the data from within Excel as a .csv file and use:
+# wcs <- read.csv("big-data/UKWCS.xls")
 ```
 
 Before we get to grips with such 'Big Data',
@@ -480,6 +483,8 @@ Again, use the **readxl** package to load the data:
 ```{r, message=FALSE}
 # Create the data frame on inequality, idata
 idata <- readxl::read_excel("data/world-bank-ineq.xlsx")
+# If this fails, save the data from within Excel as a .csv file
+# idata <- read.csv("data/world-bank-ineq.xlsx")
 ```
 
 To verify that `idata` is in fact a `data.frame`, and not

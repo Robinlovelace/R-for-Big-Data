@@ -40,9 +40,23 @@ example illustrates the process of benchmarking.
 # TODO: Example of benchmarking here
 ```
 
+# Loading Big Data 
 
+```{r}
+# (e.g. via dplyr and RODBC - maybe something like the new and superfast MonetDB)
+```
 
-# Manipulating large datasets 
+## Text files
+
+## Files from proprietary formats
+
+## Data from an SQL database
+
+## MonetDB
+
+## Comparing load times using different approaches
+
+# Manipulating large datasets with R
 
 Rarely are datasets provided in a form that is analysis-ready.
 Usually, datasets must be manipulated, 'wrangled' or
@@ -59,16 +73,7 @@ analysis that you want to do.
 # TODO: more methods for data manipulation
 ```
 
-# Connecting R to databases
-
-
-```{r}
-# (e.g. via dplyr and RODBC - maybe something like the new and superfast MonetDB)
-```
-
-## MonetDB
-
-# Analysing large datasets with R
+# Analysing Big Data with R
 
 # Making sense of Big Data via visualisation
 
@@ -78,5 +83,5 @@ analysis that you want to do.
 
 # Using C++ for 'heavy lifting' 
 
-
+# Running R 'in the cloud'
 

@@ -293,7 +293,7 @@ from the overall dataset.
 edu <- wcs$highedu # extract variable on level of education
 edu[1:5] # display first 5 values of the variable
 edu_f <- as.factor(edu) # convert to type 'factor'
-summary(edu_f)
+summary(edu_f) # note the order these are prined
 ```
 
 The above code is basic 'bread and butter' R, but there is a lot going
@@ -315,26 +315,41 @@ Continuing with the theme of 'master walking befor you try to run', try
 plotting the dataset. `plot(edu_f)` is a good place to start!
 
 > **Challenge**: Experiment with different plotting commands in R. Try searching
-the internet and guess how the plots in Fig. 3 were created.
+the internet and guess how the plots in Fig. 3 were created. (Recoding the data,
+as illustrated in the next section, will help.)
 
-```{r, echo=FALSE, fig.cap="Level of education of participants in the WCS"}
-ord <- c(2, 1, 4, 3, 5)
+A common requirement in data analysis, especially with Big Data sources,
+is to re-code categorical variable values. A simple way of doing this
+is by modifying the levels of factors, as illustrated below. (Other ways
+of doing this include using `switch()` and the 'regular expression' editing
+function `grep()`.)
+
+```{r}
 # Re-code the variables of edu_f
 levels(edu_f) # observe current levels
 levels(edu_f) <- c("Alev", "Univ", "None", "Olev")
-levels(edu_f) <- levels(edu_f)[c(2, 1, 4, 3)] # re-ordering factors
+ 
+edu_f <- factor(edu_f, levels(edu_f)[c(2, 1, 4, 3)]) # change levels order
+summary(edu_f)
+```
+
+```{r, echo=FALSE, fig.cap="Different ways of plotting level of education of participants in the WCS"}
+ord <- c(2, 1, 4, 3, 5)
 
 edu_fi <- summary(edu_f)
+
 Education <- factor(names(edu_fi), levels = names(edu_fi)[ord])
 
 p1 <- 
   ggplot() + 
   geom_bar(aes(edu_f)) + xlab("Level of education")
 
+n <- is.na(edu_f) # edu_f values that are not
+
 bp <- 
   ggplot() +
-  geom_bar(aes(x = "", y = edu_fi, fill = Education, order = ord),
-    width = 1, stat = "identity")
+  geom_bar(aes(x = "", fill = edu_f), stat = "bin",
+    width = 1)
 
 pie <- bp + 
   coord_polar("y", start = 0)
@@ -354,19 +369,6 @@ pie2 <- pie + scale_fill_brewer(type = "qual") +  blank_theme +
 
 library(gridExtra)
 grid.arrange(p1, pie2, ncol = 2) 
-```
-
-A common requirement in data analysis, especially with Big Data sources,
-is to re-code categorical variable values. A simple way of doing this
-is by modifying the levels of factors, as illustrated below. (Other ways
-of doing this include using `switch()` and the 'regular expression' editing
-function `grep()`.)
-
-```{r}
-# Re-code the variables of edu_f
-levels(edu_f) # observe current levels
-levels(edu_f) <- c("Alev", "Univ", "None", "Olev")
-levels(edu_f) <- levels(edu_f)[c(2, 1, 4, 3)] # re-ordering factors
 ```
 
 Now that all the values are consistent (consisting of 4 characters)
@@ -407,7 +409,7 @@ prop.table(x)
 ```{r, echo=FALSE}
 x <- table(edu_f, wcs$smoke)
 xt <- rowSums(as.matrix(x))
-kable(x / xt * 100)
+kable(round(x / xt * 100, 2))
 ```
 
 Note that the above command was identical as

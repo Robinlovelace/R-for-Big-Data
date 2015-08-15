@@ -7,7 +7,7 @@ library("pryr")
 
 # Big Data and R
 
-R has had a difficult relationship with big data. One of R's key features is that it loads data into the computer's RAM. This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
+R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's RAM (although packages for working with databases such as dplyr can work with data stored remotely). This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
 Today, the size of data sets have exploded and it's not difficult to find data sets that are larger than your laptop's memory.
 
 > **Challenge**: How much RAM do you have? Hint: Google if necessary.
@@ -45,6 +45,75 @@ Since R keeps all objects in memory, the easiest way to deal with memory issues.
 ## Sampling
 
 Do you **really** need to load all of data at once? For example, if your data contains information regarding sales, does it make sense to aggregate across countries, or should the data be split up? Assuming that you need to analyse all of your data, then random sampling could provide an easy way to perform your analysis. In fact, it is almost always sensible to sample your data set at the beginning of an analysis until your analysis pipeline is in reasonable shape.
+
+## Preprocessing data outside R
+
+If your dataset is too large to read into RAM, it may be wise to
+*preprocess* or *filter* using tools external to R before
+reading it in. For databases we can filter when asking for the data
+(described in a subsequent section).
+For data stored in large text files we can use
+'streaming' utilities before reading it into R. With tools such as
+[*sed*](https://www.gnu.org/software/sed/manual/sed.html)
+(a 'stream editor' included on most Unix-based systems) a 10 Gb .csv can be
+broken up into smaller chunks before being loaded into R.
+Here's an
+example which we recommend you don't
+run:^[This
+will not work on most Windows machines. However, the
+but the `system` parts can be run on the free Windows program
+[Cygwin](https://www.cygwin.com/), which provides Unix tools ot Windows users.
+]
+
+```{r, eval=FALSE}
+# install.packages("downloader") # this package eases data downloads
+
+dir.create("npidata") # create folder where we'll store some data
+
+# save the URL text file
+url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
+
+# download a large dataset - WARNING: can take many minutes
+# downloader::download(url, destfile = "npidata/largefile.zip")
+
+## 550550K .......... .......... .......... 99% 1.09M 0s
+## 550600K .......... ........             100% 1.26M=6m53s
+
+# unzip the compressed file
+system.time( # system.time measures the time of execution
+  unzip("npidata/largefile.zip")
+  )
+
+##    user  system elapsed 
+##  34.380  22.428 193.145
+
+file.info("npidata/npidata_20050523-20150809.csv") # information on the file
+
+##       size isdir mode               mtime
+## 5647444347 FALSE  664 2015-08-15 12:25:53
+```
+
+The above code downloads, unzips and presents information on the main .csv file.
+Note that it's 5.6 GB in size! Thus the following code will not work on
+many laptops.
+
+```{r}
+system.time(
+  df <- read.csv("npidata/npidata_20050523-20150809.csv")
+  )
+
+## Error: cannot allocate vector of size 32.0 Mb
+```
+
+```{r, echo=FALSE}
+# Here I'll show how to split the file and read it quicker (RL)
+```
+
+We will later explain methods within R for better handling such large datasets
+such as using faster read-in functions such as `read_csv()` from the
+readr package. For now, just remember that reading large datasets into
+R can be tricky and timeconsuming. Preprocessing outside R can help.
+R's interfaces to fast languages can alo help.
 
 ## Integration with C++ or Java
 

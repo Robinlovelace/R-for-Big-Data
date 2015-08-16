@@ -1,0 +1,48 @@
+---
+output: pdf_document
+---
+
+```{r, echo=FALSE}
+library(knitr)
+knitr::opts_knit$set(root.dir = "../")
+```
+
+
+# Pre-processing data outside R
+
+R is good for many things but not everything.
+As mentioned in the introduction, there are various ways to
+preprocess large files outside R to make them easier to handle.
+Here we will explore some of the options.
+
+## Split the file with Unix tools
+
+The unix utility **split** can be used to split large files up
+by size or number of lines. The following bash commands will split the
+5.6 GB file into chunks of 100 MB each:
+
+```
+cd npidata
+split -b100m npidata_20050523-20150809.csv
+```
+
+Assuming there is sufficent
+disk space, there output of the above operation should be several 100 Mb text
+files which are more manageable. These are named `aa`, `ab` etc.
+A sample from the results of this operation can be found in the
+`sample-data` folder after the following commands.
+
+```
+split -l 10 aa mini # further split chunk 'aa' into 10 lines
+cp miniaa ../sample-data # copy the first into 'sample-data'
+```
+
+Now the file is much smaller and easy to read: finally we can
+read (part of) a 5.6 GB text file into R!
+
+```{r}
+npi <- read.csv("sample-data/miniaa")
+dim(npi)
+head(npi[c(1, 37)], 3)
+```
+

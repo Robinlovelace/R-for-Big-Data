@@ -47,3 +47,22 @@ dim(npi)
 head(npi[c(1, 37)], 3)
 ```
 
+## Filtering with csvkit
+
+[csvkit](https://csvkit.readthedocs.org/en/latest/) is a command-line program
+for handling large .csv files, without having to read them all into RAM...
+
+Using the npi data, the following
+[example](https://opendata.stackexchange.com/questions/1256/how-can-i-work-with-a-4gb-csv-file)
+ilustrates how csvkit can be used to extract useful information from
+bulky .csv files before loading the results into R.
+
+```{r}
+# ...
+```
+
+## Preprocessing with the LaF package
+
+
+
+

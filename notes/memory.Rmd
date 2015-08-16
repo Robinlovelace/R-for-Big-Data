@@ -85,7 +85,7 @@ l1[[1]][1] = 1
 object_size(l1)
 ```
 
-### Integers, doubles and other data types
+## Integers, doubles and other data types
 
 When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in [double-precision floating-point format](https://en.wikipedia.org/wiki/Double-precision_floating-point_format). But R does have other ways of storing numbers.
   
@@ -119,7 +119,7 @@ When we call the function `g()` we create a large variable `z`. However, since `
 
 We can force a call to the garbage collector, via `gc()`. However, this is never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
 
-### Monitoring memory change
+## Monitoring memory change
 
 There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The [lineprof](https://github.com/hadley/lineprof) package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
 

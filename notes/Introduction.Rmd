@@ -23,7 +23,7 @@ fit = hclust(d)
 ```
 
 to get a denogram
-```{r fig.width=6, echo=2}
+```{r fig.fullwidth=TRUE, fig.height=2, echo=2}
 par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,cex=0.5, las=1)
 plot(fit, labels=rownames(d))
 ```
@@ -55,58 +55,44 @@ reading it in. For databases we can filter when asking for the data
 For data stored in large text files we can use
 'streaming' utilities before reading it into R. With tools such as
 [*sed*](https://www.gnu.org/software/sed/manual/sed.html)
-(a 'stream editor' included on most Unix-based systems) a 10 Gb .csv can be
+(a 'stream editor' included on most Unix-based systems),
+[split](https://en.wikipedia.org/wiki/Split_%28Unix%29) and
+[csvkit](https://csvkit.readthedocs.org/en/latest/) a 10 Gb .csv can be
 broken up into smaller chunks before being loaded into R.
-Here's an
-example which we recommend you don't
-run:^[This
-will not work on most Windows machines. However, the
-but the `system` parts can be run on the free Windows program
-[Cygwin](https://www.cygwin.com/), which provides Unix tools ot Windows users.
-]
+Here's an 
+example of trying (and failing!) to load a large dataset into R.
+We recommend you don't
+run this code:
 
 ```{r, eval=FALSE}
-# install.packages("downloader") # this package eases data downloads
-
-dir.create("npidata") # create folder where we'll store some data
-
-# save the URL text file
+dir.create("npidata") # create folder for data
 url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
 
-# download a large dataset - WARNING: can take many minutes
-# downloader::download(url, destfile = "npidata/largefile.zip")
+# download a large dataset - don't run
+library(downloader) # needs to be installed
+download(url, destfile = "npidata/largefile.zip")
+## 550600K .......... ...... 100% 1.26M=6m53s
 
-## 550550K .......... .......... .......... 99% 1.09M 0s
-## 550600K .......... ........             100% 1.26M=6m53s
-
-# unzip the compressed file
-system.time( # system.time measures the time of execution
+# unzip the compressed file, measure time
+system.time( 
   unzip("npidata/largefile.zip")
   )
-
 ##    user  system elapsed 
 ##  34.380  22.428 193.145
 
-file.info("npidata/npidata_20050523-20150809.csv") # information on the file
-
-##       size isdir mode               mtime
-## 5647444347 FALSE  664 2015-08-15 12:25:53
+file.info("npidata/npidata_20050523-20150809.csv")
+##       size: 5647444347
 ```
 
-The above code downloads, unzips and presents information on the main .csv file.
-Note that it's 5.6 GB in size! Thus the following code will not work on
+The above code uses R to download,
+unzip and present information a giant .csv file.
+Note that it's 5.6 GB in size and took over 3 minutes to unzip!
+The following code requires a 64 bit R installation and will not work on
 many laptops.
 
-```{r}
-system.time(
-  df <- read.csv("npidata/npidata_20050523-20150809.csv")
-  )
-
-## Error: cannot allocate vector of size 32.0 Mb
-```
-
-```{r, echo=FALSE}
-# Here I'll show how to split the file and read it quicker (RL)
+```{r, eval=FALSE}
+df <- read.csv("npidata/npidata_20050523-20150809.csv")
+## Error: cannot allocate vector of 32.0 Mb
 ```
 
 We will later explain methods within R for better handling such large datasets

@@ -4,6 +4,7 @@ output: pdf_document
 ```{r echo=FALSE}
 library("pryr")
 ```
+\newpage
 
 # Big Data and R
 
@@ -17,13 +18,13 @@ Even if the original data set is relatively small data set, the analysis can gen
 d = dist(USArrests, method = "euclidean")
 ```
 
-and perform hierarchical clustering to get a denogram
+and perform hierarchical clustering to get a dendrogram
 ```{r}
 fit = hclust(d)
 ```
 
-to get a denogram
-```{r fig.fullwidth=TRUE, fig.height=2, echo=2}
+to get a dendrogram
+```{r fig.fullwidth=TRUE, fig.height=2, echo=2, fig.cap="Dendrogram from USArrests data."}
 par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,cex=0.5, las=1)
 plot(fit, labels=rownames(d))
 ```

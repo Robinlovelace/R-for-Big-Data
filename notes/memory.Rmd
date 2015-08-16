@@ -4,6 +4,8 @@ output: pdf_document
 ```{r echo=FALSE}
 library(pryr)
 ```
+\newpage
+
 # Memory matters
 
 When dealing with big data, it is helpful to have a rough idea about memory and object size. In particular, it is very easy to create multiple copies of objects without meaning to.

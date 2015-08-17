@@ -1,0 +1,133 @@
+---
+output: pdf_document
+---
+# Going to the next level with Rcpp
+
+Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to turn to rewriting key parts of your code in C/C++. It is possible to write C and Fortran code without the need of any external packages, but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time, keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+
+C++ is a separate programming language and so it would not be possible to cover every aspect in this course. Instead, the goal is give a flavour of what's possible.
+
+## Prerequistes
+
+The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install Rcpp in the usual way
+
+```{r eval=FALSE}
+install.packages("Rcpp")
+```
+You also need a working C++ compiler. 
+ * Linux: should already be installed. Otherwise install `r-base`
+ * Macs: install `Xcode`
+ * Windows, install [Rtools](http://cran.r-project.org/bin/windows/)
+ 
+ To check that you have everything, try running the following piece of code from the course R package
+ 
+ ```{r}
+ ## TODO: write course package
+ ```
+ 
+## First steps
+ 
+The beauty of Rcpp is that it is very easy to create C functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+```{r} 
+add_r = function(x, y) x + y
+```
+ 
+With Rcpp, we need a bit more. First we load the package
+ 
+```{r message=FALSE}
+library("Rcpp") 
+```
+ 
+Next we create function called `add_c`
+
+```{r}
+cppFunction('double add_c(double x, double y){
+  double value = x+y;
+  return value;
+}')
+```
+
+When you run this code, Rcpp will magically compile the C++ code and construct a function that bridges the gap between R and C++.
+```{r}
+add_c
+add_c(1, 2)
+```
+There are a few key differences between the R and C++ versions of `add`:
+
+1. In the C++ function, each line is ended with `;`.
+2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`.
+3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first version.
+4. You don't use assignment to create a function.
+
+While the `cppFunction` is great for getting small examples up and running, it is much better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. Once, at the top of the file, we need 
+
+```{Rcpp eval=FALSE}
+#include <Rcpp.h>
+using namespace Rcpp;
+```
+
+then for each function, we we need to add
+
+```{Rcpp eval=FALSE}
+// [[Rcpp::export]]
+```
+
+This would give the total file
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+double add_c(double x, double y){
+  double value = x+y;
+  return value;
+}
+```
+
+There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting. Second, it's easier to make syntax errors when the switching between R and C++ in the same file. For the remainder of this chapter to save space, we we'll omit the headers.
+
+## Vectors and loops
+
+
+Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an example, R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
+
+```{r}
+mean_r = function(x) {
+  n = length(x)
+  m = 0
+  for(i in 1:n){
+    m = m + x[i]/n
+  }
+  m
+}
+```
+
+This is obviously a very bad R function, and we should just use the base function `mean`. However, the purpose of `mean_r` is to provide a comparison for the C++ version.
+
+For the C++ version, we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp.
+
+```{Rcpp eval=FALSE}
+double my_mean(NumericVector x){
+  int i, n=x.size();
+  double mean = 0;
+  for(i=0; i<n; i++ ){
+    mean = mean + x[i]/n;
+  }
+  return mean;
+}
+``` 
+
+
+
+
+```{Rcpp eval=FALSE}
+mean += x[i]/n;
+```
+ 
+ 
+ 
+ 
+ 
+ 
+ 

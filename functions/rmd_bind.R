@@ -3,10 +3,11 @@ rmd_bind <- function(dir = ".",
   book_header = readLines(textConnection("---\ntitle: 'Title'\n---")),
   chap_ord = NULL){
   old <- setwd(dir)
+  on.exit(setwd(old))
   if(length(grep("book.Rmd$", list.files())) > 0){
     warning("book.Rmd already exists")
   }
-  cfiles <- list.files(pattern = "*.Rmd", )
+  cfiles <- list.files(pattern = "*.Rmd")
   cfiles <- cfiles[-grep("book", cfiles)]
   if(!is.null(chap_ord)) cfiles <- cfiles[chap_ord] # chapter order
   write(book_header, file = "book.Rmd")
@@ -18,5 +19,5 @@ rmd_bind <- function(dir = ".",
     write(text, sep = "\n", file = "book.Rmd", append = T)
   }
   #     render("book.Rmd", output_format = "pdf_document")
-  setwd(old)
+
 }

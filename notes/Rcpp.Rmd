@@ -96,38 +96,88 @@ Let's consider a slightly more complicated example. Here we want to write our ow
 mean_r = function(x) {
   n = length(x)
   m = 0
-  for(i in 1:n){
+  for(i in 1:n) 
     m = m + x[i]/n
-  }
   m
 }
 ```
 
 This is obviously a very bad R function, and we should just use the base function `mean`. However, the purpose of `mean_r` is to provide a comparison for the C++ version.
 
-For the C++ version, we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp.
+For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. The C++ version the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
 
 ```{Rcpp eval=FALSE}
-double my_mean(NumericVector x){
-  int i, n=x.size();
+double mean_c(NumericVector x){
+  int i;
+  int n = x.size();
   double mean = 0;
-  for(i=0; i<n; i++ ){
+  
+  for(i=0; i<n; i++){
     mean = mean + x[i]/n;
   }
   return mean;
 }
 ``` 
-
-
-
-
-```{Rcpp eval=FALSE}
-mean += x[i]/n;
+To use the C++ function, we need to source the file (remember to put the necessary headers in)
+```{r}
+sourceCpp("src/mean_c.cpp")
 ```
- 
- 
- 
- 
- 
- 
- 
+
+Although the C++ version is similar, there are a few crucial differences.
+
+1. We the `.size()` method to find the length of `x`
+1. The `for` loop has a slightly different synext.
+    ```{Rcpp eval=FALSE}
+    for (variable initialization; condition; variable update ) {
+       // Code to execute
+    }
+    ```
+1. C++ provides operators to modify variables in place. So `i++` increases the value of `i` by `1`. Similarly, we could rewrite part of the loop as
+    ```{Rcpp eval=FALSE}
+    mean += x[i]/n;
+    ```
+   The above code adds `x[i]/n` to the value of `mean`. Other similar operators are `-=`, `*=`, `/=` and `i--`.
+1. A C++ vector starts at `0` **not** `1`
+
+We can use the `microbenchmark` package to compare the C++ and R versions
+
+```{r}
+library("microbenchmark")
+```
+
+This package is useful for comparing functions that run quickly. It serves as a more accurate replacement to `system.time(replicate(1000, expr))`. We will include the base R `mean` function in the comparison. We generate some normal random numbers for the comparison
+
+```{r}
+x = rnorm(1e4)
+```
+
+Then call the `microbenchmark` function.
+```{r cache=TRUE}
+z = microbenchmark(
+  mean(x),
+  mean_r(x),
+  mean_c(x)
+)
+```
+The results are easily compared using the `boxplot` method
+
+```{r fig.width=5, fig.height=3, echo=2, fig.cap="Comparing C++ with R.", echo=2, cache=TRUE}
+par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01, cex.axis=0.9, las=1)
+boxplot(z)
+grid()
+```
+
+## Matrices
+
+Each vector type has a corresponding matrix equivilent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use this types in a similar way we used `NumericVector`'s. The main differences are:
+
+ * When we initialise, we need specify the number of rows and columns
+    ```{Rcpp, eval=FALSE}
+    // 10 rows, 5 columns
+    NumericMatrix mat(10, 5)
+    ```
+ * We subset using `()`, i.e. `mat(5, 4)`
+ * The first view in a matrix is `mat(0, 0)` - remember indexes start with `0`
+ * To determine the number of rows and columns, we use the `.nrow()` and `.ncol()` methods.
+
+

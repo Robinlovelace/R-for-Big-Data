@@ -57,3 +57,55 @@ Note that in the result from the above operation text strings such as
 `"speed"` are enclosed in quote markes wheras raw numbers are not.
 
 > **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
+
+## Freeing your data from spreadsheets
+
+Spreadsheets are ubiquitous in offices around the world, and are used for
+storing millions of (mostly quite small) datasets. Nevertheless
+Microsoft Excel, the most commonly used spreadsheet program can store
+datasets with a maximum size of 1,048,576 rows by 16,384 columns,
+which is not small data.
+
+The example spreadsheet we'll use can be downloaded with the following
+code:
+
+```{r, eval=FALSE}
+downloader::download("http://www.ifs.org.uk/bns/bn19figs.xlsx",
+  destfile = "data/ineq-ifs.xlsx")
+```
+
+There many packages designed for reading spreadsheet files into R, most
+of which are of variable reliability. The best of these is
+**readxl**, which was found to be more than 100 times faster
+than alternatives from **gdata** and **openxlsx** packages.
+
+```{r}
+f <- "data/ineq-ifs.xlsx"
+system.time(df <- readxl::read_excel(f, sheet = 15))
+```
+
+> **Optional challenge:** To brush-up on your benchmarking skills, run tests
+to load the same data into R using alternative packages. Which comes closest
+to `read_excel()`? Are the results identical?
+
+```{r, echo=FALSE, eval=FALSE}
+xls_pkgs <- c("gdata", "openxlsx")
+# This took less than 0.1 seconds
+system.time(df <- readxl::read_excel(f, sheet = 15))
+# This took over 4 minutes on my machine!
+system.time(df1 <- gdata::read.xls(f, sheet = 15))
+# This took 30 seconds
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+# After saving the spreadsheet to .odt
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+head(df[1:5])
+head(df1[1:5])
+head(df2[1:5])
+identical(df, df1)
+identical(df, df2)
+```
+
+
+

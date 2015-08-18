@@ -1,0 +1,13 @@
+---
+output: pdf_document
+---
+
+```{r, echo=FALSE}
+library(knitr)
+knitr::opts_knit$set(root.dir = "../")
+```
+
+\newpage
+
+# Loading static files into R
+

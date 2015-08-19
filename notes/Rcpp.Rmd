@@ -3,31 +3,35 @@ output: pdf_document
 ---
 # Going to the next level with Rcpp
 
-Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to turn to rewriting key parts of your code in C/C++. It is possible to write C and Fortran code without the need of any external packages, but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time, keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
 
 C++ is a separate programming language and so it would not be possible to cover every aspect in this course. Instead, the goal is give a flavour of what's possible.
 
 ## Prerequistes
 
-The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install Rcpp in the usual way
+The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install [Rcpp from CRAN](https://cran.r-project.org/web/packages/Rcpp/index.html) in the usual way
 
 ```{r eval=FALSE}
 install.packages("Rcpp")
 ```
-You also need a working C++ compiler. 
- * Linux: should already be installed. Otherwise install `r-base`
- * Macs: install `Xcode`
- * Windows, install [Rtools](http://cran.r-project.org/bin/windows/)
+
+The associated [CRAN]((https://cran.r-project.org/web/packages/Rcpp/) page has numerous vignettes that are worth looking at.
+
+To use the package, you also need a working C++ compiler. 
+
+ * Linux: A compiler should already be installed. Otherwise install `r-base` it a compiler will be installed as a dependency.
+ * Macs: Install `Xcode`.
+ * Windows: Install [Rtools](http://cran.r-project.org/bin/windows/). Make sure you select the version that corresponds to your version of R.
  
- To check that you have everything, try running the following piece of code from the course R package
+To check that you have everything, try running the following piece of code from the course R package
  
- ```{r}
- ## TODO: write course package
- ```
+```{r}
+## TODO: write course package
+```
  
 ## First steps
  
-The beauty of Rcpp is that it is very easy to create C functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
 ```{r} 
 add_r = function(x, y) x + y
 ```
@@ -42,7 +46,7 @@ Next we create function called `add_c`
 
 ```{r}
 cppFunction('double add_c(double x, double y){
-  double value = x+y;
+  double value = x + y;
   return value;
 }')
 ```
@@ -52,21 +56,21 @@ When you run this code, Rcpp will magically compile the C++ code and construct a
 add_c
 add_c(1, 2)
 ```
-There are a few key differences between the R and C++ versions of `add`:
+There are a few key differences between the R and C++ versions of `add`.
 
-1. In the C++ function, each line is ended with `;`.
-2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`.
-3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first version.
+1. In the C++ function, each line is terminated with `;`.
+2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
+3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement.
 4. You don't use assignment to create a function.
 
-While the `cppFunction` is great for getting small examples up and running, it is much better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. Once, at the top of the file, we need 
+While the `cppFunction` is great for getting small examples up and running, it is much better in practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file we need 
 
 ```{Rcpp eval=FALSE}
 #include <Rcpp.h>
 using namespace Rcpp;
 ```
 
-then for each function, we we need to add
+then for each function we want to export (use in R), we need to add
 
 ```{Rcpp eval=FALSE}
 // [[Rcpp::export]]
@@ -80,12 +84,12 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 double add_c(double x, double y){
-  double value = x+y;
+  double value = x + y;
   return value;
 }
 ```
 
-There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting. Second, it's easier to make syntax errors when the switching between R and C++ in the same file. For the remainder of this chapter to save space, we we'll omit the headers.
+There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting. Second, it's easy to make syntax errors when the switching between R and C++ in the same file. For the remainder of this chapter, to save space we we'll omit the headers.
 
 ## Vectors and loops
 
@@ -104,7 +108,7 @@ mean_r = function(x) {
 
 This is obviously a very bad R function, and we should just use the base function `mean`. However, the purpose of `mean_r` is to provide a comparison for the C++ version.
 
-For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. The C++ version the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
+For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`. The C++ version of the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
 
 ```{Rcpp eval=FALSE}
 double mean_c(NumericVector x){
@@ -125,8 +129,8 @@ sourceCpp("src/mean_c.cpp")
 
 Although the C++ version is similar, there are a few crucial differences.
 
-1. We the `.size()` method to find the length of `x`
-1. The `for` loop has a slightly different synext.
+1. We use the `.size()` method to find the length of `x`
+1. The `for` loop has a slightly more complicated syntax.
     ```{Rcpp eval=FALSE}
     for (variable initialization; condition; variable update ) {
        // Code to execute
@@ -167,17 +171,110 @@ boxplot(z)
 grid()
 ```
 
+In this simple example, the C++ varient is around $100$ times faster than the corresponding R version.
+
 ## Matrices
 
-Each vector type has a corresponding matrix equivilent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use this types in a similar way we used `NumericVector`'s. The main differences are:
+Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use these types in a similar way to how we used `NumericVector`'s. The main differences are:
 
  * When we initialise, we need specify the number of rows and columns
     ```{Rcpp, eval=FALSE}
     // 10 rows, 5 columns
-    NumericMatrix mat(10, 5)
+    NumericMatrix mat(10, 5);
+    // Length 10
+    NumericVector v(10);
     ```
- * We subset using `()`, i.e. `mat(5, 4)`
- * The first view in a matrix is `mat(0, 0)` - remember indexes start with `0`
+
+ * We subset using `()`, i.e. `mat(5, 4)`.
+ * The first view in a matrix is `mat(0, 0)` - remember indexes start with `0`.
  * To determine the number of rows and columns, we use the `.nrow()` and `.ncol()` methods.
+
+## Comments
+
+In C++, we can comment our code in two ways. If we want a one line comment, we use the `//` notation:
+
+```{Rcpp}
+// A one line comment
+```
+
+If we want a multi-line comment, then we use
+```{Rcpp}
+/*
+ A multi-line
+ comment
+*/ 
+```
+In the previous section we decorated the C++ functions with `// [[Rcpp::export]]` (note the space between `//` and `[[`). This uses the same idea as the `roxygen2` package and the `@export` control. The comment indicates that the function should be exported to C++. 
+
+One further trick that Rcpp provides is that we can embed R code in the Cpp file
+```{Rcpp}
+/*** R
+1 + 1
+*/
+```
+
+This can be particularly helpful when testing code.
+
+## C++ with sugar on top
+
+Rcpp sugar brings a higher-level of abstraction to C++ code written using the Rcpp API. What this means in practice is that we can write C++ code in the style of R. 
+
+Let's suppose we want to create a C++ function that finds the squared difference between two R vectors; the squared residual in a regression analysis. Making sure we have the correct headers, we would try something like
+
+```{Rcpp eval=FALSE}
+NumericVector res_c(NumericVector x, NumericVector y){
+  int i;
+  int n = x.size();
+  NumericVector residuals(n);
+  for(i=0; i<n; i++){
+    residuals[i] = pow(x[i] - y[i], 2);
+  }
+  return residuals;
+}
+```
+
+With `Rcpp` sugar, we can rewrite this code to be more succinct and have more of an R feel, 
+
+```{Rcpp eval=FALSE}
+NumericVector res_sugar(NumericVector x, NumericVector y){
+  return pow(x-y, 2);
+}
+```
+
+The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However, with the sugared variety, the code is shorter and is constantly being improved.
+
+> Challenge (hard): In the above example, `res_sugar` is faster than `res_c`. Do you know why?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

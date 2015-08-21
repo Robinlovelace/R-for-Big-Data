@@ -1,0 +1,119 @@
+---
+output: pdf_document
+---
+
+```{r eval=FALSE, echo=FALSE}
+x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
+write.csv(x, file="notes/data/rand.csv", row.names=FALSE)
+rm(x)
+```
+
+#  ff: classes for representing (large) atomic data
+
+The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. While `ff` is nice, it means that everything is of type `ff`, which results in non-standard R code. The package only provides the building blocks; it doesn't offer many statistical functions and offers no support for characters.
+
+
+## Importing data
+
+The `ff` package provides a number of functions to read in data. All the `read.*` base R functions have `ff` equivalents that are used in the same way. For example, after loading the package
+
+```{r message=FALSE}
+library("ff")
+```
+
+we can load a data set via
+
+```{r  cache=FALSE}
+ffx = read.csv.ffdf(file="data/rand.csv", header=TRUE)
+```
+
+We can use (some) standard R functions to query the data set.
+
+```{r}
+dim(ffx)
+```
+
+However, since `ffx` isn't a standard data frame, not all functions work, for example
+
+```{r}
+colSums(ffx)
+```
+
+The `ETLutils` package provides further methods for importing data from SQL databases, such as SQLite, Oracle, Hive, and MySQL. 
+
+## Data chunks
+
+This section isn't quite right - `ffx[,1]` is numeric not class `ff`
+
+The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`. For this particular data set, the data is split into `r length(chunk(ffx))` chunks:
+
+```{r }
+chunk(ffx)[[1]]
+```
+
+Since we are now dealing with chunks, this makes standard data analysis a pain. For example, to find the minimum value of the first column in our data set, we need loop over the chunks
+
+```{r}
+m = NULL
+for(i in chunk(ffx))
+  m = min(ffx[i, 1], m, na.rm=TRUE)
+m
+```
+
+Since we are dealing with out memory objects, standard rules about copying objects no longer apply. In particular, when we copy objects, we are passing by reference. For example, when we change `ffy`
+
+```{r}
+ffy = ffx
+ffy[1, 1]  = 0
+```
+
+we have also changed `ffx`
+
+```{r}
+ffx[1, 1]
+```
+
+It's a trade off between large objects and side-effects.  The `ff` package supplies the tools for manipulating large data sets, but provides few statistical functions.
+
+
+## ff Storage
+
+When data is `ff` format, processing is fast. However, converting data into `ff` format can be time consuming; so keeping data in `ff` format is helpful. When you load in an `ff` object, there is a corresponding file(s) on your hard disk
+
+```{r}
+filename(ffx)
+```
+
+This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
+
+
+## ffbase
+
+The [`ffbase`](http://github.com/edwindj/ffbase) package adds basic statistical functions to `ff` objects. It tries to make the code more R like and smooth away the pain of working with `ff` objects. It also provides an interface with `big*` methods.
+
+`ffbase` provides S3 methods for a number of standard functions `mean`, `min`, `max`, and standard arithmetic operators (see `?ffbase` for a complete list). This removes some of the pain when dealing with `ff` objects. So instead of looping through chunks to find the minimum, we can do
+
+```{r message=FALSE}
+library("ffbase")
+min(ffx[,1])
+```
+
+This is an example of an S3 generic. When we call the `min` function, we get passed to the `min.ff` function.
+
+The `ffbase` package also provide access to other packages that handle large data sets. In particular,
+
+ * `biglm`: Regression for data too large to fit in memory
+ * `biglars`: Scalable Least-Angle Regression and Lasso
+ * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
+ * `stream`: Infrastructure for Data Stream Mining
+ 
+
+ 
+
+
+
+
+
+
+
+

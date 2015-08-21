@@ -1,0 +1,75 @@
+---
+title: "R for Big Data"
+author: "Colin Gillespie and Robin Lovelace"
+output: 
+  pdf_document: 
+    number_sections: yes
+---
+
+# Introduction
+
+## What is 'Big Data'?
+
+## Why R for Big Data?
+
+## Why not R for Big Data?
+
+## Alternatives to R
+
+# Memory matters
+
+This chapter is about maximising the efficiency of R code by optimising its
+use of memory.
+
+# Preprocessing
+
+Here the plan is to discuss things you can do to your data *before* loading
+it into R.
+
+# Loading Big Data I: static files
+
+```{r}
+# (e.g. via dplyr and RODBC - maybe something like the new and superfast MonetDB)
+```
+
+## Files from proprietary formats
+
+# Loading data II: from databases
+
+## Data from an SQL database
+
+## MonetDB
+
+## Comparing load times using different approaches
+
+# Manipulating large datasets with R
+
+Rarely are datasets provided in a form that is analysis-ready.
+Usually, datasets must be manipulated, 'wrangled' or
+'munged' into a format that is suitable for performing the
+analysis that you want to do.
+
+## Data manipulation with **dplyr**
+
+## The **data.table** approach
+
+## Revolution R
+
+```{r}
+# TODO: more methods for data manipulation
+```
+
+# Big Data visualisation
+
+```{r}
+# TODO (RL): Add analogy to refining to reduce volume
+```
+
+# Using C++ for 'heavy lifting' 
+
+```{r, echo=FALSE}
+# Additional potential topics
+# Running R 'in the cloud'
+```
+
+

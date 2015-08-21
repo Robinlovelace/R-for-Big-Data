@@ -1,11 +1,29 @@
 ---
 output: pdf_document
 ---
+
+```{r, echo=FALSE}
+# Set wd if it's buiding in 'notes' folder
+if(grepl(pattern = "notes", getwd())){
+  library(knitr)
+  knitr::opts_knit$set(root.dir = "../")
+}
+```
+
 # Going to the next level with Rcpp
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+=======
+Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may consider rewriting key parts of your code in a faster language. It is possible to write C and Fortran code without the need of any external packages, but this is a painful process. Another way is via the [Rcpp](http://www.rcpp.org) package, one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 
-C++ is a separate programming language and so it would not be possible to cover every aspect in this course. Instead, the goal is give a flavour of what's possible.
+Note that C and C++ code is largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp`
+file.^[`.cpp`
+is the default file extension for C++ scripts.
+**Mini challenge**: guess what cpp 
+means!]
+is a separate programming language so every aspect cannot be covered in this course. Instead, the goal is to provide a flavour of what's possible.
 
 ## Prerequistes
 
@@ -15,6 +33,7 @@ The code in this chapter was generated using Version `r packageDescription("Rcpp
 install.packages("Rcpp")
 ```
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 The associated [CRAN]((https://cran.r-project.org/web/packages/Rcpp/) page has numerous vignettes that are worth looking at.
 
 To use the package, you also need a working C++ compiler. 
@@ -22,6 +41,12 @@ To use the package, you also need a working C++ compiler.
  * Linux: A compiler should already be installed. Otherwise install `r-base` it a compiler will be installed as a dependency.
  * Macs: Install `Xcode`.
  * Windows: Install [Rtools](http://cran.r-project.org/bin/windows/). Make sure you select the version that corresponds to your version of R.
+=======
+You also need a working C++ compiler. 
+ * Linux: should already be installed. Otherwise install `r-base`
+ * Macs: install `Xcode`
+ * Windows, install [Rtools](http://cran.r-project.org/bin/windows/)
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
  
 To check that you have everything, try running the following piece of code from the course R package
  
@@ -31,7 +56,12 @@ To check that you have everything, try running the following piece of code from 
  
 ## First steps
  
+<<<<<<< HEAD:notes/Rcpp.Rmd
 The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+=======
+The beauty of Rcpp is that it is very easy to create C functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 ```{r} 
 add_r = function(x, y) x + y
 ```
@@ -52,18 +82,28 @@ cppFunction('double add_c(double x, double y){
 ```
 
 When you run this code, Rcpp will magically compile the C++ code and construct a function that bridges the gap between R and C++.
+
 ```{r}
 add_c
 add_c(1, 2)
 ```
+<<<<<<< HEAD:notes/Rcpp.Rmd
 There are a few key differences between the R and C++ versions of `add`.
+=======
+
+There are a few key differences between the R and C++ versions of `add`:
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 
 1. In the C++ function, each line is terminated with `;`.
 2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
 3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement.
 4. You don't use assignment to create a function.
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 While the `cppFunction` is great for getting small examples up and running, it is much better in practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file we need 
+=======
+The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file, we need 
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 
 ```{Rcpp eval=FALSE}
 #include <Rcpp.h>
@@ -89,12 +129,15 @@ double add_c(double x, double y){
 }
 ```
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting. Second, it's easy to make syntax errors when the switching between R and C++ in the same file. For the remainder of this chapter, to save space we we'll omit the headers.
+=======
+There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting (RStudio has great support for C++ editing). Second, it's easier to make syntax errors when the switching between R and C++ in the same file. To save space, we we'll omit the headers for the remainder of the chapter.
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 
 ## Vectors and loops
 
-
-Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an example, R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
+Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an illustrative example: R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
 
 ```{r}
 mean_r = function(x) {
@@ -106,7 +149,7 @@ mean_r = function(x) {
 }
 ```
 
-This is obviously a very bad R function, and we should just use the base function `mean`. However, the purpose of `mean_r` is to provide a comparison for the C++ version.
+This is a very bad R function. We should just use the base function `mean` for real world applications. However, the purpose of `mean_r` is to provide a comparison for the C++ version, which we will write in a similar way.
 
 For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`. The C++ version of the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
 
@@ -122,15 +165,22 @@ double mean_c(NumericVector x){
   return mean;
 }
 ``` 
-To use the C++ function, we need to source the file (remember to put the necessary headers in)
+
+To use the C++ function, we need to source the file (remember to put the necessary headers in).
+
 ```{r}
 sourceCpp("src/mean_c.cpp")
 ```
 
 Although the C++ version is similar, there are a few crucial differences.
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 1. We use the `.size()` method to find the length of `x`
 1. The `for` loop has a slightly more complicated syntax.
+=======
+1. We the `.size()` method to find the length of `x`
+1. The `for` loop has a slightly different syntax.
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
     ```{Rcpp eval=FALSE}
     for (variable initialization; condition; variable update ) {
        // Code to execute
@@ -156,6 +206,7 @@ x = rnorm(1e4)
 ```
 
 Then call the `microbenchmark` function.
+
 ```{r cache=TRUE}
 z = microbenchmark(
   mean(x),
@@ -163,6 +214,7 @@ z = microbenchmark(
   mean_c(x)
 )
 ```
+
 The results are easily compared using the `boxplot` method
 
 ```{r fig.width=5, fig.height=3, echo=2, fig.cap="Comparing C++ with R.", echo=2, cache=TRUE}
@@ -175,7 +227,11 @@ In this simple example, the C++ varient is around $100$ times faster than the co
 
 ## Matrices
 
+<<<<<<< HEAD:notes/Rcpp.Rmd
 Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use these types in a similar way to how we used `NumericVector`'s. The main differences are:
+=======
+Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use this types in a similar way we used `NumericVector`'s. The main differences are:
+>>>>>>> 7e5c063c9033b3d307dd2ecec3f513cb36b1da00:notes/08-Rcpp.Rmd
 
  * When we initialise, we need specify the number of rows and columns
     ```{Rcpp, eval=FALSE}

@@ -4,7 +4,11 @@ output: pdf_document
 
 ```{r, echo=FALSE}
 library(knitr)
-knitr::opts_knit$set(root.dir = "../")
+# Set wd if it's buiding in 'notes' folder
+if(grepl(pattern = "notes", getwd())){
+  library(knitr)
+  knitr::opts_knit$set(root.dir = "../")
+}
 ```
 
 \newpage

@@ -3,14 +3,33 @@ output: pdf_document
 ---
 
 ```{r eval=FALSE, echo=FALSE}
-x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
-write.csv(x, file="notes/data/rand.csv", row.names=FALSE)
-rm(x)
+library(readr)
+library(ffbase)
+# Note - this needs to be run once for the book to build
+# Set wd if it's buiding in 'notes' folder
+if(grepl(pattern = "notes", getwd())){
+  library(knitr)
+  knitr::opts_knit$set(root.dir = "../")
+  
+  if(!file.exists("data/rand.csv")){
+    # save random data frame
+    x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
+    # system.time(write.csv(x, file="data/rand.csv", row.names=FALSE))
+    system.time(write_csv(x, path = "data/rand.csv")) # slightly faster
+    rm(x)
+  }
+  
+}
+
 ```
 
 #  ff: classes for representing (large) atomic data
 
 The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. While `ff` is nice, it means that everything is of type `ff`, which results in non-standard R code. The package only provides the building blocks; it doesn't offer many statistical functions and offers no support for characters.
+
+`ffbase` extends `ff` by providing 'ff versions' of commonly used operations,
+including standard mathematical operators as well as
+`c()`, `duplicated()` and `which()` (implemented as `ffwhich()`).
 
 
 ## Importing data
@@ -23,21 +42,33 @@ library("ff")
 
 we can load a data set via
 
-```{r  cache=FALSE}
-ffx = read.csv.ffdf(file="data/rand.csv", header=TRUE)
+```{r, cache=FALSE}
+system.time(ffx <- read.csv.ffdf(file="data/rand.csv", header = TRUE))
+```
+
+```{r, echo=FALSE, eval=FALSE}
+library(readr)
+system.time(x <- read_csv("data/rand.csv"))
+system.time(x <- read.csv("data/rand.csv"))
+# It seems that read_csv is much faster than either read.csv or read.csv.ffdf
+# (3 vs 61 vs 372 (!) seconds on my laptop) - if you can reproduce this i 
+# suggest we don't use read.csv.ffdf as it seems dodgy.
 ```
 
 We can use (some) standard R functions to query the data set.
 
-```{r}
+```{r, echo=FALSE}
 dim(ffx)
 ```
 
 However, since `ffx` isn't a standard data frame, not all functions work, for example
 
-```{r}
-colSums(ffx)
+```{r, echo=FALSE}
+colSums(ffx) # produces the following error:
+
+## Error in colSums(ffx) : 'x' must be an array ...
 ```
+
 
 The `ETLutils` package provides further methods for importing data from SQL databases, such as SQLite, Oracle, Hive, and MySQL. 
 
@@ -47,13 +78,13 @@ This section isn't quite right - `ffx[,1]` is numeric not class `ff`
 
 The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`. For this particular data set, the data is split into `r length(chunk(ffx))` chunks:
 
-```{r }
+```{r, echo=FALSE}
 chunk(ffx)[[1]]
 ```
 
 Since we are now dealing with chunks, this makes standard data analysis a pain. For example, to find the minimum value of the first column in our data set, we need loop over the chunks
 
-```{r}
+```{r, echo=FALSE}
 m = NULL
 for(i in chunk(ffx))
   m = min(ffx[i, 1], m, na.rm=TRUE)
@@ -62,14 +93,14 @@ m
 
 Since we are dealing with out memory objects, standard rules about copying objects no longer apply. In particular, when we copy objects, we are passing by reference. For example, when we change `ffy`
 
-```{r}
+```{r, echo=FALSE}
 ffy = ffx
 ffy[1, 1]  = 0
 ```
 
 we have also changed `ffx`
 
-```{r}
+```{r, echo=FALSE}
 ffx[1, 1]
 ```
 
@@ -80,7 +111,7 @@ It's a trade off between large objects and side-effects.  The `ff` package suppl
 
 When data is `ff` format, processing is fast. However, converting data into `ff` format can be time consuming; so keeping data in `ff` format is helpful. When you load in an `ff` object, there is a corresponding file(s) on your hard disk
 
-```{r}
+```{r, echo=FALSE}
 filename(ffx)
 ```
 
@@ -107,13 +138,3 @@ The `ffbase` package also provide access to other packages that handle large dat
  * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
  * `stream`: Infrastructure for Data Stream Mining
  
-
- 
-
-
-
-
-
-
-
-

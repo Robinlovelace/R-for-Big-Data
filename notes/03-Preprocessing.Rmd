@@ -20,7 +20,14 @@ Here we will explore some of the options.
 
 The unix utility **split** can be used to split large files up
 by size or number of lines. The following bash commands will split the
-5.6 GB file into chunks of 100 MB each:
+5.6 GB file, downloaded and unzipped in the first chapter, into chunks of 100 MB
+each:^['Bash commands'
+refer to computer code written in the Bash language. Bash is the default
+language used by Linux and Macs for most internal system administration
+functions. In Macs, you can open this by typing 'Apple key'-T. In
+Windows, installing [cygwin](https://www.cygwin.com/) and launching it
+will provide access to this functionality. Note: you must start from the correct
+*working directory*. Use `pwd` in Bash or `setwd()` in R to check this.]
 
 ```
 cd npidata

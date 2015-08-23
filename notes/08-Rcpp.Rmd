@@ -12,7 +12,6 @@ if(grepl(pattern = "notes", getwd())){
 
 # Going to the next level with Rcpp
 
-<<<<<<< HEAD:notes/Rcpp.Rmd
 Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
 
 Note that C and C++ code is largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp`
@@ -39,10 +38,6 @@ To use the package, you also need a working C++ compiler.
  * Windows: Install [Rtools](http://cran.r-project.org/bin/windows/). Make sure you select the version that corresponds to your version of R.
 
 To check that you have everything, try running the following piece of code from the course R package
- 
-```{r}
-## TODO: write course package
-```
  
 ## First steps
  
@@ -266,37 +261,3 @@ NumericVector res_sugar(NumericVector x, NumericVector y){
 The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However, with the sugared variety, the code is shorter and is constantly being improved.
 
 > Challenge (hard): In the above example, `res_sugar` is faster than `res_c`. Do you know why?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -77,7 +77,11 @@ downloader::download("http://www.ifs.org.uk/bns/bn19figs.xlsx",
 There many packages designed for reading spreadsheet files into R, most
 of which are of variable reliability. The best of these is
 **readxl**, which was found to be more than 100 times faster
-than alternatives from **gdata** and **openxlsx** packages.
+than alternatives from **gdata** and **openxlsx**
+packages!^[As
+an important aside, this example illustrates the importance of selecting the
+*right package*, in addition to the right function and implementation,
+for handling large datasets.]
 
 ```{r}
 f <- "data/ineq-ifs.xlsx"

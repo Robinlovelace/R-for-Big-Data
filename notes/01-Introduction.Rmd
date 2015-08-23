@@ -76,7 +76,7 @@ download(url, destfile = "npidata/largefile.zip")
 
 # unzip the compressed file, measure time
 system.time( 
-  unzip("npidata/largefile.zip")
+  unzip("npidata/largefile.zip", exdir = "npidata/")
   )
 ##    user  system elapsed 
 ##  34.380  22.428 193.145

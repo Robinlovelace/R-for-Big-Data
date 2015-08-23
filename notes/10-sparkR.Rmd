@@ -1,2 +1,7 @@
+---
+output: pdf_document
+---
+
+
 # Spark
 

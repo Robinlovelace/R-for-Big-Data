@@ -1,21 +1,16 @@
 # Aim: build the tutorial from its constituent parts
-(cfiles <- list.files(path = "notes", pattern = "*.Rmd$"))
+(cfiles <- list.files(pattern = "*.Rmd$"))
 
 book_header <- readLines(textConnection(
 '---
 title: "R for Big Data"
 author: "Colin Gillespie and Robin Lovelace"
 output: rmarkdown::tufte_handout
----
-
-```{r, echo=FALSE}
-library(knitr)
-knitr::opts_knit$set(root.dir = "../")
-```'
-  ))
+---'
+))
 
 
 source("functions/rmd_bind.R")
-rmd_bind(dir = "notes", book_header = book_header)
+rmd_bind(book_header = book_header)
 
-rmarkdown::render("notes/book.Rmd")
+rmarkdown::render("book.Rmd")

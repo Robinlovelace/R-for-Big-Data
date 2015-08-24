@@ -1,0 +1,186 @@
+---
+output: pdf_document
+---
+
+```{r echo=FALSE}
+library(pryr)
+```
+
+\newpage
+
+# Memory matters
+
+When dealing with small datasets, speed considerations
+are often irrelevant. Modern computers can solve
+most problems through 'brute force'. When you
+start dealing with large datasets, however, a slight change in
+the *computational efficiency* of the implementation
+can make the difference between completing an analysis
+overnight and not completing it at all.
+
+*Computational efficiency* is analogous to energy efficiency
+and is a programmer's way of saying 'I get this much boom for
+my buck'? This is generally measured by *benchmarking*,
+testing the amount of
+computer time taken to perform a given task using different
+implementations. It is enlightening to perform such tests on
+a small sample of your data to decide how to write your
+final code so the processing completes quickly and without
+consuming excessive computer resources such as RAM. The below
+example illustrates the process of benchmarking.
+
+```{r}
+# TODO: Example of benchmarking here
+```
+
+When dealing with big data, it is helpful to have a rough idea about memory and object size. In particular, it is very easy to create multiple copies of objects without meaning to.
+
+
+## Understanding file sizes
+
+A bit is either a $0$ or a $1$ which is processed by a computer processor. To represent an alphanumeric character, such as *R*, would require 8 bits and would be stored as $01010010$. Eight bits is one byte. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data. 
+
+A kilobyte (KB) is 1024 bytes and a megabyte (MB) is 1024 kilobytes. A petabyte is approximately 100 million draws filled with text. Google process around 20 petabytes of data every day.
+
+Amount | Shorthand
+-------|------------------
+1024 bytes | 1 Kilobyte (KB)
+1024 KB | 1 Megabyte (MB)
+1024 MB | 1 Gigabyte (GB)
+1024 GB | 1 Terabyte (TB)
+1024 TB | 1 Petabyte (PB)
+
+Different data types, such as characters, integers and doubles, require different amounts of memory to store. 
+
+Type | Amount (Bytes)
+-----|------------------
+Character | 1
+Integer| 4
+Double | 8
+
+How computers actually store numbers is a quite a complicated process. A useful overview is given at [What Every Computer Scientist Should Know About Floating-Point Arithmetic](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html).
+
+
+## Object size in R
+
+When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes. For example, when we create an R vector memory is allocated for a number of things:
+
+ * Object meta data: This is information on the base data type and memory management.
+ * Pointers: these are addresses to where memory is stored on the hard drive.
+ 
+Also since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $8$, $16$, $32$, $64$ or $128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+
+We can examine the size of an object using the base function `object.size`. However, a similar function, `object_size` in the `pryr` package contains a few more helpful features. Let's start with a simple vector
+```{r}
+v1 = 1:1e6
+```
+When we use the `:` operator, we are actually creating a vector of integers. So to manually calculate the object size of `v1`, we have
+\[
+4\times 10^6 \,\text{bytes} \simeq  4 \,\text{MB}
+\]
+This corresponds with 
+```{r}
+object_size(v1)
+```
+If we create a similar vector using the sequence command
+```{r}
+v2 = seq(1, 1e6, by=1)
+object_size(v2)
+```
+The size of `v2` is double that of `v1`. This is because when we use the `:` operator we create a vector with type `integer`, whereas the `seq` command has created a vector of `doubles`. R is also tries to avoid making unnecessary copies of objects. For example, consider the following two lists
+```{r}
+l1 = list(v1, v1)
+l2 = list(v1, v2)
+```
+When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`
+```{r}
+object_size(l1)
+object_size(l2)
+```
+Moreover, if we look at the combined size of the two lists, 
+```{r}
+object_size(l1, l2)
+
+object_size(l1, l2)
+```
+we still see that `v1` has only been counted once.
+
+> **Challenge**: Explain the following piece of R code
+
+```{r}
+l1[[1]][1] = 1
+object_size(l1)
+```
+
+## Integers, doubles and other data types
+
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in [double-precision floating-point format](https://en.wikipedia.org/wiki/Double-precision_floating-point_format). But R does have other ways of storing numbers.
+  
+  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
+  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
+  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
+    ```{r}
+    args(head.matrix)
+    ```
+    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called, this low level optimisation is useful.
+ 
+
+## Collecting the garbage
+
+The `object_size` function tells you the size of a particular object. The function `mem_used()` tells you the amount of memory that is being using by `R`. Since managing memory is a complex process, determining the exact amount of memory used isn't exact; it isn't obvious what we mean by *memory used*. The value returned by `mem_used()` only includes objects created by R, not R itself. Also, manipulating memory is an expensive operation, so the OS and R are lazy at reclaiming memory (this is a good thing).
+
+In some languages, such as C, the programmer has the fun task of being in charge of managing memory. Every time they ask for more memory using `malloc` there should be a corresponding call (somewhere) to `free`. When the call to `free` is omitted, this is known as a memory leak. In R, we don't have to worry about freeing memory; the garbage collector takes care of it. For example, consider the following function `g`. 
+
+```{r}
+mem_used()
+g = function() {
+  z = 1:1e6
+  message("Mem used: ", mem_used())
+  0
+}
+x = g()
+mem_used()
+```
+
+When we call the function `g()` we create a large variable `z`. However, since `z` is only referenced inside the function, the associated memory is freed. 
+
+We can force a call to the garbage collector, via `gc()`. However, this is never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
+
+## Monitoring memory change
+
+There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The [lineprof](https://github.com/hadley/lineprof) package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

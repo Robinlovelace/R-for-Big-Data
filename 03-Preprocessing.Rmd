@@ -1,0 +1,70 @@
+---
+output: pdf_document
+---
+
+\newpage
+
+# Pre-processing data outside R
+
+R is good for many things but not everything.
+As mentioned in the introduction, there are various ways to
+preprocess large files outside R to make them easier to handle.
+Here we will explore some of the options.
+
+## Split the file with Unix tools
+
+The unix utility **split** can be used to split large files up
+by size or number of lines. The following bash commands will split the
+5.6 GB file, downloaded and unzipped in the first chapter, into chunks of 100 MB
+each:^['Bash commands'
+refer to computer code written in the Bash language. Bash is the default
+language used by Linux and Macs for most internal system administration
+functions. In Macs, you can open this by typing 'Apple key'-T. In
+Windows, installing [cygwin](https://www.cygwin.com/) and launching it
+will provide access to this functionality. Note: you must start from the correct
+*working directory*. Use `pwd` in Bash or `setwd()` in R to check this.]
+
+```
+cd npidata
+split -b100m npidata_20050523-20150809.csv
+```
+
+Assuming there is sufficent
+disk space, there output of the above operation should be several 100 Mb text
+files which are more manageable. These are named `aa`, `ab` etc.
+A sample from the results of this operation can be found in the
+`sample-data` folder after the following commands.
+
+```
+split -l 10 aa mini # further split chunk 'aa' into 10 lines
+cp miniaa ../sample-data # copy the first into 'sample-data'
+```
+
+Now the file is much smaller and easy to read: finally we can
+read (part of) a 5.6 GB text file into R!
+
+```{r}
+npi <- read.csv("sample-data/miniaa")
+dim(npi)
+head(npi[c(1, 37)], 3)
+```
+
+## Filtering with csvkit
+
+[csvkit](https://csvkit.readthedocs.org/en/latest/) is a command-line program
+for handling large .csv files, without having to read them all into RAM...
+
+Using the npi data, the following
+[example](https://opendata.stackexchange.com/questions/1256/how-can-i-work-with-a-4gb-csv-file)
+ilustrates how csvkit can be used to extract useful information from
+bulky .csv files before loading the results into R.
+
+```{r}
+# ...
+```
+
+## Preprocessing with the LaF package
+
+
+
+

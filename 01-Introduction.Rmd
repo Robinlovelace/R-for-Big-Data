@@ -1,0 +1,129 @@
+---
+output: pdf_document
+---
+
+```{r echo=FALSE}
+library("pryr")
+```
+
+\newpage
+
+# Big Data and R
+
+R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's RAM (although packages for working with databases such as dplyr can work with data stored remotely). This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
+Today, the size of data sets have exploded and it's not difficult to find data sets that are larger than your laptop's memory.
+
+> **Challenge**: How much RAM do you have? Hint: Google if necessary.
+
+Even if the original data set is relatively small data set, the analysis can generate large objects. For example, suppose we went to perform standard cluster analysis. Using the built-in data set `USAarrests`, we can calculate a distance matrix,
+```{r}
+d = dist(USArrests, method = "euclidean")
+```
+
+and perform hierarchical clustering to get a dendrogram
+```{r}
+fit = hclust(d)
+```
+
+to get a dendrogram
+```{r fig.fullwidth=TRUE, fig.height=2, echo=2, fig.cap="Dendrogram from USArrests data."}
+par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,cex=0.5, las=1)
+plot(fit, labels=rownames(d))
+```
+
+When we inspect the object size of the original data set and the distance object
+```{r}
+object_size(USArrests)
+object_size(d)
+```
+
+we have managed to create an object that is three times larger than the original data set. In fact the object `d` is a symmetric $n \times n$ matrix, where $n$ is the number of rows in `USAarrests`. Clearly, as `n` increases the size of `d` increases at rate $O(n^2)$. So if our original data set contained $10,000$ records, the associated distance matrix would contain almost $10^8$ values. Of course, since the matrix is symmetric, this corresponds to almost $50$ million unique values.
+
+To tackle big data in R, we review some of the possible strategies available.
+
+## Buy more RAM
+
+Since R keeps all objects in memory, the easiest way to deal with memory issues. Currently, 16GB costs less than £100. This small cost is quickly recuperated on user time. A relatively powerful desktop machine can be purchased for less that £1000. 
+
+## Sampling
+
+Do you **really** need to load all of data at once? For example, if your data contains information regarding sales, does it make sense to aggregate across countries, or should the data be split up? Assuming that you need to analyse all of your data, then random sampling could provide an easy way to perform your analysis. In fact, it is almost always sensible to sample your data set at the beginning of an analysis until your analysis pipeline is in reasonable shape.
+
+## Preprocessing data outside R
+
+If your dataset is too large to read into RAM, it may be wise to
+*preprocess* or *filter* using tools external to R before
+reading it in. For databases we can filter when asking for the data
+(described in a subsequent section).
+For data stored in large text files we can use
+'streaming' utilities before reading it into R. With tools such as
+[*sed*](https://www.gnu.org/software/sed/manual/sed.html)
+(a 'stream editor' included on most Unix-based systems),
+[split](https://en.wikipedia.org/wiki/Split_%28Unix%29) and
+[csvkit](https://csvkit.readthedocs.org/en/latest/) a 10 Gb .csv can be
+broken up into smaller chunks before being loaded into R.
+Here's an 
+example of trying (and failing!) to load a large dataset into R.
+We recommend you don't
+run this code:
+
+```{r, eval=FALSE}
+dir.create("npidata") # create folder for data
+url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
+
+# download a large dataset - don't run
+library(downloader) # needs to be installed
+download(url, destfile = "npidata/largefile.zip")
+## 550600K .......... ...... 100% 1.26M=6m53s
+
+# unzip the compressed file, measure time
+system.time( 
+  unzip("npidata/largefile.zip", exdir = "npidata/")
+  )
+##    user  system elapsed 
+##  34.380  22.428 193.145
+
+file.info("npidata/npidata_20050523-20150809.csv")
+##       size: 5647444347
+```
+
+The above code uses R to download,
+unzip and present information a giant .csv file.
+Note that it's 5.6 GB in size and took over 3 minutes to unzip!
+The following code requires a 64 bit R installation and will not work on
+many laptops.
+
+```{r, eval=FALSE}
+df <- read.csv("npidata/npidata_20050523-20150809.csv")
+## Error: cannot allocate vector of 32.0 Mb
+```
+
+We will later explain methods within R for better handling such large datasets
+such as using faster read-in functions such as `read_csv()` from the
+readr package. For now, just remember that reading large datasets into
+R can be tricky and timeconsuming. Preprocessing outside R can help.
+R's interfaces to fast languages can alo help.
+
+## Integration with C++ or Java
+
+Another strategy to improve performance, is to move small parts of the program from R to another, faster language, such as C++ or Java. The goal is to keep R's neat way of handling data, with the higher performance offered by other languages. Indeed, many of R's base functions are written in C or Fortran. This outsourcing of code to another language can be easily hidden in another function. 
+
+## Avoid storing objects in memory
+
+There are packages available that avoid storing data in memory. Instead, objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in find. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
+
+The two most famous packages on CRAN that use this principle are `ff` and ``ffbase`. The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
+
+## Alternative interpreters
+
+Due to the popularity of R, it now possible to use alternative interpreters (the interpreter is where the code is run). There are currently four possibilities
+
+ * [pqrR](http://www.pqr-project.org/) (pretty quick R) is a new version of the R interpreter. One major downside, is that it is based on R-2.15.0. The developer (Radford Neal) has made many improvements, some of which have now been incorporated into base R. pqR is an open-source project licensed under the GPL. One notable improvement in pqR is that it is able to do some numeric computations in parallel with each other, and with other operations of the interpreter, on systems with multiple processors or processor cores.
+ 
+  * [Renjin](http://www.renjin.org/) reimplements the R interpreter in Java, so it can run on the Java Virtual Machine (JVM). Since R will be pure Java, it can run anywhere.
+
+  * [Tibco](http://spotfire.tibco.com/) created a C++ based interpreter called TERR. 
+
+  * Oracle also offer an R-interpreter, that uses  Intel’s mathematics library and therefore achieves a higher performance without changing R’s core. 
+
+

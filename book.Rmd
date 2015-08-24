@@ -1,0 +1,797 @@
+---
+title: "R for Big Data"
+author: "Colin Gillespie and Robin Lovelace"
+output: rmarkdown::tufte_handout
+---
+
+```{r echo=FALSE}
+library("pryr")
+```
+
+\newpage
+
+# Big Data and R
+
+R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's RAM (although packages for working with databases such as dplyr can work with data stored remotely). This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
+Today, the size of data sets have exploded and it's not difficult to find data sets that are larger than your laptop's memory.
+
+> **Challenge**: How much RAM do you have? Hint: Google if necessary.
+
+Even if the original data set is relatively small data set, the analysis can generate large objects. For example, suppose we went to perform standard cluster analysis. Using the built-in data set `USAarrests`, we can calculate a distance matrix,
+```{r}
+d = dist(USArrests, method = "euclidean")
+```
+
+and perform hierarchical clustering to get a dendrogram
+```{r}
+fit = hclust(d)
+```
+
+to get a dendrogram
+```{r fig.fullwidth=TRUE, fig.height=2, echo=2, fig.cap="Dendrogram from USArrests data."}
+par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,cex=0.5, las=1)
+plot(fit, labels=rownames(d))
+```
+
+When we inspect the object size of the original data set and the distance object
+```{r}
+object_size(USArrests)
+object_size(d)
+```
+
+we have managed to create an object that is three times larger than the original data set. In fact the object `d` is a symmetric $n \times n$ matrix, where $n$ is the number of rows in `USAarrests`. Clearly, as `n` increases the size of `d` increases at rate $O(n^2)$. So if our original data set contained $10,000$ records, the associated distance matrix would contain almost $10^8$ values. Of course, since the matrix is symmetric, this corresponds to almost $50$ million unique values.
+
+To tackle big data in R, we review some of the possible strategies available.
+
+## Buy more RAM
+
+Since R keeps all objects in memory, the easiest way to deal with memory issues. Currently, 16GB costs less than £100. This small cost is quickly recuperated on user time. A relatively powerful desktop machine can be purchased for less that £1000. 
+
+## Sampling
+
+Do you **really** need to load all of data at once? For example, if your data contains information regarding sales, does it make sense to aggregate across countries, or should the data be split up? Assuming that you need to analyse all of your data, then random sampling could provide an easy way to perform your analysis. In fact, it is almost always sensible to sample your data set at the beginning of an analysis until your analysis pipeline is in reasonable shape.
+
+## Preprocessing data outside R
+
+If your dataset is too large to read into RAM, it may be wise to
+*preprocess* or *filter* using tools external to R before
+reading it in. For databases we can filter when asking for the data
+(described in a subsequent section).
+For data stored in large text files we can use
+'streaming' utilities before reading it into R. With tools such as
+[*sed*](https://www.gnu.org/software/sed/manual/sed.html)
+(a 'stream editor' included on most Unix-based systems),
+[split](https://en.wikipedia.org/wiki/Split_%28Unix%29) and
+[csvkit](https://csvkit.readthedocs.org/en/latest/) a 10 Gb .csv can be
+broken up into smaller chunks before being loaded into R.
+Here's an 
+example of trying (and failing!) to load a large dataset into R.
+We recommend you don't
+run this code:
+
+```{r, eval=FALSE}
+dir.create("npidata") # create folder for data
+url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
+
+# download a large dataset - don't run
+library(downloader) # needs to be installed
+download(url, destfile = "npidata/largefile.zip")
+## 550600K .......... ...... 100% 1.26M=6m53s
+
+# unzip the compressed file, measure time
+system.time( 
+  unzip("npidata/largefile.zip", exdir = "npidata/")
+  )
+##    user  system elapsed 
+##  34.380  22.428 193.145
+
+file.info("npidata/npidata_20050523-20150809.csv")
+##       size: 5647444347
+```
+
+The above code uses R to download,
+unzip and present information a giant .csv file.
+Note that it's 5.6 GB in size and took over 3 minutes to unzip!
+The following code requires a 64 bit R installation and will not work on
+many laptops.
+
+```{r, eval=FALSE}
+df <- read.csv("npidata/npidata_20050523-20150809.csv")
+## Error: cannot allocate vector of 32.0 Mb
+```
+
+We will later explain methods within R for better handling such large datasets
+such as using faster read-in functions such as `read_csv()` from the
+readr package. For now, just remember that reading large datasets into
+R can be tricky and timeconsuming. Preprocessing outside R can help.
+R's interfaces to fast languages can alo help.
+
+## Integration with C++ or Java
+
+Another strategy to improve performance, is to move small parts of the program from R to another, faster language, such as C++ or Java. The goal is to keep R's neat way of handling data, with the higher performance offered by other languages. Indeed, many of R's base functions are written in C or Fortran. This outsourcing of code to another language can be easily hidden in another function. 
+
+## Avoid storing objects in memory
+
+There are packages available that avoid storing data in memory. Instead, objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in find. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
+
+The two most famous packages on CRAN that use this principle are `ff` and ``ffbase`. The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
+
+## Alternative interpreters
+
+Due to the popularity of R, it now possible to use alternative interpreters (the interpreter is where the code is run). There are currently four possibilities
+
+ * [pqrR](http://www.pqr-project.org/) (pretty quick R) is a new version of the R interpreter. One major downside, is that it is based on R-2.15.0. The developer (Radford Neal) has made many improvements, some of which have now been incorporated into base R. pqR is an open-source project licensed under the GPL. One notable improvement in pqR is that it is able to do some numeric computations in parallel with each other, and with other operations of the interpreter, on systems with multiple processors or processor cores.
+ 
+  * [Renjin](http://www.renjin.org/) reimplements the R interpreter in Java, so it can run on the Java Virtual Machine (JVM). Since R will be pure Java, it can run anywhere.
+
+  * [Tibco](http://spotfire.tibco.com/) created a C++ based interpreter called TERR. 
+
+  * Oracle also offer an R-interpreter, that uses  Intel’s mathematics library and therefore achieves a higher performance without changing R’s core. 
+
+
+
+```{r echo=FALSE}
+library(pryr)
+```
+
+\newpage
+
+# Memory matters
+
+When dealing with small datasets, speed considerations
+are often irrelevant. Modern computers can solve
+most problems through 'brute force'. When you
+start dealing with large datasets, however, a slight change in
+the *computational efficiency* of the implementation
+can make the difference between completing an analysis
+overnight and not completing it at all.
+
+*Computational efficiency* is analogous to energy efficiency
+and is a programmer's way of saying 'I get this much boom for
+my buck'? This is generally measured by *benchmarking*,
+testing the amount of
+computer time taken to perform a given task using different
+implementations. It is enlightening to perform such tests on
+a small sample of your data to decide how to write your
+final code so the processing completes quickly and without
+consuming excessive computer resources such as RAM. The below
+example illustrates the process of benchmarking.
+
+```{r}
+# TODO: Example of benchmarking here
+```
+
+When dealing with big data, it is helpful to have a rough idea about memory and object size. In particular, it is very easy to create multiple copies of objects without meaning to.
+
+
+## Understanding file sizes
+
+A bit is either a $0$ or a $1$ which is processed by a computer processor. To represent an alphanumeric character, such as *R*, would require 8 bits and would be stored as $01010010$. Eight bits is one byte. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data. 
+
+A kilobyte (KB) is 1024 bytes and a megabyte (MB) is 1024 kilobytes. A petabyte is approximately 100 million draws filled with text. Google process around 20 petabytes of data every day.
+
+Amount | Shorthand
+-------|------------------
+1024 bytes | 1 Kilobyte (KB)
+1024 KB | 1 Megabyte (MB)
+1024 MB | 1 Gigabyte (GB)
+1024 GB | 1 Terabyte (TB)
+1024 TB | 1 Petabyte (PB)
+
+Different data types, such as characters, integers and doubles, require different amounts of memory to store. 
+
+Type | Amount (Bytes)
+-----|------------------
+Character | 1
+Integer| 4
+Double | 8
+
+How computers actually store numbers is a quite a complicated process. A useful overview is given at [What Every Computer Scientist Should Know About Floating-Point Arithmetic](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html).
+
+
+## Object size in R
+
+When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes. For example, when we create an R vector memory is allocated for a number of things:
+
+ * Object meta data: This is information on the base data type and memory management.
+ * Pointers: these are addresses to where memory is stored on the hard drive.
+ 
+Also since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $8$, $16$, $32$, $64$ or $128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+
+We can examine the size of an object using the base function `object.size`. However, a similar function, `object_size` in the `pryr` package contains a few more helpful features. Let's start with a simple vector
+```{r}
+v1 = 1:1e6
+```
+When we use the `:` operator, we are actually creating a vector of integers. So to manually calculate the object size of `v1`, we have
+\[
+4\times 10^6 \,\text{bytes} \simeq  4 \,\text{MB}
+\]
+This corresponds with 
+```{r}
+object_size(v1)
+```
+If we create a similar vector using the sequence command
+```{r}
+v2 = seq(1, 1e6, by=1)
+object_size(v2)
+```
+The size of `v2` is double that of `v1`. This is because when we use the `:` operator we create a vector with type `integer`, whereas the `seq` command has created a vector of `doubles`. R is also tries to avoid making unnecessary copies of objects. For example, consider the following two lists
+```{r}
+l1 = list(v1, v1)
+l2 = list(v1, v2)
+```
+When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`
+```{r}
+object_size(l1)
+object_size(l2)
+```
+Moreover, if we look at the combined size of the two lists, 
+```{r}
+object_size(l1, l2)
+
+object_size(l1, l2)
+```
+we still see that `v1` has only been counted once.
+
+> **Challenge**: Explain the following piece of R code
+
+```{r}
+l1[[1]][1] = 1
+object_size(l1)
+```
+
+## Integers, doubles and other data types
+
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in [double-precision floating-point format](https://en.wikipedia.org/wiki/Double-precision_floating-point_format). But R does have other ways of storing numbers.
+  
+  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
+  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
+  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
+    ```{r}
+    args(head.matrix)
+    ```
+    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called, this low level optimisation is useful.
+ 
+
+## Collecting the garbage
+
+The `object_size` function tells you the size of a particular object. The function `mem_used()` tells you the amount of memory that is being using by `R`. Since managing memory is a complex process, determining the exact amount of memory used isn't exact; it isn't obvious what we mean by *memory used*. The value returned by `mem_used()` only includes objects created by R, not R itself. Also, manipulating memory is an expensive operation, so the OS and R are lazy at reclaiming memory (this is a good thing).
+
+In some languages, such as C, the programmer has the fun task of being in charge of managing memory. Every time they ask for more memory using `malloc` there should be a corresponding call (somewhere) to `free`. When the call to `free` is omitted, this is known as a memory leak. In R, we don't have to worry about freeing memory; the garbage collector takes care of it. For example, consider the following function `g`. 
+
+```{r}
+mem_used()
+g = function() {
+  z = 1:1e6
+  message("Mem used: ", mem_used())
+  0
+}
+x = g()
+mem_used()
+```
+
+When we call the function `g()` we create a large variable `z`. However, since `z` is only referenced inside the function, the associated memory is freed. 
+
+We can force a call to the garbage collector, via `gc()`. However, this is never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
+
+## Monitoring memory change
+
+There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The [lineprof](https://github.com/hadley/lineprof) package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+# Pre-processing data outside R
+
+R is good for many things but not everything.
+As mentioned in the introduction, there are various ways to
+preprocess large files outside R to make them easier to handle.
+Here we will explore some of the options.
+
+## Split the file with Unix tools
+
+The unix utility **split** can be used to split large files up
+by size or number of lines. The following bash commands will split the
+5.6 GB file, downloaded and unzipped in the first chapter, into chunks of 100 MB
+each:^['Bash commands'
+refer to computer code written in the Bash language. Bash is the default
+language used by Linux and Macs for most internal system administration
+functions. In Macs, you can open this by typing 'Apple key'-T. In
+Windows, installing [cygwin](https://www.cygwin.com/) and launching it
+will provide access to this functionality. Note: you must start from the correct
+*working directory*. Use `pwd` in Bash or `setwd()` in R to check this.]
+
+```
+cd npidata
+split -b100m npidata_20050523-20150809.csv
+```
+
+Assuming there is sufficent
+disk space, there output of the above operation should be several 100 Mb text
+files which are more manageable. These are named `aa`, `ab` etc.
+A sample from the results of this operation can be found in the
+`sample-data` folder after the following commands.
+
+```
+split -l 10 aa mini # further split chunk 'aa' into 10 lines
+cp miniaa ../sample-data # copy the first into 'sample-data'
+```
+
+Now the file is much smaller and easy to read: finally we can
+read (part of) a 5.6 GB text file into R!
+
+```{r}
+npi <- read.csv("sample-data/miniaa")
+dim(npi)
+head(npi[c(1, 37)], 3)
+```
+
+## Filtering with csvkit
+
+[csvkit](https://csvkit.readthedocs.org/en/latest/) is a command-line program
+for handling large .csv files, without having to read them all into RAM...
+
+Using the npi data, the following
+[example](https://opendata.stackexchange.com/questions/1256/how-can-i-work-with-a-4gb-csv-file)
+ilustrates how csvkit can be used to extract useful information from
+bulky .csv files before loading the results into R.
+
+```{r}
+# ...
+```
+
+## Preprocessing with the LaF package
+
+
+
+
+
+\newpage
+
+# Loading static files into R
+
+Datasets are increasingly becoming continuously 
+collected, making them well-suited to databases and other continuous
+systems that 'ingest' data in real-time. However, static files are still
+probably the most common way to access large datasets and probably will
+continue to be so into the future.
+
+This chapter looks at various file-types that are used for storing
+large datasets and how R can be used to optimised their read-in.
+The most common, simple and in many cases convenient filetype for large datasets
+are *plain text* files, so we look at reading these in first, before
+exploring more exotic filetypes including, `.json`, `.xml`, `.spss`, `.stata`, `.xls`.
+
+## Text files
+
+Data stored as text files are files that are human-readable when displayed
+in a 'plain text' editor such as Microsoft Notepad, Vim or RStudio.
+Plain text files are the basis of computing.^[Most
+programs can be represented as large collections of scripts written in
+plain text. RStudio,
+for example, is written in 100s of lines of plain text files, all of which
+can be viewed on-line
+(see [github.com/rstudio/rstudio](https://github.com/rstudio/rstudio)).
+This tutorial was written as a UTF-8 encoded plain text '.Rmd' file.
+] 
+The advantages of plain text files are:
+
+- Simplicity: quick and easy to understand their contents
+- Compatibility: text files work with most software packages
+- Portability: text files are quick and easy to load, save and share
+
+The disadvantages of plain text files for Big Data are that they can become
+unwieldy, even when compressed (remember the 5.6 Gb file from the introduction),
+and their ease of modification: text files are certainly not a highly secure
+data format.
+
+The most common format of text file is the trusty .csv file, in which
+each column is separated by a comma.
+
+```{r}
+write.csv(x = cars[1:3,]) # write a .csv file to the screen
+```
+
+Note that in the result from the above operation text strings such as
+`"speed"` are enclosed in quote markes wheras raw numbers are not.
+
+> **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
+
+## Freeing your data from spreadsheets
+
+Spreadsheets are ubiquitous in offices around the world, and are used for
+storing millions of (mostly quite small) datasets. Nevertheless
+Microsoft Excel, the most commonly used spreadsheet program can store
+datasets with a maximum size of 1,048,576 rows by 16,384 columns,
+which is not small data.
+
+The example spreadsheet we'll use can be downloaded with the following
+code:
+
+```{r, eval=FALSE}
+downloader::download("http://www.ifs.org.uk/bns/bn19figs.xlsx",
+  destfile = "data/ineq-ifs.xlsx")
+```
+
+There many packages designed for reading spreadsheet files into R, most
+of which are of variable reliability. The best of these is
+**readxl**, which was found to be more than 100 times faster
+than alternatives from **gdata** and **openxlsx**
+packages!^[As
+an important aside, this example illustrates the importance of selecting the
+*right package*, in addition to the right function and implementation,
+for handling large datasets.]
+
+```{r}
+f <- "data/ineq-ifs.xlsx"
+system.time(df <- readxl::read_excel(f, sheet = 15))
+```
+
+> **Optional challenge:** To brush-up on your benchmarking skills, run tests
+to load the same data into R using alternative packages. Which comes closest
+to `read_excel()`? Are the results identical?
+
+```{r, echo=FALSE, eval=FALSE}
+xls_pkgs <- c("gdata", "openxlsx")
+# This took less than 0.1 seconds
+system.time(df <- readxl::read_excel(f, sheet = 15))
+# This took over 4 minutes on my machine!
+system.time(df1 <- gdata::read.xls(f, sheet = 15))
+# This took 30 seconds
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+# After saving the spreadsheet to .odt
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+head(df[1:5])
+head(df1[1:5])
+head(df2[1:5])
+identical(df, df1)
+identical(df, df2)
+```
+
+
+
+
+\newpage
+
+# Loading data from databases
+
+
+\newpage
+
+# Manipulating Big Data with R
+
+
+\newpage
+
+# Big data visualisation
+
+
+```{r, echo=FALSE}
+# Set wd if it's buiding in 'notes' folder
+if(grepl(pattern = "notes", getwd())){
+  library(knitr)
+  knitr::opts_knit$set(root.dir = "../")
+}
+```
+
+# Going to the next level with Rcpp
+
+Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the [Rcpp](http://www.rcpp.org) package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+
+Note that C and C++ code is largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp`
+file.^[`.cpp`
+is the default file extension for C++ scripts.
+**Mini challenge**: guess what cpp 
+means!]
+is a separate programming language so every aspect cannot be covered in this course. Instead, the goal is to provide a flavour of what's possible.
+
+## Prerequistes
+
+The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install [Rcpp from CRAN](https://cran.r-project.org/web/packages/Rcpp/index.html) in the usual way
+
+```{r eval=FALSE}
+install.packages("Rcpp")
+```
+
+The associated [CRAN]((https://cran.r-project.org/web/packages/Rcpp/) page has numerous vignettes that are worth looking at.
+
+To use the package, you also need a working C++ compiler. 
+
+ * Linux: A compiler should already be installed. Otherwise install `r-base` it a compiler will be installed as a dependency.
+ * Macs: Install `Xcode`.
+ * Windows: Install [Rtools](http://cran.r-project.org/bin/windows/). Make sure you select the version that corresponds to your version of R.
+
+To check that you have everything, try running the following piece of code from the course R package
+ 
+## First steps
+ 
+The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+
+```{r} 
+add_r = function(x, y) x + y
+```
+ 
+With Rcpp, we need a bit more. First we load the package
+ 
+```{r message=FALSE}
+library("Rcpp") 
+```
+ 
+Next we create function called `add_c`
+
+```{r}
+cppFunction('double add_c(double x, double y){
+  double value = x + y;
+  return value;
+}')
+```
+
+When you run this code, Rcpp will magically compile the C++ code and construct a function that bridges the gap between R and C++.
+
+```{r}
+add_c
+add_c(1, 2)
+```
+
+There are a few key differences between the R and C++ versions of `add`.
+
+1. In the C++ function, each line is terminated with `;`.
+2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
+3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement.
+4. You don't use assignment to create a function.
+
+The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file, we need 
+
+```{Rcpp eval=FALSE}
+#include <Rcpp.h>
+using namespace Rcpp;
+```
+
+then for each function we want to export (use in R), we need to add
+
+```{Rcpp eval=FALSE}
+// [[Rcpp::export]]
+```
+
+This would give the total file
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+double add_c(double x, double y){
+  double value = x + y;
+  return value;
+}
+```
+
+
+There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting (RStudio has great support for C++ editing). Second, it's easier to make syntax errors when the switching between R and C++ in the same file. To save space, we we'll omit the headers for the remainder of the chapter.
+
+## Vectors and loops
+
+Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an illustrative example: R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
+
+```{r}
+mean_r = function(x) {
+  n = length(x)
+  m = 0
+  for(i in 1:n) 
+    m = m + x[i]/n
+  m
+}
+```
+
+This is a very bad R function. We should just use the base function `mean` for real world applications. However, the purpose of `mean_r` is to provide a comparison for the C++ version, which we will write in a similar way.
+
+For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`. The C++ version of the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
+
+```{Rcpp eval=FALSE}
+double mean_c(NumericVector x){
+  int i;
+  int n = x.size();
+  double mean = 0;
+  
+  for(i=0; i<n; i++){
+    mean = mean + x[i]/n;
+  }
+  return mean;
+}
+``` 
+
+To use the C++ function, we need to source the file (remember to put the necessary headers in).
+
+```{r}
+sourceCpp("src/mean_c.cpp")
+```
+
+Although the C++ version is similar, there are a few crucial differences.
+
+1. We use the `.size()` method to find the length of `x`
+1. The `for` loop has a slightly more complicated syntax.
+    ```{Rcpp eval=FALSE}
+    for (variable initialization; condition; variable update ) {
+       // Code to execute
+    }
+    ```
+1. C++ provides operators to modify variables in place. So `i++` increases the value of `i` by `1`. Similarly, we could rewrite part of the loop as
+    ```{Rcpp eval=FALSE}
+    mean += x[i]/n;
+    ```
+   The above code adds `x[i]/n` to the value of `mean`. Other similar operators are `-=`, `*=`, `/=` and `i--`.
+1. A C++ vector starts at `0` **not** `1`
+
+We can use the `microbenchmark` package to compare the C++ and R versions
+
+```{r}
+library("microbenchmark")
+```
+
+This package is useful for comparing functions that run quickly. It serves as a more accurate replacement to `system.time(replicate(1000, expr))`. We will include the base R `mean` function in the comparison. We generate some normal random numbers for the comparison
+
+```{r}
+x = rnorm(1e4)
+```
+
+Then call the `microbenchmark` function.
+
+```{r cache=TRUE}
+z = microbenchmark(
+  mean(x),
+  mean_r(x),
+  mean_c(x)
+)
+```
+
+The results are easily compared using the `boxplot` method
+
+```{r fig.width=5, fig.height=3, echo=2, fig.cap="Comparing C++ with R.", echo=2, cache=TRUE}
+par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01, cex.axis=0.9, las=1)
+boxplot(z)
+grid()
+```
+
+In this simple example, the C++ varient is around $100$ times faster than the corresponding R version.
+
+## Matrices
+
+Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use these types in a similar way to how we used `NumericVector`'s. The main differences are:
+
+ * When we initialise, we need specify the number of rows and columns
+    ```{Rcpp, eval=FALSE}
+    // 10 rows, 5 columns
+    NumericMatrix mat(10, 5);
+    // Length 10
+    NumericVector v(10);
+    ```
+
+ * We subset using `()`, i.e. `mat(5, 4)`.
+ * The first view in a matrix is `mat(0, 0)` - remember indexes start with `0`.
+ * To determine the number of rows and columns, we use the `.nrow()` and `.ncol()` methods.
+
+## Comments
+
+In C++, we can comment our code in two ways. If we want a one line comment, we use the `//` notation:
+
+```{Rcpp}
+// A one line comment
+```
+
+If we want a multi-line comment, then we use
+```{Rcpp}
+/*
+ A multi-line
+ comment
+*/ 
+```
+In the previous section we decorated the C++ functions with `// [[Rcpp::export]]` (note the space between `//` and `[[`). This uses the same idea as the `roxygen2` package and the `@export` control. The comment indicates that the function should be exported to C++. 
+
+One further trick that Rcpp provides is that we can embed R code in the Cpp file
+```{Rcpp}
+/*** R
+1 + 1
+*/
+```
+
+This can be particularly helpful when testing code.
+
+## C++ with sugar on top
+
+Rcpp sugar brings a higher-level of abstraction to C++ code written using the Rcpp API. What this means in practice is that we can write C++ code in the style of R. 
+
+Let's suppose we want to create a C++ function that finds the squared difference between two R vectors; the squared residual in a regression analysis. Making sure we have the correct headers, we would try something like
+
+```{Rcpp eval=FALSE}
+NumericVector res_c(NumericVector x, NumericVector y){
+  int i;
+  int n = x.size();
+  NumericVector residuals(n);
+  for(i=0; i<n; i++){
+    residuals[i] = pow(x[i] - y[i], 2);
+  }
+  return residuals;
+}
+```
+
+With `Rcpp` sugar, we can rewrite this code to be more succinct and have more of an R feel, 
+
+```{Rcpp eval=FALSE}
+NumericVector res_sugar(NumericVector x, NumericVector y){
+  return pow(x-y, 2);
+}
+```
+
+The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However, with the sugared variety, the code is shorter and is constantly being improved.
+
+> Challenge (hard): In the above example, `res_sugar` is faster than `res_c`. Do you know why?
+
+
+# Spark
+
+
+# Appendix: Datasets 
+
+```{r, echo=FALSE}
+# Plan: put a description of the datasets, and how to load them,
+# in a chapter at the end
+```
+
+## Mobile Century travel behaviour dataset
+
+This dataset is the result of an experiment conducted on the 8th February 2008,
+10:00 to 18:00 (PST) on the Interstate 880 road in California.
+100 GPS-enabled smart-phones were placed in cars for the experiment, the
+aim of which was to evaluate the potential of smart-phones to be used to
+monitor traffic conditions in real-time [@Herrera2010]. A website has been
+set-up to describe and disseminate the data for research purposes:
+[traffic.berkeley.edu/project/](http://traffic.berkeley.edu/project/).
+
+
+```{r}
+if(!file.exists("data/MobileCentury/pems_prop_NB.csv")){
+  url1 <- "http://traffic.berkeley.edu/sites/default/files/downloads/MobileCentury_data_final_ver3.zip?sid=1529"
+  url2 <- "http://traffic.berkeley.edu/sites/default/files/downloads/mobile_century_data_manual.pdf" # the user manual
+  dir.create("data/MobileCentury") # create directory for the data
+  downloader::download(url1, destfile = "data/MobileCentury_data_final_ver3.zip")
+  downloader::download(url2, destfile = "data/MobileCentury/mobile_century_data_manual.pdf")
+  unzip("data/MobileCentury_data_final_ver3.zip", exdir = "data/MobileCentury/")
+}
+```
+

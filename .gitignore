@@ -3,7 +3,7 @@
 .RData
 *.pdf
 big-data
-data
 wrdtc-handout.docx
 npidata
 *cache*
+book.Rmd

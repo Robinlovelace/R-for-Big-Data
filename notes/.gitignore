@@ -1,3 +1,4 @@
 *.html
 book.Rmd
 *_cache
+data

@@ -40,7 +40,7 @@ To use the package, you also need a working C++ compiler.
 
 To check that you have everything, try running the following piece of code from the course R package
  
-## First steps
+# First steps
  
 The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
 
@@ -106,7 +106,7 @@ double add_c(double x, double y){
 
 There are two main benefits with putting your C++ functions in separate files. First, we have the benefit of syntax highlighting (RStudio has great support for C++ editing). Second, it's easier to make syntax errors when the switching between R and C++ in the same file. To save space, we we'll omit the headers for the remainder of the chapter.
 
-## Vectors and loops
+# Vectors and loops
 
 Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an illustrative example: R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
 
@@ -233,7 +233,7 @@ One further trick that Rcpp provides is that we can embed R code in the Cpp file
 
 This can be particularly helpful when testing code.
 
-## C++ with sugar on top
+# C++ with sugar on top
 
 Rcpp sugar brings a higher-level of abstraction to C++ code written using the Rcpp API. What this means in practice is that we can write C++ code in the style of R. 
 

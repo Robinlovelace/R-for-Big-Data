@@ -33,7 +33,7 @@ including standard mathematical operators as well as
 `c()`, `duplicated()` and `which()` (implemented as `ffwhich()`).
 
 
-## Importing data
+# Importing data
 
 The `ff` package provides a number of functions to read in data. All the `read.*` base R functions have `ff` equivalents that are used in the same way. For example, after loading the package
 
@@ -73,7 +73,7 @@ colSums(ffx) # produces the following error:
 
 The `ETLutils` package provides further methods for importing data from SQL databases, such as SQLite, Oracle, Hive, and MySQL. 
 
-## Data chunks
+# Data chunks
 
 This section isn't quite right - `ffx[,1]` is numeric not class `ff`
 
@@ -122,7 +122,7 @@ filename(ffx)
 This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
 
 
-## ffbase
+# ffbase
 
 
 The `ff` package supplies the tools for manipulating large data sets, but provides few statistical functions. Conceptually, chunking algorithms are straightforward. The program reads a chunk of data into memory, performs intermediate calculations, saves the results and reads the next chunk. This process repeats until the entire dataset is processed. Unfortunately, many statistical algorithms have not been written with chunking in mind.
@@ -145,7 +145,7 @@ The `ffbase` package also provide access to other packages that handle large dat
  * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
  * `stream`: Infrastructure for Data Stream Mining
  
-## Biglm
+# Biglm
 
 Linear models (lm) are one of the most basic statistical models availables. The simplest regression model is 
 \[

@@ -22,8 +22,9 @@ if(grepl(pattern = "notes", getwd())){
 }
 
 ```
+\chapter{The ff package}
 
-#  ff: classes for representing (large) atomic data
+#  Introduction
 
 The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. While `ff` is nice, it means that everything is of type `ff`, which results in non-standard R code. The package only provides the building blocks; it doesn't offer many statistical functions and offers no support for characters. 
 
@@ -144,7 +145,7 @@ The `ffbase` package also provide access to other packages that handle large dat
  * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
  * `stream`: Infrastructure for Data Stream Mining
  
-### Biglm
+## Biglm
 
 Linear models (lm) are one of the most basic statistical models availables. The simplest regression model is 
 \[
@@ -152,7 +153,7 @@ Y_i = \beta_0 + \beta_1 x_i + \epsilon_i
 \]
 where $\epsilon_i \sim N(0, \sigma^2)$. This corresponds to fitting a straight line through some points. So $\beta_0$ is the  $y$-intercept and $\beta_1$ is the gradient. In the more general multiple regression model, there are $p$ predictor variables
 \begin{equation}
-Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip} + epsilon_i, 
+Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip} + \epsilon_i, 
 \end{equation}
 where $x_{ij}$ is the $i^\text{th}$ observation on the $j^\text{th}$ independent variable. Equation (\ref{}) can be written neatly in matrix notation as
 \[
@@ -206,4 +207,3 @@ Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. As w
  
  
 
- 

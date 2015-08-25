@@ -186,6 +186,26 @@ For a least squares regression with a simple size of $n$ training examples and $
 Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. As well as taking a long time to calculate, the memory required also increases. The R implementation of `lm` requires $O(np + p^2)$ in memory. But this can be reduced by constructing the model matrix in chunks. The `biglm`'s algorithm is based on [algorithm AS 274](http://lib.stat.cmu.edu/apstat/274), Miller, A, (1991). It works by updating the Cholesky decomposition with new observations. So for a model with $p$ variables, only the $p \times p$ (triangular) Cholesky factor and a single row of data needs to be in the memory at any given time. The `biglm` package does not do the chunking for you, but `ffbase` provides a handy S3 wrapper, `bigglm.ffdf`.
 
 
+## Example
+
+
+```{r echo=FALSE, eval=FALSE}
+##TODO
+## Make ff version of Lahman in package
+library("Lahman")
+ffd <- as.ffdf(quakes)
+by_year %>% 
+  do(mod = lm(R ~ AB, data = .)) %>%
+  object.size() %>%
+  print(unit = "MB")
+#> 22.2 Mb
+
+by_year %>% 
+  do(mod = biglm::biglm(R ~ AB, data = .)) %>%
+  object.size() %>%
+  print(unit = "MB")
+#> 0.8 Mb
+```
 
 
 

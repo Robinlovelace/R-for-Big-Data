@@ -1,8 +1,171 @@
 ---
-output: pdf_document
+output: html_document
 ---
 
-\newpage
+\chapter{Manipulating Big Data}
 
-# Manipulating Big Data with R
+# The power of dplyr
+
+**dplyr** has been carefully designed to make data analysis
+fast and intuitive. **dplyr** works perfectly
+on `data.frames` but it's default object is the `tbl`, which
+is identical to a `data.frame` but prints
+objects differently (more usefully), as shown below.
+
+```{r, message=FALSE}
+idata <- readxl::read_excel("data//world-bank-ineq.xlsx", sheet = 1)
+library(dplyr)
+idata <- tbl_df(idata) # convert the dataset to tbl class
+idata # print the dataset in the dplyr way
+```
+
+**dplyr** is much faster than base implementations of various
+operations, but it has the potential to be even faster, as
+*parallelisation* is
+[planned](https://github.com/hadley/dplyr/issues/145).
+
+You should not be expecting to learn the **dplyr** package in one sitting:
+the package is large and can be seen as
+an entirely new language, to supplement R's,
+in its own right. Following the 'walk before you run' principle,
+we'll start simple, by replicating the subsetting
+and grouping operations undertaken in base R above.
+
+```{r}
+aus_idata2 <- filter(idata, Country == "Australia")
+```
+
+Note that we did not need to use the `$` to tell R
+that `Country` is a variable of the `idata` object.
+Because `idata` was the first argument, **dplyr** 'knew'
+that any subsequent names would be variables.
+
+> **Note**: this *syntax* is a defining feature of **dplyr**
+and many of its functions work in the same way.
+
+The **dplyr** equivalent of aggregate is to use
+the grouping function `group_by` in combination with
+the general purpose function `summarise` (not to
+be confused with `summary` in base R).
+
+```{r}
+names(idata)[5:9] <-
+  c("top10", "bot10", "gini", "b40_cons", "gdp_percap")
+```
+
+As we will see with Twitter data in a subsequent section,
+the *class* of R objects is critical to how it performs.
+If a class is incorrectly specified (if numbers are treated
+as factors, for example), R will likely generate error messages.
+Try typing `mean(idata$gini)`, for example.
+
+We can re-assign the classes of the numeric variables
+one-by one:
+
+```{r}
+idata$gini <- as.numeric(as.character(idata$gini))
+mean(idata$gini, na.rm = TRUE) # now the mean is calculated
+```
+
+However, the purpose of programming languages is to *automate*
+arduous tasks and reduce typing. The following command
+re-classifies all of the numeric variables using
+the `apply` function (we'll seem more of `apply`'s relatives
+later):
+
+```{r, warning=FALSE}
+idata[5:9] <- apply(idata[5:9], 2,
+  function(x) as.numeric(as.character(x)))
+```
+
+```{r}
+countries <- group_by(idata, Country)
+summarise(countries, gini = mean(gini, na.rm = T))
+```
+
+Note that `summarise` is highly versatile, and can
+be used to return a customised range of summary statistics:
+
+```{r}
+summarise(countries,
+  # number of rows per country
+  obs = n(), 
+  med_t10 = median(top10, na.rm = T),
+  # standard deviation
+  sdev = sd(gini, na.rm = T), 
+  # number with gini > 30
+  n30 = sum(gini > 30, na.rm = T), 
+  sdn30 = sd(gini[ gini > 30 ], na.rm = T),
+  # range
+  dif = max(gini, na.rm = T) - min(gini, na.rm = T)
+  )
+```
+
+To showcase the power of `summarise` used on
+a `grouped_df`, the
+above code reports a wide range of customised
+summary statistics
+*per country*: 
+
+- the number of rows in each country group
+- standard deviation of gini indices
+- median proportion of income earned by the top 10%
+- the number of years in which the gini index was greater than 30
+- the standard deviation of gini index values over 30
+- the range of gini index values reported for each country.
+
+> **Challenge**: explore the **dplyr**'s documentation, starting with the introductory vignette, accessed by entering `vignette("introduction")` and test out its capabilities on the `idata` dataset. (More vignette names can be discovered by typing `vignette(package = "dplyr")`)
+
+# Chaining operations with dplyr
+
+Another interesting feature of **dplyr** is its ability
+to chain operations together. This overcomes one of the
+aesthetic issues with R code: you can end end-up with
+very long commands with many functions nested inside each
+other to answer relatively simple questions.
+
+> What were, on average, the 5 most unequal
+years for countries containing the letter g?
+
+Here's how chains work to organise the analysis in a
+logical step-by-step manner:
+
+```{r}
+idata %>% 
+  filter(grepl("g", Country)) %>%
+  group_by(Year) %>%
+  summarise(gini = mean(gini, na.rm = T)) %>%
+  arrange(desc(gini)) %>%
+  top_n(n = 5)
+```
+
+The above function consists of 6 stages, each of which
+corresponds to a new line and **dplyr** function:
+
+1. Filter-out the countries we're interested in (any selection criteria could be used in place of `grepl("g", Country)`).
+2. Group the output by year.
+3. Summarise, for each year, the mean gini index.
+4. Arrange the results by average gini index
+5. Select only the top 5 most unequal years.
+
+To see why this method is preferable to the nested
+function approach, take a look at the latter.
+Even after indenting properly it looks terrible
+and is almost impossible to understand!
+
+```{r}
+top_n(
+  arrange(
+    summarise(
+      group_by(
+        filter(idata, grepl("g", Country)),
+        Year),
+      gini = mean(gini, na.rm = T)),
+    desc(gini)),
+  n = 5)
+```
+
+Of course, you *could* write code in base R to
+undertake the above analysis but for many
+people the **dplyr** approach is the most agreable to write.
 

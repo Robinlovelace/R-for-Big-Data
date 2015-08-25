@@ -7,3 +7,10 @@ wrdtc-handout.docx
 npidata
 *cache*
 book.Rmd
+book.aux
+book.idx
+book.log
+book.out
+book.tex
+book.toc
+.#book.tex

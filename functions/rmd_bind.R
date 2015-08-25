@@ -16,9 +16,8 @@ rmd_bind <- function(dir = ".",
   for(i in 1:length(cfiles)){
     text <- readLines(cfiles[i])
     hspan <- grep("---", text)
-    text <- text[-c(hspan[1]:hspan[2])]
-    write(text, sep = "\n", file = "book.Rmd", append = T)
+    if(length(hspan > 1)) text <- text[-c(hspan[1]:hspan[2])]
+    write(text, sep = "\n", file = "book.Rmd", append = TRUE)
   }
   #     render("book.Rmd", output_format = "pdf_document")
-
 }

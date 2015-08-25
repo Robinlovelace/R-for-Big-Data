@@ -68,22 +68,22 @@ We recommend you don't
 run this code:
 
 ```{r, eval=FALSE}
-dir.create("npidata") # create folder for data
+dir.create("data") # create folder for data
 url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
 
 # download a large dataset - don't run
 library(downloader) # needs to be installed
-download(url, destfile = "npidata/largefile.zip")
+download(url, destfile = "data/largefile.zip")
 ## 550600K .......... ...... 100% 1.26M=6m53s
 
 # unzip the compressed file, measure time
 system.time( 
-  unzip("npidata/largefile.zip", exdir = "npidata/")
+  unzip("data/largefile.zip", exdir = "data/")
   )
 ##    user  system elapsed 
 ##  34.380  22.428 193.145
 
-file.info("npidata/npidata_20050523-20150809.csv")
+file.info("data/data_20050523-20150809.csv")
 ##       size: 5647444347
 ```
 
@@ -94,7 +94,7 @@ The following code requires a 64 bit R installation and will not work on
 many laptops.
 
 ```{r, eval=FALSE}
-df <- read.csv("npidata/npidata_20050523-20150809.csv")
+df <- read.csv("data/data_20050523-20150809.csv")
 ## Error: cannot allocate vector of 32.0 Mb
 ```
 

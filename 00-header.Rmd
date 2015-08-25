@@ -1,8 +1,7 @@
 ---
 title: "R for Big Data"
 author: "Colin Gillespie and Robin Lovelace"
-date: "February 8, 2015"
-classoption: oneside
+classoption: openany,a4paper,justified
 output:
   rticles::tufte_ebook:
     toc: true

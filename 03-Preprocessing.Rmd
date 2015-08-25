@@ -25,7 +25,7 @@ will provide access to this functionality. Note: you must start from the correct
 *working directory*. Use `pwd` in Bash or `setwd()` in R to check this.]
 
 ```
-cd npidata
+cd data
 split -b100m npidata_20050523-20150809.csv
 ```
 

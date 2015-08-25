@@ -1,5 +1,5 @@
 ---
-output: pdf_document
+output: word_document
 ---
 
 ```{r eval=FALSE, echo=FALSE}
@@ -16,12 +16,13 @@ if(grepl(pattern = "notes", getwd())){
     x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
     # system.time(write.csv(x, file="data/rand.csv", row.names=FALSE))
     system.time(write_csv(x, path = "data/rand.csv")) # slightly faster
+    write_csv(x[1:1000,], "data/rand-mini.csv")
     rm(x)
   }
   
 }
-
 ```
+
 \chapter{The ff package}
 
 #  Introduction
@@ -44,11 +45,12 @@ library("ff")
 we can load a data set via
 
 ```{r, cache=FALSE}
-system.time(ffx <- read.csv.ffdf(file="data/rand.csv", header = TRUE))
+ffx <- read.csv.ffdf(file="data/rand-mini.csv", header = TRUE)
 ```
 
-library(readr)
 ```{r, echo=FALSE, eval=FALSE}
+library(readr)
+system.time(ffx <- read.csv.ffdf(file="data/rand.csv", header = TRUE))
 system.time(x <- read_csv("data/rand.csv"))
 system.time(x <- read.csv("data/rand.csv"))
 # It seems that read_csv is much faster than either read.csv or read.csv.ffdf

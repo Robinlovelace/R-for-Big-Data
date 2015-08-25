@@ -1,5 +1,5 @@
 ---
-output:
+output: word_document
 ---
 
 ```{r eval=FALSE, echo=FALSE}

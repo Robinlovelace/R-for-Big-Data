@@ -2,5 +2,119 @@
 output: pdf_document
 ---
 
-\chapter{Spark}
+\chapter{Apache Spark}
 
+# What is Apache Spark
+
+Apache Spark is a computing platform whose goal is make analysis of big data sets fast. Spark extends the MapReduce paradigm to support more computation types. A key feature of Spark is that it can run computation both in-memory, but is also efficient for running complex applications on disk.
+
+The Spark project contains multiple tightly integrated components. Since the system has been designed with the close coupling, this means that improvements in one part of the engine, these improvements are automatically used by other componets. Another benefit of the tight coupling, is that there is a single system to maintain. This can be crucial for large organisations.
+
+The Spark stack contains a number of components.
+
+  * Spark Core: The Core contains the basic functionality of Spark, such as, memory management, fault recovery, and interacting with storage systems. Spark Core provides APIs that enable the other components to access these collections.
+  * Spark SQL: This provides an SQL interface for interacting with 
+  * Spark Streaming:
+  * MLlib:
+  * GraphX:
+  * Cluster Managers:
+
+## Resources
+
+ * Apache Spark [homepage](https://spark.apache.org/)
+ * Learning Spark \cite{Karau2015}
+ * Advanced analytics with Spark \cite{Ryza2014}
+
+
+
+<!-- 
+  http://blog.rstudio.org/2015/05/28/sparkr-preview-by-vincent-warmerdam/
+The main feature of Spark is the resilient distributed dataset, which is a dataset that can be queried in memory, in parallel on a cluster of machines. You don’t need a cluster of machines to get started with Spark though. Even on a single machine, Spark is able to efficiently use any configured resources.
+-->
+
+# A first Spark instance
+
+There are a number of prelimary steps we need to take before beginning an analysis. First, we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
+```{r eval=FALSE, echo=1}
+Sys.setenv(SPARK_HOME="/path/to/spark/")
+Sys.setenv(SPARK_HOME="/data/ncsg3/spark-1.4.1-bin-hadoop2.6/")
+```
+
+Then we load the `SparkR` package
+```{r eval=FALSE}
+library("SparkR")
+```
+
+\noindent Next we initialise the Spark cluster and create a `SparkContext` 
+```{r eval=FALSE}
+sc = sparkR.init(master="local")
+```
+\noindent The `sparkR.init` function has number of arguments. In particular, if we want to use any Spark packages, these should be specified during the initialisation stage. So if we wanted to load in a csv file, we would need something like
+```{r eval=FALSE}
+sc = sparkR.init(sparkPackages="com.databricks:spark-csv_2.11:1.0.3")
+```
+
+\noindent When we finish our Spark session, we should terminate the Spark context via
+```{r eval=FALSE}
+sparkR.stop()
+```
+
+
+# Example: Spark dataframes
+
+Suppose we have already initialised a Spark context. To use Spark dataframes, we create an SQLContext 
+```{r eval=FALSE}
+sqlContext = sparkRSQL.init(sc)
+```
+
+\noindent The SQLContext allows us to create dataframes from a local R data frame, 
+
+```{r eval=FALSE}
+chicks_sp = createDataFrame(sqlContext, chickwts) 
+```
+
+\noindent or from other data sources, such as CSV files or a Hive table. If we examine the newly created object, we get
+
+```{r eval=FALSE}
+R> chicks_sp
+# DataFrame[weight:double, feed:string]
+```
+
+\noindent An S3 method for `head` is also available, so
+
+```{r eval=FALSE, tidy=FALSE}
+R> head(chicks_sp, 2)
+#  weight      feed
+#1    179 horsebean
+#2    160 horsebean
+```
+
+\noindent We can extract columns using the dollar notation, `chicks_sp$weight` or using `select`
+```{r eval=FALSE}
+R> select(chicks_sp,  "weight")
+DataFrame[weight:double]
+```
+
+\noindent We can subset or filter the data frame using the `filter` function
+```{r eval=FALSE}
+ filter(chicks_sp, chicks_sp$feed == "horsebean")
+```
+
+\noindent Using Spark data frames, we can also easily group and aggregate data frames. Since the `SparkR` is an API to the underlying Scala code, it have a functional flavour. This means, that it is very similar to the `dplyr` syntax. For example, to count the number of chicks in each feed group, we group, and then summarise:
+
+```{r eval=FALSE, tidy=FALSE}
+chicks_cnt = groupBy(chicks_sp, chicks_sp$feed) %>%
+  summarize(count=n(chicks_sp$feed))
+```
+\noindent Then use `head` to view the top rows
+
+```{r eval=FALSE, tidy=FALSE}              
+head(chicks_cnt, 2)
+#      feed count
+#1   casein    12
+#2 meatmeal    11
+```
+\noindent We can also use arrange the data by the most common group
+```{r eval=FALSE, tidy=FALSE}
+arrange(chicks_cnt, desc(chicks_cnt$count))
+```

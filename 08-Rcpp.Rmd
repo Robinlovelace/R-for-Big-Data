@@ -189,7 +189,7 @@ boxplot(z)
 grid()
 ```
 
-In this simple example, the C++ varient is around $100$ times faster than the corresponding R version.
+In this simple example, the C++ variant is around $100$ times faster than the corresponding R version.
 
 ## Matrices
 

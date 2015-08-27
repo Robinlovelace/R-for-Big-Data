@@ -1,9 +1,6 @@
 # Book building function
-rmd_bind <- function(dir = ".",
-                     book_header = readLines(textConnection("---\ntitle: 'Title'\n---")),
-                     render=TRUE){
-  old <- setwd(dir)
-  on.exit(setwd(old))
+rmd_bind <- function(book_header, dir = ".", render=TRUE){
+  old <- setwd(dir);  on.exit(setwd(old))
   if(length(grep("book.Rmd$", list.files())) > 0){
     warning("book.Rmd already exists")
   }

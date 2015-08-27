@@ -14,3 +14,4 @@ book.out
 book.tex
 book.toc
 .#book.tex
+ignore_*

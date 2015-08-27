@@ -1,7 +1,5 @@
 ---
 title: 'R for Big Data: WRDTC Advanced Training Series'
-author: "Robin Lovelace, Michelle Morris and Mark Birkin"
-date: "May, 2015"
 output:
   pdf_document:
     fig_caption: yes

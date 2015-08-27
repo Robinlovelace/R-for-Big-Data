@@ -13,10 +13,10 @@ rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
     ttext <- readLines(cfiles[i])
     hspan <- grep("---", ttext)
     if(length(hspan > 1)) ttext <- ttext[-(hspan[1]:hspan[2])]
-    write(text, sep = "\n", file = "book.Rmd", append = TRUE)
+    write(ttext, sep = "\n", file = "book.Rmd", append = TRUE)
   }
   if(render)
     rmarkdown::render("book.Rmd")
 }
 
-rmd_bind(book_header = "00-header.Rmd", chap_ord=chap_ord)
+rmd_bind(book_header = "00-header.Rmd", chap_ord = 10)

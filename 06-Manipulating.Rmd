@@ -7,8 +7,8 @@ output: html_document
 # The power of dplyr
 
 **dplyr** has been carefully designed to make data analysis
-fast and intuitive. **dplyr** works perfectly
-on `data.frames` but it's default object is the `tbl`, which
+fast and intuitive [@dplyr]. **dplyr** works perfectly
+on `data.frames` but its default object is the `tbl`, which
 is identical to a `data.frame` but prints
 objects differently (more usefully), as shown below.
 

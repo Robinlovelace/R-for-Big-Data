@@ -34,3 +34,8 @@ if(!file.exists("data/MobileCentury/pems_prop_NB.csv")){
 }
 ```
 
+## Moby Dick; or The Whale, by Herman Melville
+
+The text file for the ebook of Moby Dick can be downloaded from the Gutenberg.org website\sidenote{\url{https://www.gutenberg.org/files/2701/2701.txt}}
+
+

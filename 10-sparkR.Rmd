@@ -111,12 +111,12 @@ vec_sp = SparkR:::parallelize(sc, 1:100)
 
 # Example: Spark dataframes
 
-Suppose we have already initialised a Spark context. To use Spark dataframes, we create an SQLContext 
+Suppose we have already initialised a Spark context. To use Spark dataframes, we need to create an `SQLContext`, via
 ```{r eval=FALSE}
 sqlContext = sparkRSQL.init(sc)
 ```
 
-\noindent The SQLContext allows us to create dataframes from a local R data frame, 
+\noindent The SQLContext enables us to create dataframes from a local R data frame, 
 
 ```{r eval=FALSE}
 chicks_sp = createDataFrame(sqlContext, chickwts) 
@@ -138,7 +138,7 @@ R> head(chicks_sp, 2)
 #2    160 horsebean
 ```
 
-\noindent We can extract columns using the dollar notation, `chicks_sp$weight` or using `select`
+\noindent gives what we would expect. We can extract columns using the dollar notation, `chicks_sp$weight` or using `select`
 ```{r eval=FALSE}
 R> select(chicks_sp,  "weight")
 # DataFrame[weight:double]
@@ -167,12 +167,6 @@ head(chicks_cnt, 2)
 ```{r eval=FALSE, tidy=FALSE}
 arrange(chicks_cnt, desc(chicks_cnt$count))
 ```
-
-## Example: Bootstraping
-
-In this example\sidenote{This example has been adapted from the rstudio blog post at \url{http://goo.gl/pk3Ax9}} we will create a large dataset that we 
-
-These examples are nice, but you can also use the power of Spark for more common data science tasks. Let’s sample a dataset to generate a large RDD, which we will then summarise via bootstrapping. Instead of parallelizing numbers, I will now parallelize dataframe samples.
 
 
 # Resources

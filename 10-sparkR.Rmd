@@ -8,7 +8,7 @@ output: pdf_document
 
 Apache Spark is a computing platform whose goal is make analysis of big data sets fast. Spark extends the MapReduce paradigm to support more computation types. A key feature of Spark is that it can run computation both in-memory, but is also efficient for running complex applications on disk.
 
-The Spark project contains multiple tightly integrated components. Since the system has been designed with the close coupling, this means that improvements in one part of the engine, these improvements are automatically used by other componets. Another benefit of the tight coupling, is that there is a single system to maintain. This can be crucial for large organisations.
+The Spark project contains multiple tightly integrated components. Since the system has been designed with the close coupling, this means that improvements in one part of the engine, these improvements are automatically used by other components. Another benefit of the tight coupling, is that there is a single system to maintain. This can be crucial for large organisations.
 
 The Spark stack contains a number of components.
 
@@ -22,7 +22,7 @@ The Spark stack contains a number of components.
 
 # A first Spark instance
 
-There are a number of prelimary steps we need to take before beginning an analysis. First, we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
+There are a number of preliminary steps we need to take before beginning an analysis. First, we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
 ```{r eval=FALSE, echo=1}
 Sys.setenv(SPARK_HOME="/path/to/spark/")
 Sys.setenv(SPARK_HOME="/data/ncsg3/spark-1.4.1-bin-hadoop2.6/")
@@ -62,7 +62,7 @@ moby = SparkR:::textFile(sc, "data/moby_dick.txt")
 R> moby
 # MapPartitionsRDD[3] at textFile at NativeMethodAccessorImpl.java:-2
 ```
-\noindent Once we have an RDD object, there are two options available: *transformation* and *action*. A transformation operation, constructs a new RDD by using the previou one. For example, suppose we want to extract the lines that contain the word `Moby` in our data set. This is a standard operation, we have a dataset and we want to remove certain values. We create a function called `get_moby` that only returns `TRUE` or `FALSE`. The `filterRDD` function then retains any rows that are `TRUE`, i.e.
+\noindent Once we have an RDD object, there are two options available: *transformation* and *action*. A transformation operation, constructs a new RDD by using the previous one. For example, suppose we want to extract the lines that contain the word `Moby` in our data set. This is a standard operation, we have a dataset and we want to remove certain values. We create a function called `get_moby` that only returns `TRUE` or `FALSE`. The `filterRDD` function then retains any rows that are `TRUE`, i.e.
 ```{r eval=FALSE, tidy=FALSE}
 get_moby = function(x) 
   "Moby" %in% strsplit(x, split = " ")[[1]]
@@ -75,11 +75,11 @@ An action computes a result based on an RDD. The result is either displayed or s
 ## The answer is 77 BTW
 count(mobys)
 ```
-\noindent Spark deaks with Transformations and actions in two different ways. Similar to `dplyr`, Spark uses lazy evaluation, that is it only performs that computation when it is used by an action. In the example above, the `textFile` and `filterRDD` commands are run only when we use `count`. 
+\noindent Spark deals with Transformations and actions in two different ways. Similar to `dplyr`, Spark uses lazy evaluation, that is it only performs that computation when it is used by an action. In the example above, the `textFile` and `filterRDD` commands are run only when we use `count`. 
 
 Similar to `dplyr`, lazy evaluation is essential when working with big data. If we consider the example above. If SparkR actually ran `textFile` straight away, this would use up a load of disk space. This is a waste, since we immediately filter out the vast majority of the text. Instead, SparkR (and hence Spark), takes the chain of transformations, and computes just the data needed to get the result.
 
-Spark's RDDs are (by default) recomputed each time you run an action on them.\sidenote{Alternatively, we could use `cache(moby)`, which is the same as `persist` with the default level of storage.} To reuse RDD's in multiple operations we can ask Spark to persit it via
+Spark's RDDs are (by default) recomputed each time you run an action on them.\sidenote{Alternatively, we could use `cache(moby)`, which is the same as `persist` with the default level of storage.} To reuse RDDs in multiple operations we can ask Spark to persist it via
 ```{r eval=FALSE}
 ## There are different levels of storage
 persist(mobys, "MEMORY_ONLY")
@@ -87,11 +87,11 @@ persist(mobys, "MEMORY_ONLY")
 
 \noindent If you are not planning on reusing the object, don't use persist.
 
-To summarise, every Spark seesion will have a similar structure.
+To summarise, every Spark session will have a similar structure.
 \begin{enumerate}
 \item Create a resilient distributed dataset (RDD).
 \item Transform and manipulate the data set.
-\item For key data sets, use `persist` for efficieny.
+\item For key data sets, use `persist` for efficiency.
 \item Retrieve the results via an action such as `count`.
 \end{enumerate}
 
@@ -99,7 +99,7 @@ To summarise, every Spark seesion will have a similar structure.
 
 There are two ways of creating an RDD. Either by parallelizing an existing dataset, or from an external data source, such as a database or csv file.
 
-The easiest way to create an RDD file is from an existing data set and pass it to the `parallelize` function. However, this probably means the data is realively small and you don't need to use Spark. Nevertheless, it's when learning Spark/SparkR, since you can quickly test and protype code. For example, to create an RDD representation of the vector `1:100`, we would use
+The easiest way to create an RDD file is from an existing data set and pass it to the `parallelize` function. However, this probably means the data is relatively small and you don't need to use Spark. Nevertheless, it's when learning Spark/SparkR, since you can quickly test and protype code. For example, to create an RDD representation of the vector `1:100`, we would use
 
 ```{r eval=FALSE}
 vec_sp = SparkR:::parallelize(sc, 1:100)
@@ -111,12 +111,12 @@ vec_sp = SparkR:::parallelize(sc, 1:100)
 
 # Example: Spark dataframes
 
-Suppose we have already initialised a Spark context. To use Spark dataframes, we need to create an `SQLContext`, via
+Suppose we have already initialised a Spark context. To use Spark data frames, we need to create an `SQLContext`, via
 ```{r eval=FALSE}
 sqlContext = sparkRSQL.init(sc)
 ```
 
-\noindent The SQLContext enables us to create dataframes from a local R data frame, 
+\noindent The SQLContext enables us to create data frames from a local R data frame, 
 
 ```{r eval=FALSE}
 chicks_sp = createDataFrame(sqlContext, chickwts) 

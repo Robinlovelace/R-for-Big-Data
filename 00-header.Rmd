@@ -2,6 +2,7 @@
 title: "R for Big Data"
 author: "Colin Gillespie and Robin Lovelace"
 classoption: openany,a4paper,justified
+bibliography: r4bd.bib
 output:
   rticles::tufte_ebook:
     toc: true

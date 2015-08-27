@@ -105,6 +105,11 @@ The easiest way to create an RDD file is from an existing data set and pass it t
 vec_sp = SparkR:::parallelize(sc, 1:100)
 ```
 
+\noindent As before, we don't actually compute `vec_sp` until it is needed, 
+```{r eval=FALSE}
+count(vec_sp)
+```
+
 \noindent Typically, we would want to load data from external data sets. This could, for example, be from a text file using `textFile` described above, or from CSV file (again via `textFile`), provided you have loaded the correct library.
 
 

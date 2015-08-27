@@ -19,18 +19,6 @@ The Spark stack contains a number of components.
   * GraphX:
   * Cluster Managers:
 
-## Resources
-
- * Apache Spark [homepage](https://spark.apache.org/)
- * Learning Spark \cite{Karau2015}
- * Advanced analytics with Spark \cite{Ryza2014}
-
-
-
-<!-- 
-  http://blog.rstudio.org/2015/05/28/sparkr-preview-by-vincent-warmerdam/
-The main feature of Spark is the resilient distributed dataset, which is a dataset that can be queried in memory, in parallel on a cluster of machines. You don’t need a cluster of machines to get started with Spark though. Even on a single machine, Spark is able to efficiently use any configured resources.
--->
 
 # A first Spark instance
 
@@ -58,6 +46,67 @@ sc = sparkR.init(sparkPackages="com.databricks:spark-csv_2.11:1.0.3")
 ```{r eval=FALSE}
 sparkR.stop()
 ```
+
+# Resilient Distributed Datasets (RDD)
+
+The core feature of Spark is the resilient distributed dataset (RDD). An RDD is an abstraction\sidenote{By abstraction we simply mean, we don't worry about how or where the data set is stored.} that helps us deal with big data. An RDD is a distributed collection of elements (including data and functions). In Spark, everything we do revolves around RDDs. Typically, we may want to create,  transform or operate on the distributed data set. Spark automatically handles had the data is distributed across your computer/cluster and parallelises operations where possible.
+
+## Example: Moby Dick
+
+For this example, we are using the Moby Dick text, downloaded from the Project Gutenberg website. Assuming that we are already in a Spark session, we can read in the text using the `textFiles` function
+```{r eval=FALSE}
+moby = SparkR:::textFile(sc, "data/moby_dick.txt")
+```
+\noindent There are two keys points to note. First, we pass the Spark instance object `sc` as an argument.\sidenote{In R, `::` is used to access functions that have been exported by a package, i.e. methods that appear in the NAMESPACE file. However, there are some functions in the package that the author may want to remain private, these can be accessed using `:::`.}  Second,we are using `:::` to access an non-exported function from `SparkR`\sidenote{SparkR was only integrated into Spark in June 2015, so the API is still being finalised.}. This is because the API for SparkR has yet to be finalised. So it is likely that some things in this chapter will break in a few months time. The `moby` object is an RDD
+```{r eval=FALSE, tidy=FALSE}
+R> moby
+# MapPartitionsRDD[3] at textFile at NativeMethodAccessorImpl.java:-2
+```
+\noindent Once we have an RDD object, there are two options available: *transformation* and *action*. A transformation operation, constructs a new RDD by using the previou one. For example, suppose we want to extract the lines that contain the word `Moby` in our data set. This is a standard operation, we have a dataset and we want to remove certain values. We create a function called `get_moby` that only returns `TRUE` or `FALSE`. The `filterRDD` function then retains any rows that are `TRUE`, i.e.
+```{r eval=FALSE, tidy=FALSE}
+get_moby = function(x) 
+  "Moby" %in% strsplit(x, split = " ")[[1]]
+mobys = SparkR:::filterRDD(moby, get_moby)
+```
+\noindent Again this is a functional approach to programming and is similar to the `apply` family. 
+
+An action computes a result based on an RDD. The result is either displayed or stored somewhere else on the system. For example, if we want to know how many rows contain the word `Moby`, we use the count function
+```{r eval=FALSE}
+## The answer is 77 BTW
+count(mobys)
+```
+\noindent Spark deaks with Transformations and actions in two different ways. Similar to `dplyr`, Spark uses lazy evaluation, that is it only performs that computation when it is used by an action. In the example above, the `textFile` and `filterRDD` commands are run only when we use `count`. 
+
+Similar to `dplyr`, lazy evaluation is essential when working with big data. If we consider the example above. If SparkR actually ran `textFile` straight away, this would use up a load of disk space. This is a waste, since we immediately filter out the vast majority of the text. Instead, SparkR (and hence Spark), takes the chain of transformations, and computes just the data needed to get the result.
+
+Spark's RDDs are (by default) recomputed each time you run an action on them.\sidenote{Alternatively, we could use `cache(moby)`, which is the same as `persist` with the default level of storage.} To reuse RDD's in multiple operations we can ask Spark to persit it via
+```{r eval=FALSE}
+## There are different levels of storage
+persist(mobys, "MEMORY_ONLY")
+```
+
+\noindent If you are not planning on reusing the object, don't use persist.
+
+To summarise, every Spark seesion will have a similar structure.
+\begin{enumerate}
+\item Create a resilient distributed dataset (RDD).
+\item Transform and manipulate the data set.
+\item For key data sets, use `persist` for efficieny.
+\item Retrieve the results via an action such as `count`.
+\end{enumerate}
+
+# Loading data: creating RDDs
+
+There are two ways of creating an RDD. Either by parallelizing an existing dataset, or from an external data source, such as a database or csv file.
+
+The easiest way to create an RDD file is from an existing data set and pass it to the `parallelize` function. However, this probably means the data is realively small and you don't need to use Spark. Nevertheless, it's when learning Spark/SparkR, since you can quickly test and protype code. For example, to create an RDD representation of the vector `1:100`, we would use
+
+```{r eval=FALSE}
+vec_sp = SparkR:::parallelize(sc, 1:100)
+```
+
+\noindent Typically, we would want to load data from external data sets. This could, for example, be from a text file using `textFile` described above, or from CSV file (again via `textFile`), provided you have loaded the correct library.
+
 
 
 # Example: Spark dataframes
@@ -92,15 +141,15 @@ R> head(chicks_sp, 2)
 \noindent We can extract columns using the dollar notation, `chicks_sp$weight` or using `select`
 ```{r eval=FALSE}
 R> select(chicks_sp,  "weight")
-DataFrame[weight:double]
+# DataFrame[weight:double]
 ```
 
 \noindent We can subset or filter the data frame using the `filter` function
 ```{r eval=FALSE}
- filter(chicks_sp, chicks_sp$feed == "horsebean")
+filter(chicks_sp, chicks_sp$feed == "horsebean")
 ```
 
-\noindent Using Spark data frames, we can also easily group and aggregate data frames. Since the `SparkR` is an API to the underlying Scala code, it have a functional flavour. This means, that it is very similar to the `dplyr` syntax. For example, to count the number of chicks in each feed group, we group, and then summarise:
+\noindent Using Spark data frames, we can also easily group and aggregate data frames (similar to the `dplyr` syntax). For example, to count the number of chicks in each feed group, we group, and then summarise:
 
 ```{r eval=FALSE, tidy=FALSE}
 chicks_cnt = groupBy(chicks_sp, chicks_sp$feed) %>%
@@ -118,3 +167,18 @@ head(chicks_cnt, 2)
 ```{r eval=FALSE, tidy=FALSE}
 arrange(chicks_cnt, desc(chicks_cnt$count))
 ```
+
+## Example: Bootstraping
+
+In this example\sidenote{This example has been adapted from the rstudio blog post at \url{http://goo.gl/pk3Ax9}} we will create a large dataset that we 
+
+These examples are nice, but you can also use the power of Spark for more common data science tasks. Let’s sample a dataset to generate a large RDD, which we will then summarise via bootstrapping. Instead of parallelizing numbers, I will now parallelize dataframe samples.
+
+
+# Resources
+
+ * Apache Spark [homepage](https://spark.apache.org/)
+ * Learning Spark @Karau2015
+ * Advanced analytics with Spark \cite{Ryza2014}
+
+\newpage

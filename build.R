@@ -9,11 +9,10 @@ rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
 
   if(!is.null(chap_ord)) cfiles = cfiles[chap_ord]
 
-  ttext <- NULL
   for(i in 1:length(cfiles)){
-    text <- readLines(cfiles[i])
-    hspan <- grep("---", text)
-    if(length(hspan > 1)) text <- text[-c(hspan[1]:hspan[2])]
+    ttext <- readLines(cfiles[i])
+    hspan <- grep("---", ttext)
+    if(length(hspan > 1)) ttext <- ttext[-c(hspan[1]:hspan[2])]
     write(text, sep = "\n", file = "book.Rmd", append = TRUE)
   }
   if(render)

@@ -149,7 +149,7 @@ The `ffbase` package also provide access to other packages that handle large dat
  
 # Biglm
 
-Linear models (lm) are one of the most basic statistical models availables. The simplest regression model is 
+Linear models (lm) are one of the most basic statistical models available. The simplest regression model is 
 \[
 Y_i = \beta_0 + \beta_1 x_i + \epsilon_i
 \]

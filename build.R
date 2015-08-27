@@ -12,7 +12,7 @@ rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
   for(i in 1:length(cfiles)){
     ttext <- readLines(cfiles[i])
     hspan <- grep("---", ttext)
-    if(length(hspan > 1)) ttext <- ttext[-c(hspan[1]:hspan[2])]
+    if(length(hspan > 1)) ttext <- ttext[-(hspan[1]:hspan[2])]
     write(text, sep = "\n", file = "book.Rmd", append = TRUE)
   }
   if(render)

@@ -177,8 +177,8 @@ These examples are nice, but you can also use the power of Spark for more common
 
 # Resources
 
- * Apache Spark [homepage](https://spark.apache.org/)
- * Learning Spark @Karau2015
- * Advanced analytics with Spark \cite{Ryza2014}
+ * Apache Spark homepage\sidenote{\url{https://spark.apache.org/}}
+ * Learning Spark [@Karau2015]
+ * Advanced analytics with Spark [@Ryza2014]
 
-\newpage
+\clearpage

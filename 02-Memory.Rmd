@@ -92,7 +92,7 @@ When thinking about sizes of objects in R, it's a little bit more complicated th
  
 \noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
 
-We can examine the size of an object using the base function `object.size`. However, a similar function `object_size` in the `pryr` package, counts more accurately and includes the size of environments. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in `4L`.}
+We can examine the size of an object using the base function `object.size`. However, a similar function `object_size` in the `pryr` package, counts more accurately and includes the size of environments. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in `4L`. However, the largest possible integer that can be created is `2^31-1`. Try `as.integer(2^31)`}
 ```{r}
 v1 = 1:1e6
 ```

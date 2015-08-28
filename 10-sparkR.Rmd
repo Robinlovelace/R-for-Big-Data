@@ -26,7 +26,7 @@ The Spark stack is composed of the following libraries.
 
 # A first Spark instance
 
-There are a number of preliminary steps we need to take before beginning an analysis. After Spark had been installed^[There are a number of ways to deploy Spark, the simplest of which is 'Standalone Mode', which simply requires a compiled version of Spark to be available on the machine. Other deployment modes include 'EC2', for use on Amazon's cloud computing infrastructure, and via Apache's cluster management system Mesos and YARN, which is an evolution of Hadoop.] we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
+There are a number of preliminary steps we need to take before beginning an analysis. After Spark had been installed we set the environment variable `SPARK_HOME`.\sidenote{There are a number of ways to deploy Spark, the simplest of which is 'Standalone Mode', which simply requires a compiled version of Spark to be available on the machine. Other deployment modes include 'EC2', for use on Amazon's cloud computing infrastructure, and via Apache's cluster management system Mesos and YARN, which is an evolution of Hadoop.} This can be in done in our `bashrc` file, or in R itself, via
 
 ```{r eval=FALSE, echo=1}
 Sys.setenv(SPARK_HOME="/path/to/spark/")

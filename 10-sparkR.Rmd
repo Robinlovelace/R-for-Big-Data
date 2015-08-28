@@ -4,9 +4,9 @@ output: pdf_document
 
 \chapter{Apache Spark}
 
-# What is Apache Spark
+# What is Apache Spark?
 
-Apache Spark is a computing platform whose goal is to make the analysis of large datasets fast. Spark extends the MapReduce paradigm for parallel computing to support a wide range of operations. A key feature of Spark is that it can run complex computational tasks both in-memory and on disk.
+Apache Spark is a computing platform whose goal is to make the analysis of large datasets fast. Spark extends the *MapReduce* paradigm for parallel computing to support a wide range of operations. A key feature of Spark is that it can run complex computational tasks both in-memory and on disk.
 
 The Spark project contains multiple tightly integrated components. This closely coupled design means that improvements in one part of the Spark engine are automatically used by other components. Another benefit of the tight coupling between Spark's components is that there is a single system to maintain, which can be crucial for large organisations.
 
@@ -26,14 +26,14 @@ The Spark stack is composed of the following libraries.
 
 # A first Spark instance
 
-There are a number of preliminary steps we need to take before beginning an analysis. First, we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
+There are a number of preliminary steps we need to take before beginning an analysis. After Spark had been installed^[There are a number of ways to deploy Spark, the simplest of which is 'Standalone Mode', which simply requires a compiled version of Spark to be available on the machine. Other deployment modes include 'EC2', for use on Amazon's cloud computing infrastructure, and via Apache's cluster management system Mesos and YARN, which is an evolution of Hadoop.] we set the environment variable `SPARK_HOME`. This can be in done in our `bashrc` file, or in R itself, via
 
 ```{r eval=FALSE, echo=1}
 Sys.setenv(SPARK_HOME="/path/to/spark/")
 Sys.setenv(SPARK_HOME="/data/ncsg3/spark-1.4.1-bin-hadoop2.6/")
 ```
 
-Then we load the `SparkR` packag
+Then we load the `SparkR` package
 ```{r eval=FALSE}
 library("SparkR")
 ```
@@ -110,7 +110,7 @@ To summarise, every Spark session will have a similar structure.
 
 There are two ways of creating an RDD: 1) by parallelizing an existing dataset; or 2) from an external data source, such as a database or csv file.
 
-The easiest way to create an RDD file is from an existing data set which can be passed to the `parallelize` function. If you use this method it may mean the data is relatively small and you don't need to use Spark. Nevertheless, applying the method on small datasets will help you to learn Spark/SparkR quickly, since you can quickly test and protype code. To create an RDD representation of the vector `1:100`, we would use
+The easiest way to create an RDD file is from an existing data set which can be passed to the `parallelize` function. If you use this method it may mean the data is relatively small and you don't need to use Spark. Nevertheless, applying the method on small datasets will help you to learn Spark/SparkR quickly, since you can quickly test and prototype code. To create an RDD representation of the vector `1:100`, we would use
 
 ```{r eval=FALSE}
 vec_sp = SparkR:::parallelize(sc, 1:100)
@@ -137,7 +137,7 @@ chicks_sp = createDataFrame(sqlContext, chickwts)
 ```
 
 \noindent or from other data sources, such as CSV files or a 'Hive
-table'.\sidenote{A hive is a data structure used by Haddoop.} 
+table'.\sidenote{A hive is a data structure used by Hadoop.} 
 If we examine the newly created object, we get
 
 ```{r eval=FALSE}

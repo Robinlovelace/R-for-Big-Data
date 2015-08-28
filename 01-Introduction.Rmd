@@ -6,9 +6,13 @@ output: pdf_document
 library("pryr")
 ```
 
-\newpage
+\chapter{Big Data and R}
 
-# Big Data and R
+# What is Big Data?
+
+Definitions of Big Data abound.
+
+# Coping with Big Data in R
 
 R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's RAM (although packages for working with databases such as dplyr can work with data stored remotely). This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
 Today, the size of data sets have exploded and it's not difficult to find data sets that are larger than your laptop's memory.

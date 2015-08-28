@@ -1,3 +1,6 @@
+# Which chapters do you want to build?
+chap_ord = 1:6
+
 # Book building function
 rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
   old <- setwd(dir);  on.exit(setwd(old))
@@ -19,4 +22,4 @@ rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
     rmarkdown::render("book.Rmd")
 }
 
-rmd_bind(book_header = "00-header.Rmd", chap_ord = 10)
+rmd_bind(book_header = "00-header.Rmd", chap_ord = chap_ord)

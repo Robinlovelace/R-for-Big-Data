@@ -2,9 +2,7 @@
 output: pdf_document
 ---
 
-\newpage
-
-# Loading static files into R
+\chapter{Loading static files}
 
 Datasets are increasingly becoming continuously 
 collected, making them well-suited to databases and other continuous
@@ -18,7 +16,7 @@ The most common, simple and in many cases convenient filetype for large datasets
 are *plain text* files, so we look at reading these in first, before
 exploring more exotic filetypes including, `.json`, `.xml`, `.spss`, `.stata`, `.xls`.
 
-## Text files
+# Text files
 
 Data stored as text files are files that are human-readable when displayed
 in a 'plain text' editor such as Microsoft Notepad, Vim or RStudio.
@@ -53,7 +51,7 @@ Note that in the result from the above operation text strings such as
 
 > **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
 
-## Freeing your data from spreadsheets
+# Freeing your data from spreadsheets
 
 Spreadsheets are ubiquitous in offices around the world, and are used for
 storing millions of (mostly quite small) datasets. Nevertheless

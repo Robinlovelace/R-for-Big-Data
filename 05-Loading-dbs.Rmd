@@ -2,7 +2,5 @@
 output: pdf_document
 ---
 
-\newpage
-
-# Loading data from databases
+\chapter{Loading data from databases}
 

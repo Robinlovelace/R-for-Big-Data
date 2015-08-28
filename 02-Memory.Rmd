@@ -2,108 +2,136 @@
 output: pdf_document
 ---
 
-```{r echo=FALSE}
-library(pryr)
-```
+\chapter{Memory Matters}
 
-\chapter{Memory matters}
+Whenever Big data comes up, the obvious question to ask, is, What do you mean by big? The answer to this question is that everything is realitive. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider Big, Google/Facebook would consider small.
 
-When dealing with small datasets, speed considerations
-are often irrelevant. Modern computers can solve
-most problems through 'brute force'. When you
-start dealing with large datasets, however, a slight change in
-the *computational efficiency* of the implementation
-can make the difference between completing an analysis
-overnight and not completing it at all.
+When talking about Big Data, we need a comparison. In this course, **big** is realitive to our available resources.
 
-*Computational efficiency* is analogous to energy efficiency
-and is a programmer's way of saying 'I get this much boom for
-my buck'? This is generally measured by *benchmarking*,
-testing the amount of
-computer time taken to perform a given task using different
-implementations. It is enlightening to perform such tests on
-a small sample of your data to decide how to write your
-final code so the processing completes quickly and without
-consuming excessive computer resources such as RAM. The below
-example illustrates the process of benchmarking.
+# File sizes
 
-```{r}
-# TODO: Example of benchmarking here
-```
+A computer cannot store "numbers" or "letters". The only thing a computer can store and work with is bits. A bit is binary, it is either a $0$ or a $1$\sidenote{Or `TRUE`/`FALSE` or `yes`/`no`.}. In fact, from the computers point of view, a bit is just a blip of electricity that either is or isn't there.
 
-When dealing with big data, it is helpful to have a rough idea about memory and object size. In particular, it is very easy to create multiple copies of objects without meaning to.
+In the past, we use the ASCII character set. This set defined $128$ characters including $0$ to $9$, upper and lower case alpha-numeric and a few control characters such as a new line. To store these characters required $8$ bits\sidenote{Actually, it only required $7$ bits since $2^7 = 128$, but $8$ bits were typically used: see \url{http://stackoverflow.com/q/14690159/203420}}. Table \ref{T2.1} gives the binary representation of the first few characters.
 
+\begin{margintable}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Bit representation & Character\\
+\midrule
+$01000001$ & A\\
+$01000010$ &	B\\
+$01000011$ & C\\
+$01000100$ & D\\
+$01000101$ & E\\
+$01010010$ & R \\
+\bottomrule
+\end{tabular}
+\caption{The bit representation of a few ASCII characters.}\label{2.1}
+\end{margintable}
 
-# Understanding file sizes
+It's worth pointing out that storing characters has got more sophasiticed in recent years. In particular, Unicode was created to try to create a single character set that included every reasonable writing system. See 
+\begin{center}
+\url{http://www.joelonsoftware.com/articles/Unicode.html}
+\end{center}
+\noindent for a nice introduction on character encoding.
 
-A bit is either a $0$ or a $1$ which is processed by a computer processor. To represent an alphanumeric character, such as *R*, would require 8 bits and would be stored as $01010010$. Eight bits is one byte. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data. 
+Eight bits is one byte\sidenote{Four bits is called a nibble}. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data\sidenote{An empty `.docx` file takes about 3.7KB of storage.}.
 
-A kilobyte (KB) is 1024 bytes and a megabyte (MB) is 1024 kilobytes. A petabyte is approximately 100 million draws filled with text. Google process around 20 petabytes of data every day.
+A kilobyte (KB) is 1024 bytes and a megabyte (MB) is 1024 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google process around $20$ petabytes of data every day.
 
-Amount | Shorthand
--------|------------------
-1024 bytes | 1 Kilobyte (KB)
-1024 KB | 1 Megabyte (MB)
-1024 MB | 1 Gigabyte (GB)
-1024 GB | 1 Terabyte (TB)
-1024 TB | 1 Petabyte (PB)
+\begin{table}[t]
+\centering
+\begin{tabular}{@{}llll @{}}
+\toprule
+Name & Symbol & Amount (bytes) & Amount (short) \\
+\midrule
+Kilobyte & KB & $2^{10}$ & 1024 B\\
+Megabyte & MB & $2^{20}$ & 1024 KB\\
+Gigabyte & GB & $2^{30}$ & 1024 GB\\
+Terabyte & TB & $2^{40}$ & 1024 TB\\
+Petabyte & PB & $2^{50}$ & 1024 PB\\
+\bottomrule
+\end{tabular}
+\caption{Data conversion table \textbf{XXX} \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
+\end{table}
 
-Different data types, such as characters, integers and doubles, require different amounts of memory to store. 
+Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We just let R do the thinking and conversion. However, it is helpful to understand why files are large and the limits of the computer system.
 
-Type | Amount (Bytes)
------|------------------
-Character | 1
-Integer| 4
-Double | 8
+\begin{margintable}
+\centering
+\begin{tabular}{@{} ll @{}}
+\toprule
+Type & Amount (Bytes)\\
+\midrule
+Character & 1 \\
+Integer & 4 \\
+Double & 8 \\
+\bottomrule
+\end{tabular}
+\caption{Storage space for standard data types}\label{T2.3}
+\end{margintable}
 
-How computers actually store numbers is a quite a complicated process. A useful overview is given at [What Every Computer Scientist Should Know About Floating-Point Arithmetic](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html).
+\subsubsection*{Exercises}
+
+\begin{enumerate}
+\item R loads everything into memory, i.e. your computer RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
+\item Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could have?
+\item Using Google, how much does it cost to double the amount of available RAM? For example, if you have 16GB of RAM, how much does that cost?
+\item What is the range of values an integer object can represent?
+\end{enumerate}
 
 
 # Object size in R
 
-When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes. For example, when we create an R vector memory is allocated for a number of things:
+When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes. For example when we create an R vector, memory is allocated for a number of things:
 
- * Object meta data: This is information on the base data type and memory management.
- * Pointers: these are addresses to where memory is stored on the hard drive.
+ * Object meta data: This is information on the base data type and memory management. For example, is the object a logical, character, numeric or complex data type?
+ * Pointers: these are addresses to where memory is stored on the hard drive. __XXX More insight needed.__
  
-Also since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $8$, $16$, $32$, $64$ or $128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+\noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
 
-We can examine the size of an object using the base function `object.size`. However, a similar function, `object_size` in the `pryr` package contains a few more helpful features. Let's start with a simple vector
+We can examine the size of an object using the base function `object.size`. However, a similar function `object_size` in the `pryr` package, counts more accurately and includes the size of environments. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in `4L`.}
 ```{r}
 v1 = 1:1e6
 ```
-When we use the `:` operator, we are actually creating a vector of integers. So to manually calculate the object size of `v1`, we have
+\noindent When we use the `:` operator, we are actually creating a vector of integers. Remember that an integer is only $4$ bytes, so this is more efficient. To manually calculate the object size of `v1`, we have
 \[
 4\times 10^6 \,\text{bytes} \simeq  4 \,\text{MB}
 \]
 This corresponds with 
 ```{r}
+library("pryr")
 object_size(v1)
 ```
-If we create a similar vector using the sequence command
+\noindent If we create a similar vector using the sequence command
 ```{r}
 v2 = seq(1, 1e6, by=1)
 object_size(v2)
 ```
-The size of `v2` is double that of `v1`. This is because when we use the `:` operator we create a vector with type `integer`, whereas the `seq` command has created a vector of `doubles`. R is also tries to avoid making unnecessary copies of objects. For example, consider the following two lists
+\noindent we find that the size of `v2` is double that of `v1`. This is because when we use the `:` operator we create a vector with type `integer`, whereas the `seq` command has created a vector of `doubles` (see table \ref{T2.3}).
+
+R is also tries to avoid making unnecessary copies of objects. For example, consider the following two lists
 ```{r}
 l1 = list(v1, v1)
 l2 = list(v1, v2)
 ```
-When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`
+\noindent When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`\marginnote{This clever use of optimisating memory is relatively new to R. This is why it is always worthwhile upgrading R to the latest version. Small optimisations to a data frame, can make a big difference to your code.}
 ```{r}
 object_size(l1)
 object_size(l2)
 ```
-Moreover, if we look at the combined size of the two lists, 
+\noindent Moreover, if we look at the combined size of the two lists, 
 ```{r}
 object_size(l1, l2)
-
 object_size(l1, l2)
 ```
-we still see that `v1` has only been counted once.
+\noindent we still see that `v1` has only been counted once.
 
-> **Challenge**: Explain the following piece of R code
+\subsection*{Exercise}
+
+Explain the following piece of R code
 
 ```{r}
 l1[[1]][1] = 1
@@ -112,7 +140,7 @@ object_size(l1)
 
 # Integers, doubles and other data types
 
-When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in [double-precision floating-point format](https://en.wikipedia.org/wiki/Double-precision_floating-point_format). But R does have other ways of storing numbers.
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
   
   * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
   * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
@@ -124,22 +152,32 @@ When programming in C or FORTRAN, we have to specify the data type of every obje
  
 # Collecting the garbage
 
-The `object_size` function tells you the size of a particular object. The function `mem_used()` tells you the amount of memory that is being using by `R`. Since managing memory is a complex process, determining the exact amount of memory used isn't exact; it isn't obvious what we mean by *memory used*. The value returned by `mem_used()` only includes objects created by R, not R itself. Also, manipulating memory is an expensive operation, so the OS and R are lazy at reclaiming memory (this is a good thing).
+The `object_size` function tells you the size of a particular object. The function `mem_used`\marginnote{The function `mem\_used` is also from the `pryr` package.} tells you the amount of memory that is being using by `R`. Since managing memory is a complex process, determining the exact amount of memory used isn't exact; it isn't obvious what we mean by *memory used*. The value returned by `mem_used` only includes objects created by R, not R itself. Also manipulating memory is an expensive operation, so the OS and R are lazy at reclaiming memory (this is a good thing).
 
-In some languages, such as C, the programmer has the fun task of being in charge of managing memory. Every time they ask for more memory using `malloc` there should be a corresponding call (somewhere) to `free`. When the call to `free` is omitted, this is known as a memory leak. In R, we don't have to worry about freeing memory; the garbage collector takes care of it. For example, consider the following function `g`. 
+In some languages, such as C, the programmer has the fun task of being in charge of managing memory. Every time the programmer asks for more memory using `malloc`\sidenote{This is the function used in C.} there should be a corresponding call (somewhere) to `free`. When the call to `free` is omitted, this is known as a memory leak. In R we don't have to worry about freeing memory; the garbage collector takes care of it. For example, consider the following example. We define a function `g`.\marginnote{Since we have used `mem\_used` inside a message statement, the automatic rounding disappears, since we are no longer calling `print.Bytes`.} 
+
+```{r}
+g = function() {
+  z = 1:1e7
+  message("Mem used: ", round(mem_used()/10^6), "MB")
+  0
+}
+```
+
+\noindent and calculate the memory used
 
 ```{r}
 mem_used()
-g = function() {
-  z = 1:1e6
-  message("Mem used: ", mem_used())
-  0
-}
+```
+
+\noindent When we call `g` and calculate the memory used after the call
+
+```{r}
 x = g()
 mem_used()
 ```
 
-When we call the function `g()` we create a large variable `z`. However, since `z` is only referenced inside the function, the associated memory is freed. 
+\noindent The memory used hasn't changed. Since `z` is only referenced inside the function, the associated memory is freed after the function call has ended.
 
 We can force a call to the garbage collector, via `gc()`. However, this is never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
 

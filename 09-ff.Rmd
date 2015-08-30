@@ -2,24 +2,17 @@
 output: word_document
 ---
 
-```{r eval=FALSE, echo=FALSE}
-library(readr)
-library(ffbase)
-# Note - this needs to be run once for the book to build
-# Set wd if it's buiding in 'notes' folder
-if(grepl(pattern = "notes", getwd())){
-  library(knitr)
-  knitr::opts_knit$set(root.dir = "../")
+```{r echo=FALSE}
+library("r4bd")
+if(!file.exists("data/rand.csv")){
+  create_rand("data/rand.csv", 1e4)
   
-  if(!file.exists("data/rand.csv")){
-    # save random data frame
-    x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
-    # system.time(write.csv(x, file="data/rand.csv", row.names=FALSE))
-    system.time(write_csv(x, path = "data/rand.csv")) # slightly faster
-    write_csv(x[1:1000,], "data/rand-mini.csv")
-    rm(x)
-  }
-  
+#     # save random data frame
+#   x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
+#   # system.time(write.csv(x, file="data/rand.csv", row.names=FALSE))
+#   system.time(write_csv(x, path = "data/rand.csv")) # slightly faster
+#   write_csv(x[1:1000,], "data/rand-mini.csv")
+#   rm(x)
 }
 ```
 
@@ -27,44 +20,55 @@ if(grepl(pattern = "notes", getwd())){
 
 #  Introduction
 
-The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. While `ff` is nice, it means that everything is of type `ff`, which results in non-standard R code. The package only provides the building blocks; it doesn't offer many statistical functions and offers no support for characters. 
+The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. This means that we can now load and analyse much larger data sets\sidenote{These days, a standard hard drive is around 1TB, whereas RAM is around 16BG.}. However, accessing data from your hard drive is slower than from memory. 
 
-`ffbase` extends `ff` by providing 'ff versions' of commonly used operations,
-including standard mathematical operators as well as
+Since we are no longer loading data directly into memory, this results in non-standard R code. The `ff` package only provides the building blocks, that is it doesn't offer many statistical functions and offers no support for characters. 
+
+\marginnote{The successor to `ffbase` is currently available on github, \url{https://github.com/edwindj/ffbase2}. The `ffbase2` aims to integrate `ff` with `dplyr`.}
+The `ffbase` package extends `ff` by providing `ff` versions of commonly used operations, such as standard mathematical operators  and common functions,
 `c()`, `duplicated()` and `which()` (implemented as `ffwhich()`).
 
+\subsubsection*{Exercise: How big is your hard drive?}
+
+\subsection*{Aside: HDD vs SSD}
+
+Unless you have a fairly expensive laptop, you've probably got a standard Hard Disk drive (HDD). HDDs were first introduced by IBM in 1956. Data is stored using magnetism on a rotating platter. The faster the platter spins, the faster the HDD can perform. Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM. The major advantage of HDD is that they are cheap; a 1TB laptop is becoming
+standard.
+
+\begin{marginfigure}
+\centering
+\includegraphics[]{figures/Laptop-hard-drive-exposed.jpg}
+\caption{A standard 2.5" hard drive, found in most laptops. Figure credit: \url{https://en.wikipedia.org/wiki/Hard_disk_drive}.}
+\end{marginfigure}
+
+Solid state drives (SSD), can be thought of large, but more sophisticated versions of your USB stick. They have no moving parts and information is stored in microchips. Since there are no moving parts, reading/writing is much quicker\sidenote{SSDs have other benefits, such as being quieter, faster booting time for the OS, required less power (more battery life).
+
+The read/write speed for standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. If you're wondering, read/write speeds for RAM is around 2-20GB/s. So at best, SSDs are at least one order of magnitude slower than RAM.
 
 # Importing data
 
-The `ff` package provides a number of functions to read in data. All the `read.*` base R functions have `ff` equivalents that are used in the same way. For example, after loading the package
+The `ff` package provides a number of functions to read in data. All the `read.*` base R functions have `ff` equivalents that are used in the same way. For example, after loading the package\sidenote{We can install the package in the usual way `install.packages("ff")`.}
 
 ```{r message=FALSE}
 library("ff")
 ```
 
-we can load a data set via
+\noindent To illustrate, we'll use a simple csv file\marginnote{This CSV file is pretty small, and the `ff` package is complete overkill. However, using small data set is handy for illustrating key concepts.} that comes with the `r4bd` package.
 
 ```{r, cache=FALSE}
-ffx <- read.csv.ffdf(file="data/rand-mini.csv", header = TRUE)
+## `get_rand()` Returns the full path
+filename = r4bd::get_rand()
+ffx = read.csv.ffdf(file=filename, header = TRUE)
 ```
 
-```{r, echo=FALSE, eval=FALSE}
-library(readr)
-system.time(ffx <- read.csv.ffdf(file="data/rand.csv", header = TRUE))
-system.time(x <- read_csv("data/rand.csv"))
-system.time(x <- read.csv("data/rand.csv"))
-# It seems that read_csv is much faster than either read.csv or read.csv.ffdf
-# (3 vs 61 vs 372 (!) seconds on my laptop) - if you can reproduce this i 
-# suggest we don't use read.csv.ffdf as it seems dodgy.
-```
-
-We can use (some) standard R functions to query the data set.
+\noindent We can use (some) standard R functions to query the data set.
 
 ```{r, echo=FALSE}
+## Only 10000 rows (small) 
 dim(ffx)
 ```
 
-However, since `ffx` isn't a standard data frame, not all functions work, for example
+\noindent However since `ffx` isn't a standard data frame, not all functions work, for example
 
 ```{r eval=FALSE}
 colSums(ffx) # produces the following error:
@@ -72,45 +76,61 @@ colSums(ffx) # produces the following error:
 ## Error in colSums(ffx) : 'x' must be an array ...
 ```
 
-
-The `ETLutils` package provides further methods for importing data from SQL databases, such as SQLite, Oracle, Hive, and MySQL. 
+\noindent The `ETLutils` package provides further methods for importing data from SQL databases, such as SQLite, Oracle, Hive, and MySQL. 
 
 # Data chunks
 
-This section isn't quite right - `ffx[,1]` is numeric not class `ff`
+The key idea with `ffdf` objects, is that we no longer manipulate the objects in one go, but instead, use
+chunks. Essentially, we split the data set up into smaller pieces that can be mainpulated by R and process them one-by-one. The `ff` package is a much more efficient solution than a naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
 
-The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`. For this particular data set, the data is split into `r length(chunk(ffx))` chunks:
-
+The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`.\marginnote{You can easily test how nerdy you are, by Googling `chunk image` and see how many references are returned to the Goonies film.} Since this data set is small, we only have a single chunk, i.e.
 ```{r}
-chunk(ffx)[[1]]
+length(chunk(ffx))
+```
+\noindent So to make this section more realistic, we'll manually specify the number of chunks using the `length.out`. The `chunk` function returns a list of ranges
+```{r}
+chunk(ffx, length.out=10)[[1]]
 ```
 
-Since we are now dealing with chunks, this makes standard data analysis a pain. For example, to find the minimum value of the first column in our data set, we need loop over the chunks
+\noindent Since we are now dealing with chunks, this makes standard data analysis a pain. For example, suppose we just want to find the minimum value of a matrix. We would just use `min(ffx)`. However, since `ffx` isn't a standard R object, this will result in an error. Instead, we need to loop over the chunks and keep track of the result, e.g.
 
 ```{r}
-m = NULL
-for(i in chunk(ffx))
-  m = min(ffx[i, 1], m, na.rm=TRUE)
-m
+m = numeric(10)
+chunks = chunk(ffx, length.out=10)
+for(i in seq_along(chunks))
+  m[i] = min(ffx[chunks[[i]],])
+min(m)
 ```
 
-Since we are dealing with out memory objects, standard rules about copying objects no longer apply. In particular, when we copy objects, we are passing by reference. For example, when we change `ffy`
+\noindent Since we are dealing with out of memory objects, standard rules about copying objects no longer apply\marginnote{If you've come across reference classes in R, it's the same idea.}. In particular, when we copy objects, we are passing by reference. For example, when we change `ffy`
 
 ```{r}
 ffy = ffx
 ffy[1, 1]  = 0
 ```
 
-we have also changed `ffx`
+\noindent we have also changed `ffx`
 
 ```{r}
 ffx[1, 1]
 ```
 
-It's a trade off between large objects and side-effects.  
+\noindent It's a trade off between large objects and side-effects.  
 
 
 
+```{r, echo=FALSE, eval=FALSE}
+r4bd::create_rand("/tmp/tmp.csv", 1e6)
+
+library(readr)
+
+system.time(ffx <- ff::read.csv.ffdf(file="/tmp/tmp.csv", header = TRUE))
+system.time(x <- readr::read_csv("/tmp/tmp.csv"))
+system.time(x <- read.csv("data/rand.csv"))
+# It seems that read_csv is much faster than either read.csv or read.csv.ffdf
+# (3 vs 61 vs 372 (!) seconds on my laptop) - if you can reproduce this i 
+# suggest we don't use read.csv.ffdf as it seems dodgy.
+```
 
 
 ## ff Storage
@@ -123,9 +143,7 @@ filename(ffx)
 
 This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
 
-
 # ffbase
-
 
 The `ff` package supplies the tools for manipulating large data sets, but provides few statistical functions. Conceptually, chunking algorithms are straightforward. The program reads a chunk of data into memory, performs intermediate calculations, saves the results and reads the next chunk. This process repeats until the entire dataset is processed. Unfortunately, many statistical algorithms have not been written with chunking in mind.
 
@@ -142,11 +160,11 @@ This is an example of an S3 generic. When we call the `min` function, we get pas
 
 The `ffbase` package also provide access to other packages that handle large data sets. In particular,
 
- * `biglm`: Regression for data too large to fit in memory
- * `biglars`: Scalable Least-Angle Regression and Lasso
- * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
- * `stream`: Infrastructure for Data Stream Mining
- 
+* `biglm`: Regression for data too large to fit in memory
+* `biglars`: Scalable Least-Angle Regression and Lasso
+* `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
+* `stream`: Infrastructure for Data Stream Mining
+
 # Biglm
 
 Linear models (lm) are one of the most basic statistical models available. The simplest regression model is 
@@ -174,17 +192,17 @@ where
 \end{itemize}
 The goal of regression is to estimate $\mathbf{\beta}$ with $\mathbf{\hat\beta}$. It can be shown that 
 \begin{equation}
- \mathbf{\hat\beta} = (X^T X)^{-1} X^T \mathbf{Y} \;.
+\mathbf{\hat\beta} = (X^T X)^{-1} X^T \mathbf{Y} \;.
 \end{equation}
 Our estimate of $\mathbf {\hat \beta}$ will exist provided that $(X^T X)^{-1}$
 exists, i.e. no column of $X$ is a linear combination of other columns.
 
 For a least squares regression with a simple size of $n$ training examples and $p$ predictors, it takes:
 
- * $O(p^2n)$ to multiply $X^T$ by $X$
- * $O(pn)$ to multiply $X^T$ by $\mathbf{Y}$
- * $O(p^3)$ to compute the LU (or Cholesky) factorization of $X^TX$ that is used to compute the product of $(X^TX)^{-1} (X^T\mathbf{Y})$.
- 
+* $O(p^2n)$ to multiply $X^T$ by $X$
+* $O(pn)$ to multiply $X^T$ by $\mathbf{Y}$
+* $O(p^3)$ to compute the LU (or Cholesky) factorization of $X^TX$ that is used to compute the product of $(X^TX)^{-1} (X^T\mathbf{Y})$.
+
 Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. As well as taking a long time to calculate, the memory required also increases. The R implementation of `lm` requires $O(np + p^2)$ in memory. But this can be reduced by constructing the model matrix in chunks. The `biglm`'s algorithm is based on [algorithm AS 274](http://lib.stat.cmu.edu/apstat/274), Miller, A, (1991). It works by updating the Cholesky decomposition with new observations. So for a model with $p$ variables, only the $p \times p$ (triangular) Cholesky factor and a single row of data needs to be in the memory at any given time. The `biglm` package does not do the chunking for you, but `ffbase` provides a handy S3 wrapper, `bigglm.ffdf`.
 
 
@@ -226,6 +244,6 @@ by_year %>%
 
 
 
- 
- 
+
+
 

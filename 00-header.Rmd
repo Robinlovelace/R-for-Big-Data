@@ -10,4 +10,6 @@ output:
     toc_depth: 3
     number_sections: true
     keep_tex: true
+    includes:
+       in_header: in_header.tex
 ---

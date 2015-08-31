@@ -2,20 +2,17 @@
 output: pdf_document
 ---
 
-
 \chapter{Rcpp}
 
 # Introduction
 
 Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the Rcpp\sidenote{\url{http://www.rcpp.org}} package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
 
-Note that C and C++ code is largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp` file.^[`.cpp` is the default file extension for C++ scripts.
-
-**Mini challenge**: guess what cpp means!]
+In this chapter, C and C++ code are largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp` file.`.cpp` is the default file extension for C++ scripts. In general, this isn't true. See for example the Stackoverflow question, \url{http://programmers.stackexchange.com/q/16390/14846} for an overview.
 
 C++ is a separate programming language so every aspect cannot be covered in this course. Instead, the goal is to provide a flavour of what's possible.
 
-## Prerequistes
+\subsection*{Prerequistes}
 
 The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install [Rcpp from CRAN](https://cran.r-project.org/web/packages/Rcpp/index.html) in the usual way
 
@@ -33,19 +30,41 @@ To use the package, you also need a working C++ compiler.
 
 \noindent To check that you have everything, try running the following piece of code from the course R package
 
-```{r eval=FALSE}
+```{r cache=TRUE}
 library("r4bd")
-#Some demo
+test_rcpp()
 ```
 
- 
-# First steps
- 
-The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function would be a simple one line affair:
+# A simple C function
+
+A C/C++ function is similar to an R function: you pass a set of inputs to function, some code is run, a single object is returned. However, there are some key differences
+
+1. In the C/C++ function, each line must be terminated with `;`. In R, we use `;` only when have multiple statements on the same line.
+2. We must declare object types in the C/C++ version. In particular, we need to declare the types of the functionarguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
+3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement. However, in R we can omit `return`, with C
+4. You don't use assignment to create a function.
+5. Object assignment must use `=` sign. The `<-` operator isn't valid.
+
+We want to create a function that adds two numbers together. In R, this would be a simple one line affair:
 
 ```{r} 
 add_r = function(x, y) x + y
 ```
+
+In C++, this is a bit more long winded
+
+```{Rcpp eval=FALSE}
+double add_c(double x, double y) {
+    double value = x + y;
+    return value;
+  }
+)
+```
+
+\textbf{Still in flux; not finished}
+# First steps
+ 
+The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function 
  
 \noindent With Rcpp, we need a bit more. First we load the package
  
@@ -73,26 +92,35 @@ add_c(1, 2)
 
 \noindent There are a few key differences between the R and C++ versions of `add`.
 
-1. In the C++ function, each line is terminated with `;`.
-2. We must declare object types in the C++ version. In particular, we need to declare the types of the arguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
-3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement.
-4. You don't use assignment to create a function.
+
+
+## C/C++ data types
+
+The most basic type of variable is an integer, `int`. An `int` variable can store a value in the range $-32768$ to $+32767$\sidenote{In C, we can also define unsigned int'. Then the range goes from $0$ to $65,535$. There are also `long int` data types, which range from $0$ to $2^{31}-1$.}. To store floating point numbers, there are single precision numbers, `float` and double precision numbers, `double`. A `double` takes twice as much memory as a `float`.  For __single__ characters, we use the `char` data type.
 
 \begin{table}[t]
-\centering
-\begin{tabular}{@{}ll@{}}
-\toprule
-Type & Description\\
-\midrule
-`char` & A single character.\\
-`int` & An integer.\\
-`float` & A single precision floating point number.\\
-`double` & A double-precision floating point number.\\
-`void` & A Valueless quantity.\\
-\bottomrule
-\end{tabular}
-\caption{Some basic object types in C.}
+  \centering
+  \begin{tabular}{@{}ll@{}}
+  \toprule
+  Type & Description\\
+  \midrule
+  char & A single character.\\
+  int & An integer.\\
+  float & A single precision floating point number.\\
+  double & A double-precision floating point number.\\
+  void & A valueless quantity.\\
+  \bottomrule
+  \end{tabular}
+  \caption{Overview of key C/C++ object types.}
 \end{table}
+
+A pointer object, is a variable that points to an area of memory that has been given a name.Pointers are a very powerful, but primitive facility contained in the C language. They are very useful since rather than passing large object around, we pass a pointer to the memory location. We won't use pointers in this chapter, but mention them for completeness.
+
+# The cppFunction function
+
+
+
+
 
 \noindent The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file, we need 
 

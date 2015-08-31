@@ -4,7 +4,7 @@
 
 MAIN = book
 
-book.pdf: *.Rmd build.R
+book.pdf: *.Rmd build.R in_header.tex
 	Rscript -e "source('build.R')"
 
 clean:

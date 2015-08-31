@@ -2,19 +2,6 @@
 output: word_document
 ---
 
-```{r echo=FALSE}
-library("r4bd")
-if(!file.exists("data/rand.csv")){
-  create_rand("data/rand.csv", 1e4)
-  
-#     # save random data frame
-#   x = data.frame(x=rnorm(1e7), y=rnorm(1e7))
-#   # system.time(write.csv(x, file="data/rand.csv", row.names=FALSE))
-#   system.time(write_csv(x, path = "data/rand.csv")) # slightly faster
-#   write_csv(x[1:1000,], "data/rand-mini.csv")
-#   rm(x)
-}
-```
 
 \chapter{The ff package}
 
@@ -53,7 +40,7 @@ The `ff` package provides a number of functions to read in data. All the `read.*
 library("ff")
 ```
 
-\noindent To illustrate, we'll use a simple csv file\marginnote{This CSV file is pretty small, and the `ff` package is complete overkill. However, using small data set is handy for illustrating key concepts.} that comes with the `r4bd` package.
+\noindent To illustrate, we'll use a simple csv file\marginnote{This CSV file is pretty small, and the `ff` package is complete overkill. However, using small data set is handy for illustrating key concepts.} that comes with the `r4bd` package.\marginnote{There are two key classes in the `ff` package. `ff` for vector and `ffdf` for data frames.}
 
 ```{r, cache=FALSE}
 ## `get_rand()` Returns the full path
@@ -80,19 +67,19 @@ colSums(ffx) # produces the following error:
 
 # Data chunks
 
-The key idea with `ffdf` objects, is that we no longer manipulate the objects in one go, but instead, use
-chunks. Essentially, we split the data set up into smaller pieces that can be mainpulated by R and process them one-by-one. The `ff` package is a much more efficient solution than a naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
+The key idea with `ffdf` objects, is that we no longer manipulate objects in one go, but instead, we use
+chunks of data. Essentially, we split the data set up into smaller pieces that can be manipulated by R, and process them one-by-one. The `ff` package is a much more efficient solution than the naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
 
 The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`.\marginnote{You can easily test how nerdy you are, by Googling `chunk image` and see how many references are returned to the Goonies film.} Since this data set is small, we only have a single chunk, i.e.
 ```{r}
 length(chunk(ffx))
 ```
-\noindent So to make this section more realistic, we'll manually specify the number of chunks using the `length.out`. The `chunk` function returns a list of ranges
+\noindent To make this section more realistic\marginnote{We usually don't need to bother with `length.out`, but since the data set is small, we only have one chunk.}, we'll manually specify the number of chunks using the `length.out`. The `chunk` function returns a list of ranges
 ```{r}
 chunk(ffx, length.out=10)[[1]]
 ```
 
-\noindent Since we are now dealing with chunks, this makes standard data analysis a pain. For example, suppose we just want to find the minimum value of a matrix. We would just use `min(ffx)`. However, since `ffx` isn't a standard R object, this will result in an error. Instead, we need to loop over the chunks and keep track of the result, e.g.
+\noindent Since we are now dealing with chunks, this makes standard data analysis a pain. For example, suppose we just want to find the minimum value of the matrix. If `ffx` was a standard data frame, we would just use `min(ffx)`. However, `ffx` isn't a standard R object. Instead, we need to loop over the chunks and keep track of the result, e.g.
 
 ```{r}
 m = numeric(10)
@@ -117,55 +104,52 @@ ffx[1, 1]
 
 \noindent It's a trade off between large objects and side-effects.  
 
-
+\newthought{At this point} it's worthwhile thinking about speed comparisons with `readr`, via a quick benchmark. First we create a test data set
 
 ```{r, echo=FALSE, eval=FALSE}
-r4bd::create_rand("/tmp/tmp.csv", 1e6)
+r4bd::create_rand("example.csv", 1e6)
+```
 
-library(readr)
-
+\noindent Then time reading in the files
+```{r, echo=FALSE, eval=FALSE}
 system.time(ffx <- ff::read.csv.ffdf(file="/tmp/tmp.csv", header = TRUE))
 system.time(x <- readr::read_csv("/tmp/tmp.csv"))
-system.time(x <- read.csv("data/rand.csv"))
-# It seems that read_csv is much faster than either read.csv or read.csv.ffdf
-# (3 vs 61 vs 372 (!) seconds on my laptop) - if you can reproduce this i 
-# suggest we don't use read.csv.ffdf as it seems dodgy.
+```
+
+\noindent On my machine, the `readr` function is an order of magnitude faster. This is what we would expect. The `ffdf` version is also preparing the data for future read/write access from the hard drive. Also, the `readr` variant is limited by your RAM. So if your file is too large, you will get an error
+
+```{r eval=FALSE}
+R> x = readr::read_csv("very_big.csv")
+# Error: cannot allocate vector of size 12.8 Gb
 ```
 
 
 ## ff Storage
 
-When data is `ff` format, processing is fast. However, converting data into `ff` format can be time consuming; so keeping data in `ff` format is helpful. When you load in an `ff` object, there is a corresponding file(s) on your hard disk
+When data is the `ff` format, processing is faster than using the standard `read.csv`/`write.csv` combination. However, converting data into `ff` format can be time consuming; so keeping data in `ff` format is helpful. When you load in an `ff` object, there is a corresponding file(s) created on your hard disk
 
-```{r}
+```{r} 
 filename(ffx)
 ```
 
-This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
+\noindent This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
 
-# ffbase
+# The ffbase package
 
 The `ff` package supplies the tools for manipulating large data sets, but provides few statistical functions. Conceptually, chunking algorithms are straightforward. The program reads a chunk of data into memory, performs intermediate calculations, saves the results and reads the next chunk. This process repeats until the entire dataset is processed. Unfortunately, many statistical algorithms have not been written with chunking in mind.
 
-The [`ffbase`](http://github.com/edwindj/ffbase) package adds basic statistical functions to `ff` objects. It tries to make the code more R like and smooth away the pain of working with `ff` objects. It also provides an interface with `big*` methods.
+The `ffbase`\sidenote{\url{http://github.com/edwindj/ffbase} package adds basic statistical functions to `ff` and `ffdf` objects. It tries to make the code more R like and smooth away the pain of working with `ff` objects. It also provides an interface with `big*` methods.
 
-`ffbase` provides S3 methods for a number of standard functions `mean`, `min`, `max`, and standard arithmetic operators (see `?ffbase` for a complete list). This removes some of the pain when dealing with `ff` objects. So instead of looping through chunks to find the minimum, we can do
+`ffbase` provides S3 methods for a number of standard functions `mean`, `min`, `max`, and standard arithmetic operators (see `?ffbase` for a complete list) for `ff` objects. This removes some of the pain when dealing with `ff` objects. 
 
-```{r message=FALSE}
-library("ffbase")
-min(ffx[,1])
-```
+\newthought{The} `ffbase` package also provide access to other packages that handle large data sets. In particular,
 
-This is an example of an S3 generic. When we call the `min` function, we get passed to the `min.ff` function.
+* `biglm`: Regression for data too large to fit in memory;
+* `biglars`: Scalable Least-Angle Regression and Lasso.
+* `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets.
+* `stream`: Infrastructure for Data Stream Mining.
 
-The `ffbase` package also provide access to other packages that handle large data sets. In particular,
-
-* `biglm`: Regression for data too large to fit in memory
-* `biglars`: Scalable Least-Angle Regression and Lasso
-* `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets
-* `stream`: Infrastructure for Data Stream Mining
-
-# Biglm
+# The Biglm package
 
 Linear models (lm) are one of the most basic statistical models available. The simplest regression model is 
 \[
@@ -177,7 +161,7 @@ Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip} + \eps
 \end{equation}
 where $x_{ij}$ is the $i^\text{th}$ observation on the $j^\text{th}$ independent variable. Equation (\ref{}) can be written neatly in matrix notation as
 \[
-\mathbf{Y} = X \mathbf{\beta} + \mathbf{\epsilon}
+\bm{Y} = X \bm{\beta} + \bm{\epsilon}
 \]
 with dimensions
 \[
@@ -185,59 +169,27 @@ with dimensions
 \]
 where
 \begin{itemize}
-\item $\mathbf{Y}$ is the response vector - (dimensions $n \times 1$);
+\item $\bm{Y}$ is the response vector - (dimensions $n \times 1$);
 \item $X$ is the design matrix - (dimensions $n \times (p+1)$);
-\item $\mathbf{\beta}$ is the parameter vector - (dimensions $(p+1) \times 1$);
-\item $\mathbf{\epsilon}$ is the error vector - (dimensions $n \times 1$).
+\item $\bm{\beta}$ is the parameter vector - (dimensions $(p+1) \times 1$);
+\item $\bm{\epsilon}$ is the error vector - (dimensions $n \times 1$).
 \end{itemize}
-The goal of regression is to estimate $\mathbf{\beta}$ with $\mathbf{\hat\beta}$. It can be shown that 
+\noindent The goal of regression is to estimate $\bm{\beta}$ with $\bm{\hat\beta}$. It can be shown that 
 \begin{equation}
-\mathbf{\hat\beta} = (X^T X)^{-1} X^T \mathbf{Y} \;.
+\bm{\hat\beta} = (X^T X)^{-1} X^T \bm{Y} \;.
 \end{equation}
-Our estimate of $\mathbf {\hat \beta}$ will exist provided that $(X^T X)^{-1}$
+\noindent Our estimate of $\bm {\hat \beta}$ will exist provided that $(X^T X)^{-1}$
 exists, i.e. no column of $X$ is a linear combination of other columns.
 
 For a least squares regression with a simple size of $n$ training examples and $p$ predictors, it takes:
 
-* $O(p^2n)$ to multiply $X^T$ by $X$
-* $O(pn)$ to multiply $X^T$ by $\mathbf{Y}$
-* $O(p^3)$ to compute the LU (or Cholesky) factorization of $X^TX$ that is used to compute the product of $(X^TX)^{-1} (X^T\mathbf{Y})$.
+ * $O(p^2n)$ to multiply $X^T$ by $X$
+ * $O(pn)$ to multiply $X^T$ by $\bm{Y}$
+ * $O(p^3)$ to compute the LU (or Cholesky) factorization of $X^TX$ that is used to compute the product of $(X^TX)^{-1} (X^T\bm{Y})$.
 
-Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. As well as taking a long time to calculate, the memory required also increases. The R implementation of `lm` requires $O(np + p^2)$ in memory. But this can be reduced by constructing the model matrix in chunks. The `biglm`'s algorithm is based on [algorithm AS 274](http://lib.stat.cmu.edu/apstat/274), Miller, A, (1991). It works by updating the Cholesky decomposition with new observations. So for a model with $p$ variables, only the $p \times p$ (triangular) Cholesky factor and a single row of data needs to be in the memory at any given time. The `biglm` package does not do the chunking for you, but `ffbase` provides a handy S3 wrapper, `bigglm.ffdf`.
+\noindent Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. As well as taking a long time to calculate, the memory required also increases. The R implementation of `lm` requires $O(np + p^2)$ in memory. But this can be reduced by constructing the model matrix in chunks. The `biglm`'s algorithm is based on algorithm AS 274\sidenote{\url{http://lib.stat.cmu.edu/apstat/274}}, @Miller1992. It works by updating the Cholesky decomposition with new observations. So for a model with $p$ variables, only the $p \times p$ (triangular) Cholesky factor and a single row of data needs to be in the memory at any given time. The `biglm` package does not do the chunking for you, but `ffbase` provides a handy S3 wrapper, `bigglm.ffdf`.
 
-
-## Example
-
-
-```{r echo=FALSE, eval=FALSE}
-##TODO
-## Make ff version of Lahman in package
-library("Lahman")
-ffd <- as.ffdf(quakes)
-by_year %>% 
-  do(mod = lm(R ~ AB, data = .)) %>%
-  object.size() %>%
-  print(unit = "MB")
-#> 22.2 Mb
-
-by_year %>% 
-  do(mod = biglm::biglm(R ~ AB, data = .)) %>%
-  object.size() %>%
-  print(unit = "MB")
-#> 0.8 Mb
-```
-
-
-
-
-
-
-
-
-
-
-
-
+For an example of using `biglm`, see the blog post at \url{http://goo.gl/iBPkTp} by Bnosac.
 
 
 

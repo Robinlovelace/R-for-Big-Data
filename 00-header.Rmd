@@ -7,7 +7,7 @@ output:
   rticles::tufte_ebook:
     toc: true
     latex_engine: pdflatex
-    toc_depth: 3
+    toc_depth: 1
     number_sections: true
     keep_tex: true
     includes:

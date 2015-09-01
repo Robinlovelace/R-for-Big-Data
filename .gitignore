@@ -15,3 +15,4 @@ book.tex
 book.toc
 .#book.tex
 ignore_*
+course_*.html

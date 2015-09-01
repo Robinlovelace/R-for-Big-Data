@@ -121,6 +121,9 @@ The most basic type of variable is an integer, `int`. An `int` variable can stor
 
 A pointer object, is a variable that points to an area of memory that has been given a name.Pointers are a very powerful, but primitive facility contained in the C language. They are very useful since rather than passing large object around, we pass a pointer to the memory location. We won't use pointers in this chapter, but mention them for completeness.
 
+
+
+
 # The sourceCpp function
 
 The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ code in a separate file (with file extension `cpp`) and use the function call `sourceCpp("path/to/file.cpp")` to compile them. However, we need to include a few headers at the top of the file. The first line we add gives us access to the Rcpp functions. The file `Rcpp.h` contains a list of function and class definitions supplied by Rcpp. The `include` statement, adds the definitions to the top of your code
@@ -243,6 +246,27 @@ grid()
 
 \noindent In this simple example, the C++ variant is around $100$ times faster than the corresponding R version.
 
+\subsection*{Exercise}
+
+Consider the following piece of code
+```{Rcpp eval=FALSE}
+double test1() {
+  double a = 1.0 / 81;
+  double b = 0;
+  for (int i = 0; i < 729; ++ i)
+    b = b + a;
+  return b;
+}
+```
+\begin{enumerate}
+\item Write a similar function in R and compare the speed of the C++ and R versions.
+\item Create a function called `test2` where the `double` variables have been replaced by `float`. Do you still get the correct answer?
+\item Change `b = b + a` to `b += a` to make you code more `C` like. 
+\item (Hard) What's the difference between `i++` and `++i`?
+\end{enumerate}
+
+
+
 ## Matrices
 
 Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `IntegerMatrix`, `CharacterMatrix` and `LogicalMatrix`. We use these types in a similar way to how we used `NumericVector`'s. The main differences are:
@@ -287,11 +311,11 @@ NumericVector res_sugar(NumericVector x, NumericVector y) {
 
 \noindent The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However with the sugared variety, the code is shorter and is constantly being improved.
 
-\subsection*{Exercise}
+\subsection*{Exercises}
 
 \begin{enumerate}
-\item Construct an R version, `res_r` and compare the three function variants.
-\item In the above example, `res_sugar` is faster than `res_c`. Do you know why?
+\item Construct an R version, \texttt{res\_r} and compare the three function variants.
+\item In the above example, \texttt{res\_sugar} is faster than \texttt{res\_c}. Do you know why?
 \end{enumerate}
 
 

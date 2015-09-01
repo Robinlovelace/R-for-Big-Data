@@ -1,0 +1,20 @@
+# Book outline
+
+1. Introduction
+
+## Part 1: Background
+1. Memory
+1. Preprocessing
+
+## Part 2: Tools
+
+1. Loading files
+1. Loading databases
+1. Manipulating
+1. ff
+1. SparkR
+
+## Part 3: Advanced
+
+1. Visualising
+1. Rcpp

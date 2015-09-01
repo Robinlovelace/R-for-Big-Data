@@ -12,7 +12,7 @@ In this chapter, C and C++ code are largely interchangeable, so when you see 'C 
 
 C++ is a separate programming language so every aspect cannot be covered in this course. Instead, the goal is to provide a flavour of what's possible.
 
-\subsection*{Prerequistes}
+\subsection*{Pre-requisites}
 
 The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install [Rcpp from CRAN](https://cran.r-project.org/web/packages/Rcpp/index.html) in the usual way
 
@@ -22,11 +22,11 @@ install.packages("Rcpp")
 
 \noindent The associated CRAN\sidenote{\url{https://cran.r-project.org/web/packages/Rcpp/}} page has numerous vignettes that are worth looking at\sidenote{You can get an idea of the popularity of the package by looking at the `Reverse Imports`.}
 
-To use the package, you also need a working C++ compiler. 
+To use the package you need a working C++ compiler. 
 
  * Linux: A compiler should already be installed. Otherwise install `r-base` it a compiler will be installed as a dependency.
  * Macs: Install `Xcode`.
- * Windows: Install [Rtools](http://cran.r-project.org/bin/windows/). Make sure you select the version that corresponds to your version of R.
+ * Windows: Install Rtools\sidenote{\url{http://cran.r-project.org/bin/windows/}}. Make sure you select the version that corresponds to your version of R.
 
 \noindent To check that you have everything, try running the following piece of code from the course R package
 
@@ -35,44 +35,46 @@ library("r4bd")
 test_rcpp()
 ```
 
-# A simple C function
+# A simple C++ function
 
 A C/C++ function is similar to an R function: you pass a set of inputs to function, some code is run, a single object is returned. However, there are some key differences
 
-1. In the C/C++ function, each line must be terminated with `;`. In R, we use `;` only when have multiple statements on the same line.
-2. We must declare object types in the C/C++ version. In particular, we need to declare the types of the functionarguments, return value and any intermediate objects we create. This function returns a scaler of type `double`. 
+1. In the C/C++ function, each line must be terminated with `;` In R, we use `;` only when have multiple statements on the same line.
+2. We must declare object types in the C/C++ version. In particular, we need to declare the types of the function arguments, return value and any intermediate objects we create. 
 3. The function must have an explicit `return` statement. Similar to R, there can be multiple returns, but the function will terminate when it hits it's first `return` statement. However, in R we can omit `return`, with C
-4. You don't use assignment to create a function.
+4. You don't use assignment when creating a function.
 5. Object assignment must use `=` sign. The `<-` operator isn't valid.
+6. One line comments can be created using `//`. Multi-line comments are created using `/*...*/`
 
-We want to create a function that adds two numbers together. In R, this would be a simple one line affair:
+\noindent We want to create a function that adds two numbers together. In R, this would be a simple one line affair:
 
 ```{r} 
 add_r = function(x, y) x + y
 ```
 
-In C++, this is a bit more long winded
+\noindent In C++, this is a bit more long winded
 
 ```{Rcpp eval=FALSE}
-double add_c(double x, double y) {
+/* Return type double
+ * Two arguments, also doubles
+ */
+double add_c(double x, double y) { 
     double value = x + y;
     return value;
   }
-)
 ```
 
-\textbf{Still in flux; not finished}
-# First steps
+\noindent The beauty of using Rcpp is that it make it very easy to call C++ functions from R.
+
+## The cppFunction command
  
-The beauty of Rcpp is that it is very easy to create C++ functions that R can use. We'll illustrate the key concepts by creating a simple `add` function. In R, the corresponding function 
- 
-\noindent With Rcpp, we need a bit more. First we load the package
+We load the Rcpp package
  
 ```{r message=FALSE}
 library("Rcpp") 
 ```
  
-\noindent Next we create function called `add_c`
+\noindent Then we simply pass the C++ function as an argument
 
 ```{r tidy=FALSE}
 cppFunction('
@@ -83,16 +85,19 @@ cppFunction('
 ')
 ```
 
-\noindent When you run this code, Rcpp will magically compile the C++ code and construct a function that bridges the gap between R and C++.
+\noindent and Rcpp will magically compile the C++ code and construct a function that bridges the gap between R and C++. After running the above code, we now have access to the `add_c` function
 
 ```{r}
 add_c
+```
+
+\noindent When we can call in the usual way
+
+```{r}
 add_c(1, 2)
 ```
 
-\noindent There are a few key differences between the R and C++ versions of `add`.
-
-
+\noindent Notice that if you included this function in a package, users don't have to worry about any of the Rcpp magic. It just works.
 
 ## C/C++ data types
 
@@ -116,26 +121,27 @@ The most basic type of variable is an integer, `int`. An `int` variable can stor
 
 A pointer object, is a variable that points to an area of memory that has been given a name.Pointers are a very powerful, but primitive facility contained in the C language. They are very useful since rather than passing large object around, we pass a pointer to the memory location. We won't use pointers in this chapter, but mention them for completeness.
 
-# The cppFunction function
+# The sourceCpp function
 
-
-
-
-
-\noindent The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ in a separate file (with file extension `cpp`) and use the `sourceCpp("path/to/file.cpp")` function to compile them. However, we need to include a couple of headers. At the top of the file, we need 
+The `cppFunction` is great for getting small examples up and running. But it is better practice to put your C++ code in a separate file (with file extension `cpp`) and use the function call `sourceCpp("path/to/file.cpp")` to compile them. However, we need to include a few headers at the top of the file. The first line we add gives us access to the Rcpp functions. The file `Rcpp.h` contains a list of function and class definitions supplied by Rcpp. The `include` statement, adds the definitions to the top of your code
 
 ```{Rcpp eval=FALSE}
 #include <Rcpp.h>
+```
+
+\noindent To access the Rcpp functions, we would have to type `Rcpp::function_1`. To avoid typing `Rcpp::`, we use the namespace facility,
+
+```{Rcpp eval=FALSE}
 using namespace Rcpp;
 ```
 
-\noindent then for each function we want to export (use in R), we need to add
+\noindent Now we can just type `function_1`\sidenote{This is the same concept that R uses for managing function name collisions when loading packages.}. Above each function we want to export/use in R, we add the tag\sidenote{Similar to an Roxygen2 export tag.}
 
 ```{Rcpp eval=FALSE}
 // [[Rcpp::export]]
 ```
 
-\noindent This would give the total file
+\noindent This would give the complete file
 
 ```{Rcpp}
 #include <Rcpp.h>
@@ -152,7 +158,7 @@ double add_c(double x, double y){
 
 # Vectors and loops
 
-Let's consider a slightly more complicated example. Here we want to write our own function that calculates the mean. Note, this is just an illustrative example: R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
+Let's now consider a slightly more complicated example. Here we want to write our own function that calculates the mean. This is just an illustrative example: R's version is much better and more robust to scale differences in our data. For comparison, let's create a corresponding R function. The function takes a single vector `x` as input, and returns the mean value, `m`:
 
 ```{r}
 mean_r = function(x) {
@@ -164,9 +170,11 @@ mean_r = function(x) {
 }
 ```
 
-\noindent This is a very bad R function. We should just use the base function `mean` for real world applications. However, the purpose of `mean_r` is to provide a comparison for the C++ version, which we will write in a similar way.
+\noindent This is a very bad R function. We should just use the base function `mean` for real world applications. However the purpose of `mean_r` is to provide a comparison for the C++ version, which we will write in a similar way.
 
-For the C++ version we need to specify the types of the argument `x` (`NumericVector`) and the return value (`double`). The object type `NumericVector`, isn't a standard C++ type, instead it is provided courtesy of Rcpp. Other common classes are: `NumericVector`, `IntegerVector`, `CharacterVector`, and `LogicalVector`. The C++ version of the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
+In this example, we'll let Rcpp smooth the interface between C++ and R by using the `NumericVector` data type. This Rcpp data type mirrors the R vector object type. Other common classes are: `IntegerVector`, `CharacterVector`, and `LogicalVector`. 
+
+In the C++ version of the mean function, we specify the arguments types: `x` (`NumericVector`) and the return value (`double`). The C++ version of the `mean` function is a few lines longer. Almost always, the corresponding C++ version will be, possibly much, longer. 
 
 ```{Rcpp eval=FALSE}
 double mean_c(NumericVector x){
@@ -174,7 +182,7 @@ double mean_c(NumericVector x){
   int n = x.size();
   double mean = 0;
   
-  for(i=0; i<n; i++){
+  for(i=0; i<n; i++) {
     mean = mean + x[i]/n;
   }
   return mean;
@@ -190,7 +198,7 @@ sourceCpp("src/mean_c.cpp")
 \noindent Although the C++ version is similar, there are a few crucial differences.
 
 1. We use the `.size()` method to find the length of `x`
-1. The `for` loop has a slightly more complicated syntax.
+1. The `for` loop has a more complicated syntax.
     ```{Rcpp eval=FALSE}
     for (variable initialization; condition; variable update ) {
        // Code to execute
@@ -227,9 +235,9 @@ z = microbenchmark(
 
 \noindent The results are easily compared using the `boxplot` method
 
-```{r fig.width=5, fig.height=3, echo=2, fig.cap="Comparing C++ with R.", echo=2, cache=TRUE}
+```{r fig.width=5, fig.height=3, echo=2, fig.cap="Comparison of mean functions.", echo=2, cache=TRUE, fig.pos='t'}
 par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01, cex.axis=0.9, las=1)
-boxplot(z)
+boxplot(z, ylab="Log (time)")
 grid()
 ```
 
@@ -250,34 +258,6 @@ Each vector type has a corresponding matrix equivalent: `NumericMatrix`, `Intege
  * We subset using `()`, i.e. `mat(5, 4)`.
  * The first view in a matrix is `mat(0, 0)` - remember indexes start with `0`.
  * To determine the number of rows and columns, we use the `.nrow()` and `.ncol()` methods.
-
-## Comments
-
-In C++, we can comment our code in two ways. If we want a one line comment, we use the `//` notation:
-
-```{Rcpp}
-// A one line comment
-```
-
-\noindent If we want a multi-line comment, then we use
-
-```{Rcpp}
-/*
- A multi-line
- comment
-*/ 
-```
-
-\noindent In the previous section we decorated the C++ functions with `// [[Rcpp::export]]` (note the space between `//` and `[[`). This uses the same idea as the `roxygen2` package and the `@export` control. The comment indicates that the function should be exported to C++. 
-
-One further trick that Rcpp provides is that we can embed R code in the Cpp file
-```{Rcpp}
-/*** R
-1 + 1
-*/
-```
-
-\noindent This can be particularly helpful when testing code.
 
 # C++ with sugar on top
 
@@ -300,13 +280,18 @@ NumericVector res_c(NumericVector x, NumericVector y){
 \noindent With `Rcpp` sugar, we can rewrite this code to be more succinct and have more of an R feel, 
 
 ```{Rcpp eval=FALSE}
-NumericVector res_sugar(NumericVector x, NumericVector y){
+NumericVector res_sugar(NumericVector x, NumericVector y) {
   return pow(x-y, 2);
 }
 ```
 
-\noindent The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However, with the sugared variety, the code is shorter and is constantly being improved.
+\noindent The sugar versions aren't usually faster than the C++ version, but there's usually very little difference between the two. However with the sugared variety, the code is shorter and is constantly being improved.
 
-> Challenge (hard): In the above example, `res_sugar` is faster than `res_c`. Do you know why?
+\subsection*{Exercise}
+
+\begin{enumerate}
+\item Construct an R version, `res_r` and compare the three function variants.
+\item In the above example, `res_sugar` is faster than `res_c`. Do you know why?
+\end{enumerate}
 
 

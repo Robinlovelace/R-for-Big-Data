@@ -4,9 +4,9 @@ output: pdf_document
 
 \chapter{Memory Matters}
 
-Whenever Big data comes up, the obvious question to ask, is, What do you mean by big? The answer to this question is that everything is realitive. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider Big, Google/Facebook would consider small.
+Whenever Big data comes up, the obvious question to ask, is, What do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider Big, Google/Facebook would consider small.
 
-When talking about Big Data, we need a comparison. In this course, **big** is realitive to our available resources.
+When talking about Big Data, we need a comparison. In this course, **big** is relative to our available resources.
 
 # File sizes
 
@@ -31,9 +31,9 @@ $01010010$ & R \\
 \caption{The bit representation of a few ASCII characters.}\label{2.1}
 \end{margintable}
 
-It's worth pointing out that storing characters has got more sophasiticed in recent years. In particular, Unicode was created to try to create a single character set that included every reasonable writing system. See 
+It's worth pointing out that storing characters has got more sophisticated in recent years. In particular, Unicode was created to try to create a single character set that included every reasonable writing system. See 
 \begin{center}
-\url{http://www.joelonsoftware.com/articles/Unicode.html}
+\url{http://www.software.com/articles/Unicode.html}
 \end{center}
 \noindent for a nice introduction on character encoding.
 
@@ -117,7 +117,7 @@ R is also tries to avoid making unnecessary copies of objects. For example, cons
 l1 = list(v1, v1)
 l2 = list(v1, v2)
 ```
-\noindent When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`\marginnote{This clever use of optimisating memory is relatively new to R. This is why it is always worthwhile upgrading R to the latest version. Small optimisations to a data frame, can make a big difference to your code.}
+\noindent When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`\marginnote{This clever use of optimising memory is relatively new to R. This is why it is always worthwhile upgrading R to the latest version. Small optimisations to a data frame, can make a big difference to your code.}
 ```{r}
 object_size(l1)
 object_size(l2)

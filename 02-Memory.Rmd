@@ -4,7 +4,7 @@ output: pdf_document
 
 \chapter{Memory Matters}
 
-Whenever Big data comes up, the obvious question to ask, is, What do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider Big, Google/Facebook would consider small.
+Whenever big data comes up, the obvious question to ask, is, what do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider "big"", Google/Facebook would consider small.
 
 When talking about Big Data, we need a comparison. In this course, **big** is relative to our available resources.
 
@@ -12,7 +12,7 @@ When talking about Big Data, we need a comparison. In this course, **big** is re
 
 A computer cannot store "numbers" or "letters". The only thing a computer can store and work with is bits. A bit is binary, it is either a $0$ or a $1$\sidenote{Or `TRUE`/`FALSE` or `yes`/`no`.}. In fact, from the computers point of view, a bit is just a blip of electricity that either is or isn't there.
 
-In the past, we use the ASCII character set. This set defined $128$ characters including $0$ to $9$, upper and lower case alpha-numeric and a few control characters such as a new line. To store these characters required $8$ bits\sidenote{Actually, it only required $7$ bits since $2^7 = 128$, but $8$ bits were typically used: see \url{http://stackoverflow.com/q/14690159/203420}}. Table \ref{T2.1} gives the binary representation of the first few characters.
+In the past we use the ASCII character set. This set defined $128$ characters including $0$ to $9$, upper and lower case alpha-numeric and a few control characters such as a new line. To store these characters required $8$ bits\sidenote{Actually, it only required $7$ bits since $2^7 = 128$, but $8$ bits were typically used: see \url{http://stackoverflow.com/q/14690159/203420}}. Table \ref{T2.1} gives the binary representation of the first few characters.
 
 \begin{margintable}
 \centering
@@ -28,7 +28,7 @@ $01000101$ & E\\
 $01010010$ & R \\
 \bottomrule
 \end{tabular}
-\caption{The bit representation of a few ASCII characters.}\label{2.1}
+\caption{The bit representation of a few ASCII characters.}\label{T2.1}
 \end{margintable}
 
 It's worth pointing out that storing characters has got more sophisticated in recent years. In particular, Unicode was created to try to create a single character set that included every reasonable writing system. See 
@@ -39,19 +39,19 @@ It's worth pointing out that storing characters has got more sophisticated in re
 
 Eight bits is one byte\sidenote{Four bits is called a nibble}. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data\sidenote{An empty `.docx` file takes about 3.7KB of storage.}.
 
-A kilobyte (KB) is 1024 bytes and a megabyte (MB) is 1024 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google process around $20$ petabytes of data every day.
+When people first started to think about computer memory, they noticed that $2^{10} \simeq 1000$ and $2^{20} \simeq 10^6$, so they adopted the short hand of kilo- and mega-bytes. Of course, \textit{everyone} new that it was just a short hand, and it was really a binary power. When computers became more wide spread, foolish people like you and me, just assumed the kilo did actually mean $10^3$ bytes.  Fortunately, the IEEE Standards Board decided that IEEE standards will use the conventional, internationally adopted, definitions of the SI prefixes. So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google process around $20$ petabytes of data every day. In 28th August, 2015 over 1 billion\sidenote{I presume this is an American Billion - a giga user?} users logged on to facebook.
 
 \begin{table}[t]
 \centering
-\begin{tabular}{@{}llll @{}}
+\begin{tabular}{@{}llll@{}ll @{}}
 \toprule
-Name & Symbol & Amount (bytes) & Amount (short) \\
+Factor & 	Name &	Symbol &	Origin& & Derivation \\
 \midrule
-Kilobyte & KB & $2^{10}$ & 1024 B\\
-Megabyte & MB & $2^{20}$ & 1024 KB\\
-Gigabyte & GB & $2^{30}$ & 1024 GB\\
-Terabyte & TB & $2^{40}$ & 1024 TB\\
-Petabyte & PB & $2^{50}$ & 1024 PB\\
+$2^{10}$& kibi &	Ki&	Kilobinary: &$(2^{10})^1$ 	& Kilo: $(10^3)^1$ \\
+$2^{20}$&	mebi &	Mi&	Megabinary: &$(2^{10})^2$ 	& Mega: $(10^3)^2$ \\
+$2^{30}$&	gibi &	Gi&	Gigabinary: &$(2^{10})^3$	 & Giga: $(10^3)^3$ \\
+$2^{40}$&	tebi &	Ti&	Terabinary: &$(2^{10})^4$	 & Tera: $(10^3)^4$ \\
+$2^{50}$&	pebi &	Pi&	Petabinary: &$(2^{10})^5$	 & Peta: $(10^3)^5$ \\
 \bottomrule
 \end{tabular}
 \caption{Data conversion table \textbf{XXX} \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
@@ -77,22 +77,22 @@ Double & 8 \\
 
 \begin{enumerate}
 \item R loads everything into memory, i.e. your computer RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
-\item Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could have?
-\item Using Google, how much does it cost to double the amount of available RAM? For example, if you have 16GB of RAM, how much does that cost?
-\item What is the range of values an integer object can represent?
+\item Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?
+\item Using Google, how much does it cost (in pounds) to double the amount of available RAM? For example, if you have 16GB of RAM, how much does that cost?
+\item (Hard) What is the range of values an integer object can represent?
 \end{enumerate}
 
 
 # Object size in R
 
-When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes. For example when we create an R vector, memory is allocated for a number of things:
+When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes - for full description see @Wickham2014. For example when we create an R vector, memory is allocated for a number of things:
 
  * Object meta data: This is information on the base data type and memory management. For example, is the object a logical, character, numeric or complex data type?
- * Pointers: these are addresses to where memory is stored on the hard drive. __XXX More insight needed.__
+ * Three pointers: these are addresses to where memory is stored on the hard drive. One of the pointer is to a list of attributes. The other two pointers help R move between object on your hard drive.
  
 \noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
 
-We can examine the size of an object using the base function `object.size`. However, a similar function `object_size` in the `pryr` package, counts more accurately and includes the size of environments. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in `4L`. However, the largest possible integer that can be created is $2^{31}-1$. Try `as.integer(2$\wedge$31)`}
+We can examine the size of an object using the base function `object.size`. However, `object_size` in the `pryr` package is a similar function that counts more accurately and includes the environment size. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in $4L$. However, the largest possible integer that can be created is $2^{31}-1$. Try \texttt{as.integer(2$\wedge$31)}.}
 ```{r}
 v1 = 1:1e6
 ```
@@ -131,16 +131,11 @@ object_size(l1, l2)
 
 \subsection*{Exercise}
 
-Explain the following piece of R code
-
-```{r}
-l1[[1]][1] = 1
-object_size(l1)
-```
+Create some standard R objects, such as lists, data frames and matrices. Compare their sizes.
 
 # Integers, doubles and other data types
 
-When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that the length of programs is longer. In R, we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting to look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that programme length is longer. In R we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
   
   * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
   * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
@@ -148,7 +143,7 @@ When programming in C or FORTRAN, we have to specify the data type of every obje
     ```{r}
     args(head.matrix)
     ```
-    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called, this low level optimisation is useful.
+    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
  
 # Collecting the garbage
 
@@ -159,12 +154,13 @@ In some languages, such as C, the programmer has the fun task of being in charge
 ```{r}
 g = function() {
   z = 1:1e7
-  message("Mem used: ", round(mem_used()/10^6), "MB")
+  message("Mem used: ", 
+          round(mem_used()/10^6), "MB")
   0
 }
 ```
 
-\noindent and calculate the memory used
+\noindent and calculate the current memory being used
 
 ```{r}
 mem_used()
@@ -177,13 +173,13 @@ x = g()
 mem_used()
 ```
 
-\noindent The memory used hasn't changed. Since `z` is only referenced inside the function, the associated memory is freed after the function call has ended.
+\noindent The memory usage hasn't changed. Since the variable `z` is only referenced inside the function, the associated memory is freed after the function call has ended.
 
-We can force a call to the garbage collector, via `gc()`. However, this is never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
+We can force a call to the garbage collector, via `gc()` or by explicitly deleting the object with `rm`. However, this is almost never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
 
 # Monitoring memory change
 
-There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The [lineprof](https://github.com/hadley/lineprof) package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
+There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The lineprof\sidenote{\url{https://github.com/hadley/lineprof}} package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
 
 
 

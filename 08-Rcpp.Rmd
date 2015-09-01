@@ -6,29 +6,29 @@ output: pdf_document
 
 # Introduction
 
-Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. It is possible to write C and Fortran code to interact with R without resorting to any external packages; but it is incredibly painful and error prone. However there is a better way, the Rcpp\sidenote{\url{http://www.rcpp.org}} package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
+Sometimes R is just slow. You've tried every trick you know, and your code is still crawling along. At this point, you may need to rewrite key parts of your code in C/C++. You don't have to resort to external packages to call C/Fortran routines. We can just use the `.Call` function; it's just an incredibly painful and error prone experience. However there is a better way, the Rcpp\sidenote{\url{http://www.rcpp.org}} package. This is now one of the most popular packages on CRAN.  Rcpp provides a clean and friendly API that lets you write high-performance code, while at the same time keeping you safe from R's tricky C API. The typical bottlenecks that C/C++ can address are loops and recursive functions.
 
-In this chapter, C and C++ code are largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp` file.`.cpp` is the default file extension for C++ scripts. In general, this isn't true. See for example the Stackoverflow question, \url{http://programmers.stackexchange.com/q/16390/14846} for an overview.
+In this chapter, C and C++ code are largely interchangeable, so when you see 'C code', it can usually be included in a `.cpp` file\sidenote{`.cpp` is the default file extension for C++ scripts.}. In general, this isn't true. See for example the Stackoverflow question, \url{http://programmers.stackexchange.com/q/16390/14846} for an overview.
 
-C++ is a separate programming language so every aspect cannot be covered in this course. Instead, the goal is to provide a flavour of what's possible.
+C++ is a separate programming language, so this chapter just provides the bare minimum to get you started. This chapter's goal is to provide a flavour of what's possible.
 
 \subsection*{Pre-requisites}
 
-The code in this chapter was generated using Version `r packageDescription("Rcpp")$Version` of Rcpp. You can install [Rcpp from CRAN](https://cran.r-project.org/web/packages/Rcpp/index.html) in the usual way
-
-```{r eval=FALSE}
-install.packages("Rcpp")
-```
-
-\noindent The associated CRAN\sidenote{\url{https://cran.r-project.org/web/packages/Rcpp/}} page has numerous vignettes that are worth looking at\sidenote{You can get an idea of the popularity of the package by looking at the `Reverse Imports`.}
-
-To use the package you need a working C++ compiler. 
+To use\sidenote{To use, I mean write functions. If you distribute code in a package, then this isn't an issue. For example, the `ggplot2` package uses Rcpp.} the package you need a working C++ compiler. 
 
  * Linux: A compiler should already be installed. Otherwise install `r-base` it a compiler will be installed as a dependency.
  * Macs: Install `Xcode`.
  * Windows: Install Rtools\sidenote{\url{http://cran.r-project.org/bin/windows/}}. Make sure you select the version that corresponds to your version of R.
 
-\noindent To check that you have everything, try running the following piece of code from the course R package
+\noindent The code in this chapter was generated using version `r packageDescription("Rcpp")$Version` of Rcpp. You can install Rcpp from CRAN in the usual way
+
+```{r eval=FALSE}
+install.packages("Rcpp")
+```
+
+\noindent The associated CRAN\sidenote{\url{https://cran.r-project.org/web/packages/Rcpp/}} page has numerous vignettes that are worth looking at\sidenote{You can get an idea of the popularity of the package by looking at the `Reverse Imports` section.}
+
+To check that you have everything, try running the following piece of code from the course R package
 
 ```{r cache=TRUE}
 library("r4bd")

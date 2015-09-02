@@ -2,12 +2,11 @@
 output: word_document
 ---
 
-
 \chapter{The ff package}
 
 #  Introduction
 
-The `ff` package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. This means that we can now load and analyse much larger data sets\sidenote{These days, a standard hard drive is around 1TB, whereas RAM is around 16BG.}. However, accessing data from your hard drive is slower than from memory. 
+The `ff`\marginnote{\texttt{ff}: fast file.} package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. This means that we can now load and analyse much larger data sets\sidenote{These days, a standard hard drive is around 1TB, whereas RAM is around 16GB.}. However accessing data from your hard drive is slower than from memory. 
 
 Since we are no longer loading data directly into memory, this results in non-standard R code. The `ff` package only provides the building blocks, that is it doesn't offer many statistical functions and offers no support for characters. 
 
@@ -15,12 +14,11 @@ Since we are no longer loading data directly into memory, this results in non-st
 The `ffbase` package extends `ff` by providing `ff` versions of commonly used operations, such as standard mathematical operators  and common functions,
 `c()`, `duplicated()` and `which()` (implemented as `ffwhich()`).
 
-\subsubsection*{Exercise: How big is your hard drive?}
+\subsection*{Exercise: How big is your hard drive?}
 
 \subsection*{Aside: HDD vs SSD}
 
-Unless you have a fairly expensive laptop, you've probably got a standard Hard Disk drive (HDD). HDDs were first introduced by IBM in 1956. Data is stored using magnetism on a rotating platter. The faster the platter spins, the faster the HDD can perform. Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM. The major advantage of HDD is that they are cheap; a 1TB laptop is becoming
-standard.
+Unless you have a fairly expensive laptop, you've probably got a standard hard disk drive (HDD). HDDs were first introduced by IBM in 1956. Data is stored using magnetism on a rotating platter. The faster the platter spins, the faster the HDD can perform. Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM. The major advantage of HDD is that they are cheap; a 1TB laptop is becoming standard.
 
 \begin{marginfigure}
 \centering
@@ -28,9 +26,9 @@ standard.
 \caption{A standard 2.5" hard drive, found in most laptops. Figure credit: \url{https://en.wikipedia.org/wiki/Hard_disk_drive}.}
 \end{marginfigure}
 
-Solid state drives (SSD), can be thought of large, but more sophisticated versions of your USB stick. They have no moving parts and information is stored in microchips. Since there are no moving parts, reading/writing is much quicker\sidenote{SSDs have other benefits, such as being quieter, faster booting time for the OS, required less power (more battery life).
+Solid state drives (SSD), can be thought of large, but more sophisticated versions of your USB stick. They have no moving parts and information is stored in microchips. Since there are no moving parts, reading/writing is much quicker\sidenote{SSDs have other benefits, such as being quieter, faster booting time for the OS, required less power (more battery life).}.
 
-The read/write speed for standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. If you're wondering, read/write speeds for RAM is around 2-20GB/s. So at best, SSDs are at least one order of magnitude slower than RAM.
+The read/write speed for a standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. If you're wondering, read/write speeds for RAM is around 2-20GB/s. So at best, SSDs are at least one order of magnitude slower than RAM, but still faster than standard HDDs.
 
 # Importing data
 
@@ -40,7 +38,7 @@ The `ff` package provides a number of functions to read in data. All the `read.*
 library("ff")
 ```
 
-\noindent To illustrate, we'll use a simple csv file\marginnote{This CSV file is pretty small, and the `ff` package is complete overkill. However, using small data set is handy for illustrating key concepts.} that comes with the `r4bd` package.\marginnote{There are two key classes in the `ff` package. `ff` for vector and `ffdf` for data frames.}
+\noindent To illustrate we'll use a simple csv file\marginnote{This CSV file is pretty small, and the `ff` package is complete overkill. However, using small data set is handy for illustrating key concepts.} that comes with the `r4bd` package.\marginnote{There are two key classes in the `ff` package. `ff` for vector and `ffdf` for data frames.}
 
 ```{r, cache=FALSE}
 ## `get_rand()` Returns the full path
@@ -67,10 +65,9 @@ colSums(ffx) # produces the following error:
 
 # Data chunks
 
-The key idea with `ffdf` objects, is that we no longer manipulate objects in one go, but instead, we use
-chunks of data. Essentially, we split the data set up into smaller pieces that can be manipulated by R, and process them one-by-one. The `ff` package is a much more efficient solution than the naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
+The key idea with `ffdf` objects, is that we no longer manipulate objects in one go, but instead, we use chunks of data. Essentially, we split the data set up into smaller pieces that can be manipulated by R, and process them one-by-one. The `ff` package is a much more efficient solution than the naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
 
-The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`.\marginnote{You can easily test how nerdy you are, by Googling `chunk image` and see how many references are returned to the Goonies film.} Since this data set is small, we only have a single chunk, i.e.
+The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`.\marginnote{You can easily test how nerdy you are, by Googling `chunk image` and see how many references are returned to the Goonies film.} Since this data set is small, we only have a single chunk
 ```{r}
 length(chunk(ffx))
 ```
@@ -89,7 +86,7 @@ for(i in seq_along(chunks))
 min(m)
 ```
 
-\noindent Since we are dealing with out of memory objects, standard rules about copying objects no longer apply\marginnote{If you've come across reference classes in R, it's the same idea.}. In particular, when we copy objects, we are passing by reference. For example, when we change `ffy`
+\noindent Since we are dealing with out of memory objects, standard rules about copying objects no longer apply\marginnote{If you've come across reference classes in R, it's the same idea.}. In particular when we copy objects, we are passing by reference. For example, when we change `ffy`
 
 ```{r}
 ffy = ffx
@@ -118,7 +115,7 @@ system.time(x <- readr::read_csv("/tmp/tmp.csv"))
 
 \noindent On my machine, the `readr` function is an order of magnitude faster. This is what we would expect. The `ffdf` version is also preparing the data for future read/write access from the hard drive. Also, the `readr` variant is limited by your RAM. So if your file is too large, you will get an error
 
-```{r eval=FALSE}
+```{r eval=FALSE, tidy=FALSE}
 R> x = readr::read_csv("very_big.csv")
 # Error: cannot allocate vector of size 12.8 Gb
 ```
@@ -132,7 +129,7 @@ When data is the `ff` format, processing is faster than using the standard `read
 filename(ffx)
 ```
 
-\noindent This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However, the `ff` files are not platform-independent, so some care is needed when changing operating systems.
+\noindent This make moving data around a bit more complicated. The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. However the `ff` files are not platform-independent, so some care is needed when changing operating systems.
 
 # The ffbase package
 

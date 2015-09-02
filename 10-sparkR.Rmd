@@ -20,8 +20,7 @@ The Spark stack is composed of the following libraries.
   * Cluster Managers:
   * Third party libraries: Like R and Python, developers are encouraged to
   extend Spark. Over 100 additional libraries have been contributed so far,
-  each of which can be rated by the community (see
-  [spark-packages.org](http://spark-packages.org/)).
+  each of which can be rated by the community\sidenote{\url{http://spark-packages.org/}}.
 
 
 # A first Spark instance
@@ -33,7 +32,7 @@ Sys.setenv(SPARK_HOME="/path/to/spark/")
 Sys.setenv(SPARK_HOME="/data/ncsg3/spark-1.4.1-bin-hadoop2.6/")
 ```
 
-Then we load the `SparkR` package
+\noindent Then we load the `SparkR` package\marginnote{\texttt{SparkR} is bundled with Spark. This means that \texttt{SparkR} is not hosted on CRAN.}
 ```{r eval=FALSE}
 library("SparkR")
 ```
@@ -43,7 +42,7 @@ library("SparkR")
 sc = sparkR.init(master="local")
 ```
 
-\noindent The `sparkR.init` function has number of arguments. In particular, if we want to use any Spark packages, these should be specified during the initialisation stage. So if we wanted to load in a csv file, we would need something like
+\noindent The `sparkR.init` function has number of arguments. In particular if we want to use any Spark packages, these should be specified during the initialisation stage. So if we wanted to load in a csv file, we would need something like
 ```{r eval=FALSE}
 sc = sparkR.init(sparkPackages="com.databricks:spark-csv_2.11:1.0.3")
 ```
@@ -63,7 +62,7 @@ For this example, we are using the Moby Dick text, downloaded from the Project G
 ```{r eval=FALSE}
 moby = SparkR:::textFile(sc, "data/moby_dick.txt")
 ```
-\noindent There are two keys points to note. First, we pass the Spark instance object `sc` as an argument.\sidenote{In R, `::` is used to access functions that have been exported by a package, i.e. methods that appear in the NAMESPACE file. However, there are some functions in the package that the author may want to remain private. These can be accessed using `:::`.}  Second, we are use `:::` to access an non-exported function from `SparkR`\sidenote{SparkR was only integrated into Spark in June 2015, so the API is still being finalised, hence the use of the triple colon here.}. Because Spark and SparkR are so new, it is dynamic. Some things in this chapter may not work in a few month's time. In any case, the `moby` object is an RDD object
+\noindent There are two keys points to note. First, we pass the Spark instance object `sc` as an argument.\sidenote{In R, `::` is used to access functions that have been exported by a package, i.e. methods that appear in the NAMESPACE file. However there are some functions in the package that the author may want to remain private. These can be accessed using `:::`.} Second, we are use `:::` to access an non-exported function from `SparkR`\sidenote{SparkR was only integrated into Spark in June 2015, so the API is still being finalised, hence the use of the triple colon here.}. Because Spark and SparkR are so new, the interface has still to be finalised. Some things in this chapter may not work in a few month's time. In any case, the `moby` object is an RDD object
 ```{r eval=FALSE, tidy=FALSE}
 R> moby
 # MapPartitionsRDD[3] at textFile at NativeMethodAccessorImpl.java:-2
@@ -79,18 +78,17 @@ mobys = SparkR:::filterRDD(moby, get_moby)
 ```
 
 \noindent This is a functional approach to programming and is similar to the `apply` family. 
-
 An *action* computes a result based on an RDD. The result is either displayed or stored somewhere else on the system. For example, if we want to know how many rows contain the word `Moby`, we use the count function
 ```{r eval=FALSE}
 ## The answer is 77
 count(mobys)
 ```
 
-\noindent Spark deals with Transformations and actions in two different ways. Like `dplyr`, Spark uses lazy evaluation: it only performs the computation when it is used by an action. In the example above, the `textFile` and `filterRDD` commands are run only when we use `count`. 
+\noindent Spark deals with transformations and actions in two different ways. Like `dplyr`, Spark uses lazy evaluation: it only performs the computation when it is used by an action. In the example above, the `textFile` and `filterRDD` commands are run only when we use `count`. 
 
 The developers of Spark and `dplyr` recognize that lazy evaluation is essential when working with big data. This can be seen by considering the example above. If SparkR actually ran `textFile` straight away, this would use up a load of disk space. This is a waste, since we immediately filter out the vast majority of the text. Instead, SparkR (via Spark), takes the chain of transformations, and performs the computation on the minimum amount of data needed to get the result.
 
-Spark's RDDs are (by default) recomputed each time you run an action on them.\sidenote{Alternatively, we could use `cache(moby)`, which is the same as `persist` with the default level of storage.} To reuse RDDs in multiple operations we can ask Spark to persist it via
+Spark's RDDs are (by default) recomputed each time you run an action on them.\sidenote{Alternatively, we could use \texttt{cache(moby)}, which is the same as \texttt{persist} with the default level of storage.} To reuse RDDs in multiple operations we can ask Spark to persist it via
 ```{r eval=FALSE}
 ## There are different levels of storage
 persist(mobys, "MEMORY_ONLY")
@@ -108,7 +106,7 @@ To summarise, every Spark session will have a similar structure.
 
 # Loading data: creating RDDs
 
-There are two ways of creating an RDD: 1) by parallelizing an existing dataset; or 2) from an external data source, such as a database or csv file.
+There are two ways of creating an RDD: by parallelizing an existing dataset; or  from an external data source, such as a database or csv file.
 
 The easiest way to create an RDD file is from an existing data set which can be passed to the `parallelize` function. If you use this method it may mean the data is relatively small and you don't need to use Spark. Nevertheless, applying the method on small datasets will help you to learn Spark/SparkR quickly, since you can quickly test and prototype code. To create an RDD representation of the vector `1:100`, we would use
 
@@ -127,13 +125,13 @@ count(vec_sp)
 
 Suppose we have already initialised a Spark context. To use Spark data frames, we need to create an `SQLContext`, via
 ```{r eval=FALSE}
-sqlContext = sparkRSQL.init(sc)
+sql_context = sparkRSQL.init(sc)
 ```
 
-\noindent The SQLContext enables us to create data frames from a local R data frame, 
+\noindent The `SQLContext` enables us to create data frames from a local R data frame, 
 
 ```{r eval=FALSE}
-chicks_sp = createDataFrame(sqlContext, chickwts) 
+chicks_sp = createDataFrame(sql_context, chickwts) 
 ```
 
 \noindent or from other data sources, such as CSV files or a 'Hive

@@ -4,18 +4,60 @@ output: pdf_document
 
 ```{r echo=FALSE}
 library("pryr")
+library("grid")
+library("png")
 ```
 
 \chapter{Big Data and R}
 
 # What is Big Data?
 
-Definitions of Big Data abound.
+A common definition for Big Data is that which is:
+
+- Variable, within each dataset and between sources
+- Voluminous, occupying much RAM and hard disk space
+- High in velocity: it's always being generated
+
+Precisely how 'V' data needs to be before it's classified as 'Big' is rarely specified, however.
+A looser definition from the literature recognises that Big Data an umbrella or 'catch all' term: in practice, and especially in the social sciences, Big Data is used simply to refer to information that is "difficult  to  analyze using established methods" [@Lovelace2015].
+
+The variety of new datasets becoming available
+is such that no single tutorial can
+cover all shapes and sizes. Gaining a solid
+understanding of the underlying R *language*
+and clearly defining what you want to do is therefore more
+important than knowing the 'right' function or
+package. In most cases there are many ways to solve
+a problem with R. The 'best' one depends on your
+needs, that could range from:
+
+- ease and speed of writing the code
+- speed of execution on the computer
+- durability of code: will it work in 20 years time?
+
+In this context it is useful to think of R as a tool
+for DIY (Fig. 1). People rarely ask 'is this the BEST possible drill'?.
+More likely a good builder will ask: 'Is this drill *good enough* to get the job done?' More importantly 'Is this drill robust?' and 'Will it work in 20 years time?' The same applies to R for Big Data.
+
+```{r drill, fig.margin=TRUE, fig.cap= "A drill is analogous to a software tool: the questions of functionality and reliability should trump the question: 'is it the best?'", echo=FALSE}
+grid.raster(readPNG("figures//746px-Pistol-grip_drill.svg.png"))
+```
+
+Regardless of the 'big' dataset you hope to use,
+you can be confident of one thing:
+**it is unlikely to be ready to analyse.**
+This means that you must work to tidy the data,
+a task that typically takes around
+80% of the effort expended on data analysis projects
+[@tidy-data]. 
 
 # Coping with Big Data in R
 
-R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's RAM (although packages for working with databases such as dplyr can work with data stored remotely). This wasn't a problem twenty years ago when data sets were small and the rate limiting step was how quickly a statistician could think. Essentially, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
-Today, the size of data sets have exploded and it's not difficult to find data sets that are larger than your laptop's memory.
+R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's
+RAM.^[There are, however, packages such as **dplyr** which allow R to access, filter and even process data stored remotely.
+These are described in chapter 5.]
+This was less of a problem twenty years ago, when data sets were small and the main bottleneck on analysis was how quickly a statistician could think. Traditionally, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
+Nowadays datasets that are larger than your laptop's memory are commonplace.
 
 > **Challenge**: How much RAM do you have? Hint: Google if necessary.
 
@@ -91,8 +133,8 @@ file.info("data/data_20050523-20150809.csv")
 ##       size: 5647444347
 ```
 
-The above code uses R to download,
-unzip and present information a giant .csv file.
+The above code illustrates how R can be used to download,
+unzip and present information on a giant .csv file, in completely reproducible workflow.
 Note that it's 5.6 GB in size and took over 3 minutes to unzip!
 The following code requires a 64 bit R installation and will not work on
 many laptops.

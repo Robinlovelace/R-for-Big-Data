@@ -4,9 +4,32 @@ output: html_document
 
 \chapter{Manipulating Big Data}
 
-# The power of dplyr
+# Reshaping data
 
-**dplyr** has been carefully designed to make data analysis
+A key skill in data analysis is understanding the shape of datasets and being able to 'reshape' them.
+An example of the various shapes that the same datasets can assume is presented below.
+
+```{r, echo=FALSE, eval=FALSE}
+# Download data from its original source
+downloader::download("http://www.jstatsoft.org/v59/i10/supp/4", destfile = "v59i10-data.zip")
+downloader::download("http://www.jstatsoft.org/v59/i10/supp/4", destfile = "v59i10-data.zip")
+unzip("v59i10-data.zip", exdir = "data/")
+# pew <- read.
+```
+
+# Filtering columns
+
+Often Big Data contains much worthless or blank information.
+An example of this is provided in the 
+
+
+generally, that becomes especially important when handling large datasets, is 
+
+# Data aggregation
+
+# dplyr
+
+**dplyr** has been designed to make data analysis
 fast and intuitive [@dplyr]. **dplyr** works perfectly
 on `data.frames` but its default object is the `tbl`, which
 is identical to a `data.frame` but prints

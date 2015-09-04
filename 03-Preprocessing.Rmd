@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 
-\chapter{Preprocessing}
+\chapter{Preprocessing and loading data}
 
 R is ideal for handling many tasks but not everything.
 As mentioned in the introduction, there are various ways to
@@ -19,7 +19,8 @@ broken up into smaller chunks before being loaded into R.
 Here's an 
 example of trying (and failing!) to load a large dataset into R.
 We recommend you don't
-run this code:
+run this code:^[For
+more information on the origin and content of this dataset, see chapter 10.]
 
 ```{r, eval=FALSE}
 dir.create("data") # create folder for data
@@ -49,40 +50,35 @@ many laptops.
 
 ```{r, eval=FALSE}
 df <- read.csv("data/data_20050523-20150809.csv")
-## Error: cannot allocate vector of 32.0 Mb
+## Error (from 32 bit machine): cannot allocate vector of 32.0 Mb
 ```
 
-We will later explain methods within R for better handling such large datasets
-such as using faster read-in functions such as `read_csv()` from the
-**readr** package. For now, just remember that reading large datasets into
-R can be tricky and time-consuming. Preprocessing outside R can help.
-R's interfaces to fast languages can also help.
+There are ways to better handle such large datasets such as using faster read-in functions such as `read_csv()` from the **readr** package. For now, just remember that reading large datasets into R can be tricky and time-consuming. Preprocessing outside R, as illustrated below, can help.
 
 # Splitting files with Unix tools
 
-The unix utility **split** can be used to split large files up
-by size or number of lines. The following bash commands will split the
-5.6 GB file, downloaded and unzipped in the first chapter, into chunks of 100 MB
+The unix utility **split** can be used to split large files, like the one we tried to load above, into chunks based on size or number of lines. The following bash commands will split the
+5.6 GB file, downloaded and unzipped in the previous section, into chunks of 100 MB
 each:^['Bash commands'
 refer to computer code written in the Bash language. Bash is the default
 language used by Linux and Macs for most internal system administration
-functions. In Macs, you can open this by typing 'Apple key'-T. In
+functions. In Macs, you can open the Bash terminal by typing 'Apple key'-T. In
 Windows, installing [cygwin](https://www.cygwin.com/) and launching it
 will provide access to this functionality. Note: you must start from the correct
-*working directory*. Use `pwd` in Bash or `setwd()` in R to check this.]
+*working directory* --- `pwd` in Bash or `setwd()` in R can be used to check this.]
 
-```
-cd data
+```{r, engine='bash', eval=FALSE}
+cd data # change directory
 split -b100m npidata_20050523-20150809.csv
 ```
 
 Assuming there is sufficent
 disk space, there output of the above operation should be several 100 Mb text
-files which are more manageable. These are named `aa`, `ab` etc.
+files: more manageable. These are named `aa`, `ab` etc.
 A sample from the results of this operation can be found in the
-`data` folder after the following commands.
+`data` folder. This was saved using commands.
 
-```
+```{r, engine='bash', eval=FALSE}
 split -l 10 aa mini # further split chunk 'aa' into 10 lines
 cp miniaa ../data # copy the first into 'sample-data'
 ```
@@ -108,6 +104,129 @@ bulky .csv files before loading the results into R.
 
 # Preprocessing with the LaF package
 
+# Loading static files
 
+Datasets are increasingly becoming continuously 
+collected, making them well-suited to databases and other continuous
+systems that 'ingest' data in real-time. However, static files are still
+probably the most common way to access large datasets and probably will
+continue to be so into the future.
+
+This chapter looks at various file-types that are used for storing
+large datasets and how R can be used to optimised their read-in.
+The most common, simple and in many cases convenient filetype for large datasets
+are *plain text* files, so we look at reading these in first, before
+exploring more exotic filetypes including, `.json`, `.xml`, `.spss`, `.stata`, `.xls`.
+
+# Text files
+
+Data stored as text files are files that are human-readable when displayed
+in a 'plain text' editor such as Microsoft Notepad, Vim or RStudio.
+Plain text files are the basis of computing.^[Most
+programs can be represented as large collections of scripts written in
+plain text. RStudio,
+for example, is written in 100s of lines of plain text files, all of which
+can be viewed on-line
+(see [github.com/rstudio/rstudio](https://github.com/rstudio/rstudio)).
+This tutorial was written as a UTF-8 encoded plain text '.Rmd' file.
+] 
+The advantages of plain text files are:
+
+- Simplicity: quick and easy to understand their contents
+- Compatibility: text files work with most software packages
+- Portability: text files are quick and easy to load, save and share
+
+The disadvantages of plain text files for Big Data are that they can become
+unwieldy, even when compressed (remember the 5.6 Gb file from the introduction),
+and their ease of modification: text files are certainly not a highly secure
+data format.
+
+The most common format of text file is the trusty .csv file, in which
+each column is separated by a comma.
+
+```{r}
+write.csv(x = cars[1:3,]) # write a .csv file to the screen
+```
+
+```{r, echo=FALSE, eval=FALSE}
+write.csv(x = cars[1:3,], "data/minicars.csv") # save to file
+```
+
+
+Note that in the result from the above operation text strings such as
+`"speed"` are enclosed in quote markes wheras raw numbers are not.
+
+> **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
+
+It is important to note that R has its own *binary* data format which minimises the filespace occupied by large static datasets.
+These can be read and written using the `save()` and `load()` commands, which save the names and contents of multiple R objects into a single file.
+We recommend using `saveRDS()` and `readRDS()` instead because they are more flexible, allowing the loaded datasets to be given any name.
+To save and re-load the subsetted `cars` dataset, for example, we could use the following code:
+
+```{r}
+saveRDS(object = cars[1:3,], file = "data/minicars.Rds")
+cars_mini <- readRDS("data/minicars.Rds")
+```
+
+Note that the Rdata version of the same data is a third the size of the csv version:
+
+```{r}
+# Report the size of a file from within R using file.size()
+file.size("data/minicars.Rds") /
+  file.size("data/minicars.csv")
+```
+
+# Freeing your data from spreadsheets
+
+Spreadsheets are ubiquitous in offices around the world, and are used for
+storing millions of (mostly quite small) datasets. Nevertheless
+Microsoft Excel, the most commonly used spreadsheet program can store
+datasets with a maximum size of 1,048,576 rows by 16,384 columns,
+which is not small data.
+
+The example spreadsheet we'll use can be downloaded with the following
+code:
+
+```{r, eval=FALSE}
+downloader::download("http://www.ifs.org.uk/bns/bn19figs.xlsx",
+  destfile = "data/ineq-ifs.xlsx")
+```
+
+There many packages designed for reading spreadsheet files into R, most
+of which are of variable reliability. The best of these is
+**readxl**, which was found to be more than 100 times faster
+than alternatives from **gdata** and **openxlsx**
+packages!^[As
+an important aside, this example illustrates the importance of selecting the
+*right package*, in addition to the right function and implementation,
+for handling large datasets.]
+
+```{r}
+f <- "data/ineq-ifs.xlsx"
+system.time(df <- readxl::read_excel(f, sheet = 15))
+```
+
+> **Optional challenge:** To brush-up on your benchmarking skills, run tests
+to load the same data into R using alternative packages. Which comes closest
+to `read_excel()`? Are the results identical?
+
+```{r, echo=FALSE, eval=FALSE}
+xls_pkgs <- c("gdata", "openxlsx")
+# This took less than 0.1 seconds
+system.time(df <- readxl::read_excel(f, sheet = 15))
+# This took over 4 minutes on my machine!
+system.time(df1 <- gdata::read.xls(f, sheet = 15))
+# This took 30 seconds
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+# After saving the spreadsheet to .odt
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+
+head(df[1:5])
+head(df1[1:5])
+head(df2[1:5])
+identical(df, df1)
+identical(df, df2)
+```
 
 

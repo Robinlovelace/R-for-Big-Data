@@ -1,5 +1,5 @@
 # Which chapters do you want to build?
-chap_ord = 1:6
+chap_ord = 1:10
 
 # Book building function
 rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){

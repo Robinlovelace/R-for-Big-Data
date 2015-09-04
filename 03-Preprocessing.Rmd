@@ -4,11 +4,59 @@ output: pdf_document
 
 \chapter{Preprocessing}
 
-
 R is ideal for handling many tasks but not everything.
 As mentioned in the introduction, there are various ways to
 preprocess large files outside R to make them easier to handle.
 Here we will explore some of the options.
+
+For data stored in large text files we can use
+'streaming' utilities before reading it into R. With tools such as
+[*sed*](https://www.gnu.org/software/sed/manual/sed.html)
+(a 'stream editor' included on most Unix-based systems),
+[split](https://en.wikipedia.org/wiki/Split_%28Unix%29) and
+[csvkit](https://csvkit.readthedocs.org/en/latest/) a 10 Gb .csv can be
+broken up into smaller chunks before being loaded into R.
+Here's an 
+example of trying (and failing!) to load a large dataset into R.
+We recommend you don't
+run this code:
+
+```{r, eval=FALSE}
+dir.create("data") # create folder for data
+url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
+
+# download a large dataset - don't run
+library(downloader) # needs to be installed
+download(url, destfile = "data/largefile.zip")
+## 550600K .......... ...... 100% 1.26M=6m53s
+
+# unzip the compressed file, measure time
+system.time( 
+  unzip("data/largefile.zip", exdir = "data/")
+  )
+##    user  system elapsed 
+##  34.380  22.428 193.145
+
+file.info("data/data_20050523-20150809.csv")
+##       size: 5647444347
+```
+
+The above code illustrates how R can be used to download,
+unzip and present information on a giant .csv file, in completely reproducible workflow.
+Note that it's 5.6 GB in size and took over 3 minutes to unzip!
+The following code requires a 64 bit R installation and will not work on
+many laptops.
+
+```{r, eval=FALSE}
+df <- read.csv("data/data_20050523-20150809.csv")
+## Error: cannot allocate vector of 32.0 Mb
+```
+
+We will later explain methods within R for better handling such large datasets
+such as using faster read-in functions such as `read_csv()` from the
+**readr** package. For now, just remember that reading large datasets into
+R can be tricky and time-consuming. Preprocessing outside R can help.
+R's interfaces to fast languages can also help.
 
 # Splitting files with Unix tools
 

@@ -38,4 +38,14 @@ if(!file.exists("data/MobileCentury/pems_prop_NB.csv")){
 
 The text file for the ebook of Moby Dick can be downloaded from the Gutenberg.org website\sidenote{\url{https://www.gutenberg.org/files/2701/2701.txt}}
 
+## The National Provider Identifyer
+
+Providers of health care in the USA are made publicly available by the US government.
+The resulting datasets are large (over 4 GB unzipped) and can be accessed from
+[www.cms.gov/](http://download.cms.gov/nppes/NPI_Files.html).
+In this dataset each row is a registered health care provider.
+The columns contain information on these providers, including name, address and telephone number.
+Because there are so many column variables (329) much of the data is redundant.
+The download and processing of this dataset is described in chapter 3.
+
 

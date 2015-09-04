@@ -23,3 +23,4 @@ rmd_bind <- function(book_header, dir = ".", render=TRUE, chap_ord = NULL){
 }
 
 rmd_bind(book_header = "00-header.Rmd", chap_ord = chap_ord)
+

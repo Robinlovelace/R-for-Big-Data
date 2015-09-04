@@ -12,36 +12,38 @@ library("png")
 
 # What is Big Data?
 
-A common definition for Big Data is that which is:
+A common definition of Big Data is data that
+is:^[Data here is treated as a mass noun, similar to information.
+Purists may insist that 'data' should always plural because it originates from the purl of Latin word datum, but language evolves and the singular form of the word is becoming more and more common [@kitchin2014data].]
 
 - Variable, within each dataset and between sources
 - Voluminous, occupying much RAM and hard disk space
 - High in velocity: it's always being generated
 
-Precisely how 'V' data needs to be before it's classified as 'Big' is rarely specified, however.
-A looser definition from the literature recognises that Big Data an umbrella or 'catch all' term: in practice, and especially in the social sciences, Big Data is used simply to refer to information that is "difficult  to  analyze using established methods" [@Lovelace2015].
+Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'Big' is rarely specified, however.
+Looser definitions recognise that Big Data is an umbrella or 'catch all' term: in practice Big Data is often used to refer to information that is simply tricky to analyse using established methods [@Lovelace2015].
 
 The variety of new datasets becoming available
 is such that no single tutorial can
-cover all shapes and sizes. Gaining a solid
-understanding of the underlying R *language*
-and clearly defining what you want to do is therefore more
-important than knowing the 'right' function or
-package. In most cases there are many ways to solve
-a problem with R. The 'best' one depends on your
-needs, that could range from:
+cover all shapes and sizes.
+A solid understanding of the *language* used to interact with data,
+in this case R, will provide the flexibility to deal with this diversity.
+Understanding computational bottlenecks and writing computationally efficient code will help deal with  data volume.
+This means that becoming proficient in handling Big Data entails first becoming fluent in data analysis and computing more generally.
+
+It's also easy to get side-tracked when analysing large datasets so clearly defining the aim of a particular analysis project is usually more important than knowing the 'right' function or package.
+There are often many ways to solve a problem with R. In addition to computational speed, the 'best' option will likely depend on additional considerations:
 
 - ease and speed of writing the code
-- speed of execution on the computer
-- durability of code: will it work in 20 years time?
-
-In this context it is useful to think of R as a tool
-for DIY (Fig. 1). People rarely ask 'is this the BEST possible drill'?.
-More likely a good builder will ask: 'Is this drill *good enough* to get the job done?' More importantly 'Is this drill robust?' and 'Will it work in 20 years time?' The same applies to R for Big Data.
+- ease of communicating and reproducing the analysis
+- durability of code
 
 ```{r drill, fig.margin=TRUE, fig.cap= "A drill is analogous to a software tool: the questions of functionality and reliability should trump the question: 'is it the best?'", echo=FALSE}
 grid.raster(readPNG("figures//746px-Pistol-grip_drill.svg.png"))
 ```
+
+In this context it is useful to think of software as a power-tool (Fig. 1.1). People rarely ask 'is this the BEST possible drill'?.
+More likely a good builder will ask: 'Is this drill *good enough* to get the job done?' 'Is this drill robust?' and 'Will it work in 20 years time?' The same applies to R for Big Data.
 
 Regardless of the 'big' dataset you hope to use,
 you can be confident of one thing:
@@ -146,9 +148,9 @@ df <- read.csv("data/data_20050523-20150809.csv")
 
 We will later explain methods within R for better handling such large datasets
 such as using faster read-in functions such as `read_csv()` from the
-readr package. For now, just remember that reading large datasets into
-R can be tricky and timeconsuming. Preprocessing outside R can help.
-R's interfaces to fast languages can alo help.
+**readr** package. For now, just remember that reading large datasets into
+R can be tricky and time-consuming. Preprocessing outside R can help.
+R's interfaces to fast languages can also help.
 
 ## Integration with C++ or Java
 
@@ -164,7 +166,7 @@ The two most famous packages on CRAN that use this principle are `ff` and ``ffba
 
 Due to the popularity of R, it now possible to use alternative interpreters (the interpreter is where the code is run). There are currently four possibilities
 
- * [pqrR](http://www.pqr-project.org/) (pretty quick R) is a new version of the R interpreter. One major downside, is that it is based on R-2.15.0. The developer (Radford Neal) has made many improvements, some of which have now been incorporated into base R. pqR is an open-source project licensed under the GPL. One notable improvement in pqR is that it is able to do some numeric computations in parallel with each other, and with other operations of the interpreter, on systems with multiple processors or processor cores.
+ * [pqrR](http://www.pqr-project.org/) (pretty quick R) is a new version of the R interpreter. One major downside, is that it is based on R-2.15.0. The developer (Radford Neal) has made many improvements, some of which have now been incorporated into base R. **pqR** is an open-source project licensed under the GPL. One notable improvement in pqR is that it is able to do some numeric computations in parallel with each other, and with other operations of the interpreter, on systems with multiple processors or processor cores.
  
   * [Renjin](http://www.renjin.org/) reimplements the R interpreter in Java, so it can run on the Java Virtual Machine (JVM). Since R will be pure Java, it can run anywhere.
 

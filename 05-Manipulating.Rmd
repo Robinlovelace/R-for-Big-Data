@@ -86,7 +86,7 @@ summarise(countries, gini = mean(gini, na.rm = T))
 Note that `summarise` is highly versatile, and can
 be used to return a customised range of summary statistics:
 
-```{r}
+```{r tidy=FALSE}
 summarise(countries,
   # number of rows per country
   obs = n(), 

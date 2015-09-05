@@ -1,21 +1,89 @@
 ---
-output: html_document
+output: pdf_document
 ---
 
 \chapter{Manipulating Big Data}
 
+```{r, echo=FALSE}
+library("xtable")
+library("tidyr")
+library("readr")
+```
+
+
 # Reshaping data
 
-A key skill in data analysis is understanding the shape of datasets and being able to 'reshape' them.
-An example of the various shapes that the same datasets can assume is presented below.
+A key skill in data analysis is understanding the 'shape' of datasets and being able to 'reshape' them.
+An example of the various shapes that the same datasets can assume is provided by @tidy-data and illustrated in Tables \ref{Tpew} to \ref{Tpewt}.
 
 ```{r, echo=FALSE, eval=FALSE}
-# Download data from its original source
+# Download data from its original source - an academic paper
 downloader::download("http://www.jstatsoft.org/v59/i10/supp/4", destfile = "v59i10-data.zip")
-downloader::download("http://www.jstatsoft.org/v59/i10/supp/4", destfile = "v59i10-data.zip")
-unzip("v59i10-data.zip", exdir = "data/")
-# pew <- read.
+# The source code associated with the paper
+downloader::download("http://www.jstatsoft.org/v59/i10/supp/3", destfile = "data/reshape/v59i10.R")
+# After running the R script...
+dir.create("data/reshape")
+unzip("v59i10-data.zip", exdir = "data/reshape/")
+# write.csv(raw, "data/reshape-pew.csv")
 ```
+
+```{r, echo=FALSE, eval=FALSE}
+raw <- read_csv("data/reshape-pew.csv")
+raw <- raw[-c(1,ncol(raw))] # remove excess cols
+names(raw) <- c("religion", "<$10k", "$10--20k", "$20--30k", "$30--40k", "$40--50k", 
+"$50--75k", "$75--100k", "$100--150k", ">150k"
+)
+print.xtable(xtable(raw[1:3,1:4], caption = "First 6 rows of the aggregated 'pew' dataset from Wickham (2014a) in an 'untidy' form.", include.rownames = F), comment = FALSE, include.rownames = F)
+rawt <- gather(raw, Income, Count, -religion)
+head(rawt)
+tail(rawt)
+rawt$Count <- as.character(rawt$Count)
+rawt$Income <- as.character(rawt$Income)
+rawtp <- rawt[c(1:3, nrow(rawt)),]
+
+insertRow <- function(existingDF, newrow, r) {
+  existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
+  existingDF[r,] <- newrow
+  existingDF
+}
+
+rawtp <- insertRow(existingDF = rawtp, newrow = rep("...", 3), r = 4)
+xtable(rawtp)
+```
+
+\begin{margintable}
+\centering
+\begin{tabular}{lrrr}
+  \toprule
+religion & $<$\$10k & \$10--20k & \$20--30k \\ 
+  \midrule
+Agnostic &  27 &  34 &  60 \\ 
+  Atheist &  12 &  27 &  37 \\ 
+  Buddhist &  27 &  21 &  30 \\ 
+\bottomrule
+\end{tabular}
+\caption{First 3 rows and 4 columns of the aggregated 'Pew' dataset from Wickham (2014a) in an 'untidy' form.}\label{Tpew}
+\vspace{2cm}
+\end{margintable}
+
+
+\begin{margintable}
+\centering
+\begin{tabular}{rrl}
+  \toprule
+ religion & Income & Count \\ 
+  \midrule
+Agnostic & $<$\$10k & 27 \\ 
+Atheist & $<$\$10k & 12 \\ 
+Buddhist  & $<$\$10k & 27 \\ 
+... & ... & ... \\ 
+Unaffiliated  & $>$150k & 258 \\ 
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\caption{First 3 and last rows of the 'tidied' Pew dataset.}\label{Tpewt}
+\end{margintable}
+
 
 # Filtering columns
 

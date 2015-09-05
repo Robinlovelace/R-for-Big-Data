@@ -4,7 +4,7 @@ output: pdf_document
 
 \chapter{Preprocessing and loading data}
 
-R is ideal for handling many tasks but not everything.
+R is ideal for handling many data-related tasks but not everything.
 As mentioned in the introduction, there are various ways to
 preprocess large files outside R to make them easier to handle.
 Here we will explore some of the options.

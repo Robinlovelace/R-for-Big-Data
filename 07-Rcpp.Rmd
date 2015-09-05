@@ -116,6 +116,7 @@ The most basic type of variable is an integer, `int`. An `int` variable can stor
   \texttt{void} & A valueless quantity.\\
   \bottomrule
   \end{tabular}
+  \vspace{0.2cm}
   \caption{Overview of key C/C++ object types.}
 \end{table}
 

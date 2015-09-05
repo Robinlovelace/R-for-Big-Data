@@ -62,6 +62,7 @@ Agnostic &  27 &  34 &  60 \\
   Buddhist &  27 &  21 &  30 \\ 
 \bottomrule
 \end{tabular}
+\vspace{0.2cm}
 \caption{First 3 rows and 4 columns of the aggregated 'Pew' dataset from Wickham (2014a) in an 'untidy' form.}\label{Tpew}
 \vspace{2cm}
 \end{margintable}

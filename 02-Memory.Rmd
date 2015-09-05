@@ -28,6 +28,7 @@ $01000101$ & E\\
 $01010010$ & R \\
 \bottomrule
 \end{tabular}
+\vspace{0.2cm}
 \caption{The bit representation of a few ASCII characters.}\label{T2.1}
 \end{margintable}
 
@@ -54,6 +55,7 @@ $2^{40}$&	tebi &	Ti&	Terabinary: &$(2^{10})^4$	 & Tera: $(10^3)^4$ \\
 $2^{50}$&	pebi &	Pi&	Petabinary: &$(2^{10})^5$	 & Peta: $(10^3)^5$ \\
 \bottomrule
 \end{tabular}
+\vspace{0.2cm}
 \caption{Data conversion table \textbf{XXX} \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
 \end{table}
 
@@ -70,6 +72,7 @@ Integer & 4 \\
 Double & 8 \\
 \bottomrule
 \end{tabular}
+\vspace{0.2cm}
 \caption{Storage space for standard data types}\label{T2.3}
 \end{margintable}
 

@@ -11,7 +11,7 @@ library("readr")
 ```
 
 
-# Reshaping data
+# Tidying data with tidyr
 
 A key skill in data analysis is understanding the 'shape' of datasets and being able to 'reshape' them.
 An example of the various shapes that the same datasets can assume is provided by @tidy-data and illustrated in Tables \ref{Tpew} and \ref{Tpewt}.
@@ -104,10 +104,61 @@ code.^[Because
 R is a vectorised language, it adept at handling long 1 dimensional vectors but less so at handling many interrelated
 columns.]
 Due to the importance of tidying data, an entire package, aptly named **tidyr** has been developed for the purpose.
-The process of tidying datasets usually includes one or many of the following processes, each of which has an associated **tidyr** function:
+Two common operations needed to tidy are datasets reshaping and splitting. Each of these has its own **tidyr** function, as described
+below:
 
-- Re-arranging 'wide' tables to become 'long' so that column names become a new variable. . This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be acheived with the function `gather`.
+- 'Wide' tables can become 'long', so that column names become a new variable. This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be acheived with the function `gather`:
 
+
+
+- Splitting compound variables in two. A classic example is age-sex variables (e.g. `m0-10` and `f0-15` to represent males and females in the 0 to 10 age band). Splitting such variables can be done with `split`:
+
+```{r, results='hide'}
+agesex <- c("m0-10", "f0-10") # create compound variable
+n <- c(3, 5) # create a value for each observation
+df <- data.frame(agesex, n) # create a data frame
+separate(df, agesex, c("sex", "age"), 1)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+# generate latex for presentation
+kable(df, format = "latex")
+kable(separate(df, agesex, c("sex", "age"), 1), format = "latex")
+```
+
+\begin{margintable}
+\centering
+\begin{tabular}{rrl}
+  \toprule
+agesex & n\\
+\midrule
+m0-10 & 3\\
+f0-10 & 5\\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\caption{Dataset in which age and sex are conflated into a sing variable, 'agesex'.}
+\label{Tagesex}
+\vspace{1cm}
+\end{margintable}
+
+\begin{margintable}
+\centering
+\begin{tabular}{rrl}
+  \toprule
+sex & age & n\\
+\midrule
+m & 0-10 & 3\\
+f & 0-10 & 5\\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\caption{Dataframe after the 'agesex' variable has been split into age and sex.}\label{Tsep}
+\end{margintable}
+
+Note there are other tidying operations that **tidyr** can performed in addition to the two described in this section.
+These are described in the `tidy-data` vignette, which can be called by entering `vignette("tidy-data")` once the package has been installed.
+Moreover, data manipulation and cleaning is a Big topic that extends far beyond the **tidyr** approach and about which much has been written [e.g. @Spector2008].
 
 # Filtering columns
 
@@ -122,10 +173,14 @@ generally, that becomes especially important when handling large datasets, is
 # dplyr
 
 **dplyr** has been designed to make data analysis
-fast and intuitive [@dplyr]. **dplyr** works perfectly
-on `data.frames` but its default object is the `tbl`, which
+fast and intuitive.
+**dplyr** works best with tidy data, as described above with reference to **tidyr**.
+Indeed, the two packages were designed to work closely together: **tidyr** creates tidy datasets, **dplyr** analyses
+them.^[As
+an interesting aside, **dplyr** works perfectly on `data.frames` but its default object is the `tbl`, which
 is identical to a `data.frame` but prints
-objects differently (more usefully), as shown below.
+objects more indutively.]
+
 
 ```{r, message=FALSE}
 idata <- readxl::read_excel("data//world-bank-ineq.xlsx", sheet = 1)

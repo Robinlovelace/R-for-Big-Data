@@ -14,7 +14,7 @@ library("readr")
 # Reshaping data
 
 A key skill in data analysis is understanding the 'shape' of datasets and being able to 'reshape' them.
-An example of the various shapes that the same datasets can assume is provided by @tidy-data and illustrated in Tables \ref{Tpew} to \ref{Tpewt}.
+An example of the various shapes that the same datasets can assume is provided by @tidy-data and illustrated in Tables \ref{Tpew} and \ref{Tpewt}.
 
 ```{r, echo=FALSE, eval=FALSE}
 # Download data from its original source - an academic paper
@@ -84,6 +84,29 @@ Unaffiliated  & $>$150k & 258 \\
 \vspace{0.2cm}
 \caption{First 3 and last rows of the 'tidied' Pew dataset.}\label{Tpewt}
 \end{margintable}
+
+These tables may look very different, but they contain precisely the same data.
+They have been reshaped, such that column names in the 'flat' form in Table \ref{Tpew} became a new variable in the 'long' form in Table \ref{Tpewt}.
+According to the concept of 'tidy data' [@tidy-data], the long form is correct.
+Note that 'correct' here is used in the context of data analysis and graphical visualisation.
+For tabular presentation (i.e. tables) the 'wide' or 'untidy' form may be better.
+
+Tidy data has the following characteristics [quoting @tidy-data]:
+
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table.
+
+Because there is only one observational unit in the example (religions), it can be described in a single table.
+Large and complex datasets are usually represented by multiple tables, with unique identiers or 'keys' to join them together [@Codd1979].
+Being able to manipulate your data into a tidy and relational form is important for Big Data work because this form minimises data duplication and facilitates fast
+code.^[Because
+R is a vectorised language, it adept at handling long 1 dimensional vectors but less so at handling many interrelated
+columns.]
+Due to the importance of tidying data, an entire package, aptly named **tidyr** has been developed for the purpose.
+The process of tidying datasets usually includes one or many of the following processes, each of which has an associated **tidyr** function:
+
+- Re-arranging 'wide' tables to become 'long' so that column names become a new variable. . This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be acheived with the function `gather`.
 
 
 # Filtering columns

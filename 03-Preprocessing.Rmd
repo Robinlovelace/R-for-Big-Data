@@ -11,10 +11,10 @@ Here we will explore some of the options.
 
 For data stored in large text files we can use
 'streaming' utilities before reading it into R. With tools such as
-[*sed*](https://www.gnu.org/software/sed/manual/sed.html)
+*sed*\sidenote{\url{https://www.gnu.org/software/sed/manual/sed.html}}
 (a 'stream editor' included on most Unix-based systems),
-[split](https://en.wikipedia.org/wiki/Split_%28Unix%29) and
-[csvkit](https://csvkit.readthedocs.org/en/latest/) a 10 Gb .csv can be
+split\sidenote{\url{https://en.wikipedia.org/wiki/Split\_\%28Unix\%29}} and
+csvkit\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 Gb .csv can be
 broken up into smaller chunks before being loaded into R.
 Here's an 
 example of trying (and failing!) to load a large dataset into R.
@@ -22,12 +22,12 @@ We recommend you don't
 run this code:^[For
 more information on the origin and content of this dataset, see chapter 10.]
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, tidy=FALSE}
 dir.create("data") # create folder for data
 url <- "http://download.cms.gov/nppes/NPPES_Data_Dissemination_Aug_2015.zip"
 
 # download a large dataset - don't run
-library(downloader) # needs to be installed
+library("downloader") # needs to be installed
 download(url, destfile = "data/largefile.zip")
 ## 550600K .......... ...... 100% 1.26M=6m53s
 
@@ -42,7 +42,7 @@ file.info("data/data_20050523-20150809.csv")
 ##       size: 5647444347
 ```
 
-The above code illustrates how R can be used to download,
+\noindent The above code illustrates how R can be used to download,
 unzip and present information on a giant .csv file, in completely reproducible workflow.
 Note that it's 5.6 GB in size and took over 3 minutes to unzip!
 The following code requires a 64 bit R installation and will not work on
@@ -53,7 +53,7 @@ df <- read.csv("data/data_20050523-20150809.csv")
 ## Error (from 32 bit machine): cannot allocate vector of 32.0 Mb
 ```
 
-There are ways to better handle such large datasets such as using faster read-in functions such as `read_csv()` from the **readr** package. For now, just remember that reading large datasets into R can be tricky and time-consuming. Preprocessing outside R, as illustrated below, can help.
+\noindent There are ways to better handle such large datasets such as using faster read-in functions such as `read_csv()` from the **readr** package. For now, just remember that reading large datasets into R can be tricky and time-consuming. Preprocessing outside R, as illustrated below, can help.
 
 # Splitting files with Unix tools
 
@@ -63,7 +63,7 @@ each:^['Bash commands'
 refer to computer code written in the Bash language. Bash is the default
 language used by Linux and Macs for most internal system administration
 functions. In Macs, you can open the Bash terminal by typing 'Apple key'-T. In
-Windows, installing [cygwin](https://www.cygwin.com/) and launching it
+Windows installing [cygwin](https://www.cygwin.com/) and launching it
 will provide access to this functionality. Note: you must start from the correct
 *working directory* --- `pwd` in Bash or `setwd()` in R can be used to check this.]
 
@@ -73,8 +73,8 @@ split -b100m npidata_20050523-20150809.csv
 ```
 
 Assuming there is sufficent
-disk space, there output of the above operation should be several 100 Mb text
-files: more manageable. These are named `aa`, `ab` etc.
+disk space, the output of the above operation should be several 100 Mb text
+files: more manageable. These files are named `aa`, `ab` etc.
 A sample from the results of this operation can be found in the
 `data` folder. This was saved using commands.
 
@@ -83,7 +83,7 @@ split -l 10 aa mini # further split chunk 'aa' into 10 lines
 cp miniaa ../data # copy the first into 'sample-data'
 ```
 
-Now the file is much smaller and easy to read: finally we can
+\noindent Now the file is much smaller and easy to read: finally we can
 read (part of) a 5.6 GB text file into R!
 
 ```{r}

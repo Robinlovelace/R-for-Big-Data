@@ -53,14 +53,14 @@ xtable(rawtp)
 
 \begin{margintable}
 \centering
-\begin{tabular}{lrrr}
+\begin{tabular}{@{}llll@{}}
   \toprule
-religion & $<$\$10k & \$10--20k & \$20--30k \\ 
+  Religion & $<$\$10k & \$10--20k & \$20--30k \\ 
   \midrule
-Agnostic &  27 &  34 &  60 \\ 
+  Agnostic &  27 &  34 &  60 \\ 
   Atheist &  12 &  27 &  37 \\ 
   Buddhist &  27 &  21 &  30 \\ 
-\bottomrule
+  \bottomrule
 \end{tabular}
 \vspace{0.2cm}
 \caption{First 3 rows and 4 columns of the aggregated 'Pew' dataset from Wickham (2014a) in an 'untidy' form.}\label{Tpew}
@@ -70,9 +70,9 @@ Agnostic &  27 &  34 &  60 \\
 
 \begin{margintable}
 \centering
-\begin{tabular}{rrl}
+\begin{tabular}{@{}lll@{}}
   \toprule
- religion & Income & Count \\ 
+ Religion & Income & Count \\ 
   \midrule
 Agnostic & $<$\$10k & 27 \\ 
 Atheist & $<$\$10k & 12 \\ 
@@ -127,24 +127,24 @@ kable(separate(df, agesex, c("sex", "age"), 1), format = "latex")
 ```
 
 \begin{margintable}
-\centering
-\begin{tabular}{rrl}
-  \toprule
-agesex & n\\
-\midrule
-m0-10 & 3\\
-f0-10 & 5\\
-\bottomrule
-\end{tabular}
-\vspace{0.2cm}
-\caption{Dataset in which age and sex are conflated into a sing variable, 'agesex'.}
-\label{Tagesex}
-\vspace{1cm}
+  \centering
+  \begin{tabular}{@{}lll@{}}
+   \toprule
+    agesex & n\\
+    \midrule
+    m0-10 & 3\\
+    f0-10 & 5\\
+    \bottomrule
+  \end{tabular} 
+  \vspace{0.2cm}
+  \caption{Dataset in which age and sex are conflated into a sing variable, 'agesex'.}
+  \label{Tagesex}
+  \vspace{1cm}
 \end{margintable}
 
 \begin{margintable}
 \centering
-\begin{tabular}{rrl}
+\begin{tabular}{@{}lll@{}}
   \toprule
 sex & age & n\\
 \midrule
@@ -156,7 +156,7 @@ f & 0-10 & 5\\
 \caption{Dataframe after the 'agesex' variable has been split into age and sex.}\label{Tsep}
 \end{margintable}
 
-Note there are other tidying operations that **tidyr** can performed in addition to the two described in this section.
+\noindent Note there are other tidying operations that **tidyr** can performed in addition to the two described in this section.
 These are described in the `tidy-data` vignette, which can be called by entering `vignette("tidy-data")` once the package has been installed.
 Moreover, data manipulation and cleaning is a Big topic that extends far beyond the **tidyr** approach and about which much has been written [e.g. @Spector2008].
 
@@ -213,7 +213,7 @@ that any subsequent names would be variables.
 > **Note**: this *syntax* is a defining feature of **dplyr**
 and many of its functions work in the same way.
 
-The **dplyr** equivalent of aggregate is to use
+\noindent The **dplyr** equivalent of aggregate is to use
 the grouping function `group_by` in combination with
 the general purpose function `summarise` (not to
 be confused with `summary` in base R).
@@ -223,7 +223,7 @@ names(idata)[5:9] <-
   c("top10", "bot10", "gini", "b40_cons", "gdp_percap")
 ```
 
-As we will see with Twitter data in a subsequent section,
+\noindent As we will see with Twitter data in a subsequent section,
 the *class* of R objects is critical to how it performs.
 If a class is incorrectly specified (if numbers are treated
 as factors, for example), R will likely generate error messages.
@@ -237,7 +237,7 @@ idata$gini <- as.numeric(as.character(idata$gini))
 mean(idata$gini, na.rm = TRUE) # now the mean is calculated
 ```
 
-However, the purpose of programming languages is to *automate*
+\noindent However, the purpose of programming languages is to *automate*
 arduous tasks and reduce typing. The following command
 re-classifies all of the numeric variables using
 the `apply` function (we'll seem more of `apply`'s relatives
@@ -253,7 +253,7 @@ countries <- group_by(idata, Country)
 summarise(countries, gini = mean(gini, na.rm = T))
 ```
 
-Note that `summarise` is highly versatile, and can
+\noindent Note that `summarise` is highly versatile, and can
 be used to return a customised range of summary statistics:
 
 ```{r tidy=FALSE}
@@ -271,7 +271,7 @@ summarise(countries,
   )
 ```
 
-To showcase the power of `summarise` used on
+\noindent To showcase the power of `summarise` used on
 a `grouped_df`, the
 above code reports a wide range of customised
 summary statistics
@@ -300,7 +300,7 @@ years for countries containing the letter g?
 Here's how chains work to organise the analysis in a
 logical step-by-step manner:
 
-```{r}
+```{r tidy=FALSE}
 idata %>% 
   filter(grepl("g", Country)) %>%
   group_by(Year) %>%
@@ -323,7 +323,7 @@ function approach, take a look at the latter.
 Even after indenting properly it looks terrible
 and is almost impossible to understand!
 
-```{r}
+```{r tidy=FALSE}
 top_n(
   arrange(
     summarise(

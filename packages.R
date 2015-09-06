@@ -34,4 +34,3 @@ update.packages(checkBuilt = TRUE, ask = FALSE,
 to_install = pkgs[!pkgs$installed,]
 if(nrow(to_install))
   install.packages(to_install$pkg, repos = to_install$repo)
-~

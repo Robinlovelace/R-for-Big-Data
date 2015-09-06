@@ -18,3 +18,5 @@
 
 1. Visualising
 1. Rcpp
+
+ * See http://www.slideshare.net/bytemining/r-hpc for slides on ff, bigmemory, mapreduce

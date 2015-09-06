@@ -76,7 +76,7 @@ Double & 8 \\
 \caption{Storage space for standard data types}\label{T2.3}
 \end{margintable}
 
-\subsubsection*{Exercises}
+\subsection*{Exercises}
 
 \begin{enumerate}
 \item R loads everything into memory, i.e. your computer RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?

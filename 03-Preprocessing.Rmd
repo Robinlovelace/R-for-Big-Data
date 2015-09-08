@@ -57,7 +57,7 @@ df <- read.csv("data/data_20050523-20150809.csv")
 
 # Splitting files with Unix tools
 
-The unix utility **split** can be used to split large files, like the one we tried to load above, into chunks based on size or number of lines. The following bash commands will split the
+The Unix utility **split** can be used to split large files, like the one we tried to load above, into chunks based on size or number of lines. The following bash commands will split the
 5.6 GB file, downloaded and unzipped in the previous section, into chunks of 100 MB
 each:^['Bash commands'
 refer to computer code written in the Bash language. Bash is the default
@@ -72,7 +72,7 @@ cd data # change directory
 split -b100m npidata_20050523-20150809.csv
 ```
 
-Assuming there is sufficent
+Assuming there is sufficient
 disk space, the output of the above operation should be several 100 Mb text
 files: more manageable. These files are named `aa`, `ab` etc.
 A sample from the results of this operation can be found in the
@@ -97,9 +97,9 @@ head(npi[c(1, 37)], 3)
 [csvkit](https://csvkit.readthedocs.org/en/latest/) is a command-line program
 for handling large .csv files, without having to read them all into RAM...
 
-Using the npi data, the following
+Using the NPI data, the following
 [example](https://opendata.stackexchange.com/questions/1256/how-can-i-work-with-a-4gb-csv-file)
-ilustrates how csvkit can be used to extract useful information from
+illustrates how csvkit can be used to extract useful information from
 bulky .csv files before loading the results into R.
 
 # Preprocessing with the LaF package
@@ -114,17 +114,17 @@ continue to be so into the future.
 
 This chapter looks at various file-types that are used for storing
 large datasets and how R can be used to optimised their read-in.
-The most common, simple and in many cases convenient filetype for large datasets
+The most common, simple and in many cases convenient file-type for large datasets
 are *plain text* files, so we look at reading these in first, before
-exploring more exotic filetypes including, `.json`, `.xml`, `.spss`, `.stata`, `.xls`.
+exploring more exotic file-types including, `.json`, `.xml`, `.spss`, `.stata`, `.xls`.
 
 # Text files
 
 Data stored as text files are files that are human-readable when displayed
-in a 'plain text' editor such as Microsoft Notepad, Vim or RStudio.
+in a 'plain text' editor such as Microsoft Notepad, Vim or R Studio.
 Plain text files are the basis of computing.^[Most
 programs can be represented as large collections of scripts written in
-plain text. RStudio,
+plain text. R Studio,
 for example, is written in 100s of lines of plain text files, all of which
 can be viewed on-line
 (see [github.com/rstudio/rstudio](https://github.com/rstudio/rstudio)).
@@ -154,11 +154,11 @@ write.csv(x = cars[1:3,], "data/minicars.csv") # save to file
 
 
 Note that in the result from the above operation text strings such as
-`"speed"` are enclosed in quote markes wheras raw numbers are not.
+`"speed"` are enclosed in quote marks whereas raw numbers are not.
 
 > **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
 
-It is important to note that R has its own *binary* data format which minimises the filespace occupied by large static datasets.
+It is important to note that R has its own *binary* data format which minimises the file space occupied by large static datasets.
 These can be read and written using the `save()` and `load()` commands, which save the names and contents of multiple R objects into a single file.
 We recommend using `saveRDS()` and `readRDS()` instead because they are more flexible, allowing the loaded datasets to be given any name.
 To save and re-load the subsetted `cars` dataset, for example, we could use the following code:
@@ -185,11 +185,15 @@ datasets with a maximum size of 1,048,576 rows by 16,384 columns,
 which is not small data.
 
 The example spreadsheet we'll use can be downloaded with the following
-code:
+code:^[Note
+that we use the same file name, `bn19figs.xlsx`, as the online version.
+This helps ensure the data's provenance can be traced.]
 
-```{r, eval=FALSE}
-downloader::download("http://www.ifs.org.uk/bns/bn19figs.xlsx",
-  destfile = "data/ineq-ifs.xlsx")
+```{r}
+url <- "http://www.ifs.org.uk/bns/bn19figs.xlsx"
+if(!file.exists("data/bn19figs.xlsx")){
+  downloader::download(url, destfile = "data/bn19figs.xlsx")
+}
 ```
 
 There many packages designed for reading spreadsheet files into R, most
@@ -202,7 +206,7 @@ an important aside, this example illustrates the importance of selecting the
 for handling large datasets.]
 
 ```{r}
-f <- "data/ineq-ifs.xlsx"
+f <- "data/bn19figs.xlsx"
 system.time(df <- readxl::read_excel(f, sheet = 15))
 ```
 

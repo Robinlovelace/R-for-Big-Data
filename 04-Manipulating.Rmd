@@ -104,16 +104,15 @@ code.^[Because
 R is a vectorised language, it adept at handling long 1 dimensional vectors but less so at handling many interrelated
 columns.]
 Due to the importance of tidying data, an entire package, aptly named **tidyr** has been developed for the purpose.
-Two common operations needed to tidy are datasets reshaping and splitting. Each of these has its own **tidyr** function, as described
-below:
+Two common operations needed to tidy datasets are reshaping and splitting.
+Each of these has its own **tidyr** function:
 
 - 'Wide' tables can become 'long', so that column names become a new variable. This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be achieved with the function
 `gather`:^[Note
 that the dimensions of the data change from having 10 observations across 18 columns to 162 rows in only 3 columns.
-The latter may not be as easy to visualise, but is more appropriate for efficient analysis in R.
-Note also that when we print the object `rawt[1:3,]`, the class of each variable is given
+Note that when we print the object `rawt[1:3,]`, the class of each variable is given
 (`chr`, `fctr`, `int` refer to character, factor and integer classes, respectively).
-This is because `read_csv` uses the `tbl` class from **dplyr**, which extends data.frame.
+This is because `read_csv` uses the `tbl` class from the **dplyr** package (described below).
 ]
 
 ```{r}
@@ -176,12 +175,51 @@ Moreover, data manipulation and cleaning is a Big topic that extends far beyond 
 # Filtering columns
 
 Often Big Data contains much worthless or blank information.
-An example of this is provided in the 
+An example of this is provided in the huge 'NPI' dataset presented in the introduction.
+Being able to focus quickly only on the variables of interest becomes especially important when handling large datasets.
 
+Imagine that the tiny subset of the 'NPI' data, created using Unix tools in [Chapter 3](#pre), is the full 5+ GB file.
+We are running a machine of the future, is powerful enough to load the data in a fraction of a second, not the 15 minutes that it took a desktop in 2015.
 
-generally, that becomes especially important when handling large datasets, is 
+```{r}
+df <- read_csv("data/miniaa") # load imaginary large data
+dim(df)
+```
+
+\noindent Note that the data frame has 329 columns (and imagine it has 4 million+ rows as the original does).
+That's a lot of variables. Do we need them all?
+It's worth taking a glimpse at this dataset to find out:
+
+```{r, results='asis', eval=FALSE}
+glimpse(df)
+
+# $ NPI                   (int) 1679576722, ...
+# $ Entity Type Code      (int) 1, 1, 2,    ...
+# $ Replacement NPI       (lgl) NA, NA, NA, ...
+# ...
+```
+
+\noindent Looking at the output, it becomes clear that the majority of the variables only contain `NA`.
+To clean the giant dataset, removing the empty colums, we need to identify which these variables are.
+
+```{r}
+# Identify the variable which are all NA
+all_na <- sapply(df, function(x) all(is.na(x)))
+summary(all_na) # summary of the results
+df <- df[all_na] # subset the dataframe
+```
+
+\noindent The new `df` object has fewer than a third of the original columns.
+
+> **Challenge:** find out how much space was saved by the above operation using `object.size()`
+
+```{r, include=FALSE}
+object.size(df)
+object.size(read_csv("data/miniaa"))
+```
 
 # Data aggregation
+
 
 # dplyr
 
@@ -216,7 +254,7 @@ and grouping operations undertaken in base R above.
 
 First, we'll do a little 'data carpentry', and rename the first column using the extremely useful **dplyr** function
 `rename()`.^[Note
-in this code block the variable name is surrounded by back-quotes (```).
+in this code block the variable name is surrounded by back-quotes (`).
 This allows R to refer to column names that are non-standard.
 Note also the syntax:
 `rename` takes the `data.frame` as the first object and then creates new variables by specifying `new_variable_name = original_name`.]
@@ -228,13 +266,13 @@ idata <- rename(idata, Country = `Country Name`)
 The standard way to subset data by rows in R is with square brackets, for example:
 
 ```{r}
-aus_idata1 <- idata[idata$Country == "Australia",]
+aus1 <- idata[idata$Country == "Australia",]
 ```
 
 **dplyr** offers an alternative and more flexible way of filtering data, using `filter()`.
 
 ```{r}
-aus_idata2 <- filter(idata, Country == "Australia")
+aus2 <- filter(idata, Country == "Australia")
 ```
 
 Note that we did not need to use the `$` to tell R

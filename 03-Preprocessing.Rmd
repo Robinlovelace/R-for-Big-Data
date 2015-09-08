@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 
-\chapter{Preprocessing and loading data}
+\chapter{Preprocessing and loading data} {#pre}
 
 R is ideal for handling many data-related tasks but not everything.
 As mentioned in the introduction, there are various ways to

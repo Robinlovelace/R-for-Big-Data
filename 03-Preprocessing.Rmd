@@ -181,24 +181,11 @@ file.size("data/minicars.Rds") /
 Spreadsheets are ubiquitous in offices around the world, and are used for
 storing millions of (mostly quite small) datasets. Nevertheless
 Microsoft Excel, the most commonly used spreadsheet program can store
-datasets with a maximum size of 1,048,576 rows by 16,384 columns,
-which is not small data.
-
-The example spreadsheet we'll use can be downloaded with the following
-code:^[Note
-that we use the same file name, `bn19figs.xlsx`, as the online version.
-This helps ensure the data's provenance can be traced.]
-
-```{r}
-url <- "http://www.ifs.org.uk/bns/bn19figs.xlsx"
-if(!file.exists("data/bn19figs.xlsx")){
-  downloader::download(url, destfile = "data/bn19figs.xlsx")
-}
-```
+datasets with a maximum size of 1,048,576 rows by 16,384 columns.
 
 There many packages designed for reading spreadsheet files into R, most
 of which are of variable reliability. The best of these is
-**readxl**, which was found to be more than 100 times faster
+**readxl**, which was found to be much faster
 than alternatives from **gdata** and **openxlsx**
 packages!^[As
 an important aside, this example illustrates the importance of selecting the
@@ -206,8 +193,8 @@ an important aside, this example illustrates the importance of selecting the
 for handling large datasets.]
 
 ```{r}
-f <- "data/bn19figs.xlsx"
-system.time(df <- readxl::read_excel(f, sheet = 15))
+f <- "data/CAIT_Country_GHG_Emissions_-_All_Data.xlsx"
+system.time(df <- readxl::read_excel(f, sheet = 4))
 ```
 
 > **Optional challenge:** To brush-up on your benchmarking skills, run tests
@@ -215,22 +202,32 @@ to load the same data into R using alternative packages. Which comes closest
 to `read_excel()`? Are the results identical?
 
 ```{r, echo=FALSE, eval=FALSE}
-xls_pkgs <- c("gdata", "openxlsx")
+xls_pkgs <- c("gdata", "openxlsx", "reaODS")
+# install.packages(xls_pkgs) # install packages if they're not already
 # This took less than 0.1 seconds
-system.time(df <- readxl::read_excel(f, sheet = 15))
-# This took over 4 minutes on my machine!
-system.time(df1 <- gdata::read.xls(f, sheet = 15))
-# This took 30 seconds
-system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+system.time(df <- readxl::read_excel(f, sheet = 4))
+# This took over 1 minute
+system.time(df1 <- gdata::read.xls(f, sheet = 4))
+# This took 20 seconds
+system.time(df2 <- openxlsx::read.xlsx(f, sheet = 4))
 
-# After saving the spreadsheet to .odt
-system.time(df2 <- openxlsx::read.xlsx(f, sheet = 15))
+# After saving the spreadsheet to .odt (not included) - took more than 1 minute
+system.time(df3 <- readODS::read.ods("data/CAIT_Country_GHG_Emissions_-_All_Data.ods", sheet = 4))
 
 head(df[1:5])
 head(df1[1:5])
 head(df2[1:5])
-identical(df, df1)
-identical(df, df2)
+head(df3[1:5])
 ```
 
+To share this dataset with others, it makes sense to save it in a non-proprietary format.
+Play with the following commands and see which data format is smallest.
+
+```{r}
+write.csv(df, "data/ghg-ems.csv")
+saveRDS(df, "data/ghg-ems.Rds")
+```
+
+Using `file.size()`, we can ascertain that we've made huge space savings by freeing this dataset from a spreadsheet. The .csv version is `r round(file.size("data/CAIT_Country_GHG_Emissions_-_All_Data.xlsx") / file.size("data/ghg-ems.csv"))` times smaller than the original and the .Rds version is `r round(file.size("data/CAIT_Country_GHG_Emissions_-_All_Data.xlsx") / file.size("data/ghg-ems.Rds"))` times smaller.
+These space savings will make a substantial difference to your system resources when dealing with larger datasets gleaned from spreadsheets.
 

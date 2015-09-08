@@ -123,6 +123,6 @@ Due to the popularity of R, it now possible to use alternative interpreters (the
 
   * [Tibco](http://spotfire.tibco.com/) created a C++ based interpreter called TERR. 
 
-  * Oracle also offer an R-interpreter, that uses  Intel’s mathematics library and therefore achieves a higher performance without changing R’s core. 
+  * Oracle also offer an R-interpreter, that uses  Intel's mathematics library and therefore achieves a higher performance without changing R's core. 
 
 

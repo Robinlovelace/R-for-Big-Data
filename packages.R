@@ -15,6 +15,10 @@ pkgs = data.frame(pkg = pkgs,
                   repo = "http://cran.rstudio.com/",
                   installed = pkgs %in% installed.packages(),
                   stringsAsFactors = FALSE)
+
+if(!require(drat)){
+  install.packages("drat")
+}
 repo = drat::addRepo("rcourses")["rcourses"]
 
 github_pkgs = data.frame(pkg = github_pkgs,

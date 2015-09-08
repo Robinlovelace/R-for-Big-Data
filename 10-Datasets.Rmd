@@ -34,6 +34,13 @@ if(!file.exists("data/MobileCentury/pems_prop_NB.csv")){
 }
 ```
 
+## Global emissions data 
+
+This dataset is an up-to-date compilation of global CO2 emissions, administered by the World Resources Institute (WRI).
+The user must sign-in to access the data from the WRI website.^[See [wri.org/resources/data-sets](http://www.wri.org/resources/data-sets/cait-country-greenhouse-gas-emissions-data).]
+The example serves to show how data can be rescued from spreadsheets and saved in a much more user-friendly format such as .csv.
+The dataset is not big (comprising less that 10,000 rows) but is used to illustrate methods of data manipulation.
+
 ## Moby Dick; or The Whale, by Herman Melville
 
 The text file for the ebook of Moby Dick can be downloaded from the Gutenberg.org website\sidenote{\url{https://www.gutenberg.org/files/2701/2701.txt}}

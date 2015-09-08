@@ -98,7 +98,7 @@ Tidy data has the following characteristics [quoting @tidy-data]:
 3. Each type of observational unit forms a table.
 
 Because there is only one observational unit in the example (religions), it can be described in a single table.
-Large and complex datasets are usually represented by multiple tables, with unique identiers or 'keys' to join them together [@Codd1979].
+Large and complex datasets are usually represented by multiple tables, with unique identifiers or 'keys' to join them together [@Codd1979].
 Being able to manipulate your data into a tidy and relational form is important for Big Data work because this form minimises data duplication and facilitates fast
 code.^[Because
 R is a vectorised language, it adept at handling long 1 dimensional vectors but less so at handling many interrelated
@@ -107,7 +107,7 @@ Due to the importance of tidying data, an entire package, aptly named **tidyr** 
 Two common operations needed to tidy are datasets reshaping and splitting. Each of these has its own **tidyr** function, as described
 below:
 
-- 'Wide' tables can become 'long', so that column names become a new variable. This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be acheived with the function `gather`:
+- 'Wide' tables can become 'long', so that column names become a new variable. This is illustrated in Tables \ref{Tpew} to \ref{Tpewt} and can be achieved with the function `gather`:
 
 
 
@@ -179,11 +179,11 @@ Indeed, the two packages were designed to work closely together: **tidyr** creat
 them.^[As
 an interesting aside, **dplyr** works perfectly on `data.frames` but its default object is the `tbl`, which
 is identical to a `data.frame` but prints
-objects more indutively.]
-
+objects more intuitively.]
 
 ```{r, message=FALSE}
-idata <- readxl::read_excel("data//world-bank-ineq.xlsx", sheet = 1)
+library(readr)
+idata <- read_csv("data/world-bank-ineq.csv")
 library(dplyr)
 idata <- tbl_df(idata) # convert the dataset to tbl class
 idata # print the dataset in the dplyr way
@@ -201,6 +201,25 @@ in its own right. Following the 'walk before you run' principle,
 we'll start simple, by replicating the subsetting
 and grouping operations undertaken in base R above.
 
+First, we'll do a little 'data carpentry', and rename the first column using the extremely useful **dplyr** function
+`rename()`.^[Note
+in this code block the variable name is surrounded by back-quotes (```).
+This allows R to refer to column names that are non-standard.
+Note also the syntax:
+`rename` takes the `data.frame` as the first object and then creates new variables by specifying `new_variable_name = original_name`.]
+
+```{r}
+idata <- rename(idata, Country = `Country Name`)
+```
+
+The standard way to subset data by rows in R is with square brackets, for example:
+
+```{r}
+aus_idata1 <- idata[idata$Country == "Australia",]
+```
+
+**dplyr** offers an alternative and more flexible way of filtering data, using `filter()`.
+
 ```{r}
 aus_idata2 <- filter(idata, Country == "Australia")
 ```
@@ -208,10 +227,10 @@ aus_idata2 <- filter(idata, Country == "Australia")
 Note that we did not need to use the `$` to tell R
 that `Country` is a variable of the `idata` object.
 Because `idata` was the first argument, **dplyr** 'knew'
-that any subsequent names would be variables.
-
-> **Note**: this *syntax* is a defining feature of **dplyr**
+that any subsequent names would be variables.^[Note that this syntax is a defining feature of **dplyr**
 and many of its functions work in the same way.
+Later we'll learn how this syntax can be used alongside the `%>%` 'pipe' command to write clear data manipulation commands.
+] 
 
 \noindent The **dplyr** equivalent of aggregate is to use
 the grouping function `group_by` in combination with
@@ -337,5 +356,5 @@ top_n(
 
 Of course, you *could* write code in base R to
 undertake the above analysis but for many
-people the **dplyr** approach is the most agreable to write.
+people the **dplyr** approach is the most agreeable to write.
 

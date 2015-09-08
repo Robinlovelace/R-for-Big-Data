@@ -1,0 +1,6 @@
+---
+title: "Additional Content"
+output: html_document
+---
+
+See http://data.worldbank.org/indicator/SI.POV.GINI for another interesting dataset

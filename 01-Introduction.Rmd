@@ -14,25 +14,28 @@ library("png")
 
 A common definition of Big Data is data that
 is:^[Data here is treated as a mass noun, similar to information.
-Purists may insist that 'data' should always plural because it originates from the purl of Latin word datum, but language evolves and the singular form of the word is becoming more and more common [@kitchin2014data].]
+Purists may insist that 'data' should always plural because it originates from the Latin word datum.
+However, language evolves, we no longer speak Latin and the singular is becoming the norm [@kitchin2014data].]
 
 - Variable, within each dataset and between sources
 - Voluminous, occupying much RAM and hard disk space
 - High in velocity: it's always being generated
 
 Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'Big' is rarely specified, however.
-Looser definitions recognise that Big Data is an umbrella or 'catch all' term: in practice Big Data is often used to refer to information that is simply tricky to analyse using established methods [@Lovelace2015].
+Looser definitions recognise that Big Data is an umbrella or 'catch all' term, used to refer to information that is simply tricky to analyse using established methods [@Lovelace2015].
+We use this looser definition in this in this book.
 
 The variety of new datasets becoming available
-is such that no single tutorial can
-cover all shapes and sizes.
-A solid understanding of the *language* used to interact with data,
-in this case R, will provide the flexibility to deal with this diversity.
-Understanding computational bottlenecks and writing computationally efficient code will help deal with  data volume.
-This means that becoming proficient in handling Big Data entails first becoming fluent in data analysis and computing more generally.
+is huge. Therefore, instead of trying to cover all manner of new datasets,
+the focus of this book is developing a solid understanding of the R *language* to interact with data.
+As with learning any new language, a deep understanding of the fundamentals will provide the flexibility to deal with almost any situation.
+Learning to avoid computational bottlenecks and write efficient code, for example, can save hours of processing and development time.
+In other words, **becoming proficient in handling Big Data entails first becoming fluent in data analysis and computing more generally**.
 
-It's also easy to get side-tracked when analysing large datasets so clearly defining the aim of a particular analysis project is usually more important than knowing the 'right' function or package.
-There are often many ways to solve a problem with R. In addition to computational speed, the 'best' option will likely depend on additional considerations:
+It's easy to get side-tracked or 'lost in the data' when analysing large datasets.
+Clearly defining the aim of a particular analysis project therefore particularly important in this context.
+There are often many ways to solve a problem with R and,
+in addition to computational speed, the most appropriate solution will likely depend on:
 
 - ease and speed of writing the code
 - ease of communicating and reproducing the analysis

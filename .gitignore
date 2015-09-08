@@ -18,3 +18,9 @@ ignore_*
 course_*.html
 v59i10-data.zip
 data/reshape
+data/bn19figs.xlsx
+largefile
+gini_Indicator_en_csv_v2.zip
+data/ghg-ems.*
+data/npidata*
+data/largefile.zip

@@ -14,8 +14,9 @@ For data stored in large text files we can use
 *sed*\sidenote{\url{https://www.gnu.org/software/sed/manual/sed.html}}
 (a 'stream editor' included on most Unix-based systems),
 split\sidenote{\url{https://en.wikipedia.org/wiki/Split\_\%28Unix\%29}} and
-csvkit\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 Gb .csv can be
+csvkit,\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 Gb .csv can be
 broken up into smaller chunks before being loaded into R.
+Furthermore, these tools will run well on a puny laptop.
 Here's an 
 example of trying (and failing!) to load a large dataset into R.
 We recommend you don't
@@ -33,12 +34,13 @@ download(url, destfile = "data/largefile.zip")
 
 # unzip the compressed file, measure time
 system.time( 
-  unzip("data/largefile.zip", exdir = "data/")
+  unzip("data/largefile.zip", exdir = "data")
   )
 ##    user  system elapsed 
 ##  34.380  22.428 193.145
 
-file.info("data/data_20050523-20150809.csv")
+bigfile <- "data/npidata_20050523-20150809.csv"
+file.info(bigfile) # file info (not all shown)
 ##       size: 5647444347
 ```
 
@@ -46,10 +48,14 @@ file.info("data/data_20050523-20150809.csv")
 unzip and present information on a giant .csv file, in completely reproducible workflow.
 Note that it's 5.6 GB in size and took over 3 minutes to unzip!
 The following code requires a 64 bit R installation and will not work on
-many laptops.
+many laptops.^[Reading
+the 5.6 GB file would also fail on many desktops.
+The file took over 15 minutes using `read.csv` and half that using `read_csv` from the **readr** package on a Fourth Generation Intel i7 desktop with 64 GB RAM.
+Half of this RAM became occupied by R!
+]
 
 ```{r, eval=FALSE}
-df <- read.csv("data/data_20050523-20150809.csv")
+system.time(df <- read.csv(bigfile))
 ## Error (from 32 bit machine): cannot allocate vector of 32.0 Mb
 ```
 
@@ -84,12 +90,12 @@ cp miniaa ../data # copy the first into 'sample-data'
 ```
 
 \noindent Now the file is much smaller and easy to read: finally we can
-read (part of) a 5.6 GB text file into R!
+read (part of) a 5.6 GB dataset into R using a puny laptop!
 
 ```{r}
 npi <- read.csv("data/miniaa")
-dim(npi)
-head(npi[c(1, 37)], 3)
+dim(npi) # what are the dimensions of this dataset?
+head(npi[c(1, 37)], 3) # view a sample of the data
 ```
 
 # Filtering with csvkit

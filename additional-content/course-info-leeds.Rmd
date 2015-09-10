@@ -3,6 +3,16 @@ title: "Course Agenda"
 output: pdf_document
 ---
 
+## Introduction to R
+
+ - 09:00 Registration and refreshments
+ - 09:30 Introducion to R
+    - Data structures, plotting, summary statistics
+ - 12:30 **Lunch**
+ - 13:30 Practical 1
+ - 14:30 Subsetting
+ - 15:30 **Refreshments**
+ - 15:45: Practical 2
 
 ## Day 1
 

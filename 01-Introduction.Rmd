@@ -21,7 +21,7 @@ However, language evolves, we no longer speak Latin and the singular is becoming
 - Voluminous, occupying much RAM and hard disk space
 - High in velocity: it's always being generated
 
-Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'Big' is rarely specified, however.
+\noindent Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'Big' is rarely specified, however.
 Looser definitions recognise that Big Data is an umbrella or 'catch all' term, used to refer to information that is simply tricky to analyse using established methods [@Lovelace2015].
 We use this looser definition in this in this book.
 
@@ -37,16 +37,16 @@ Clearly defining the aim of a particular analysis project therefore particularly
 There are often many ways to solve a problem with R and,
 in addition to computational speed, the most appropriate solution will likely depend on:
 
-- ease and speed of writing the code
-- ease of communicating and reproducing the analysis
-- durability of code
+- ease and speed of writing the code;
+- ease of communicating and reproducing the analysis;
+- durability of code.
 
 ```{r drill, fig.margin=TRUE, fig.cap= "A drill is analogous to a software tool: the questions of functionality and reliability should trump the question: 'is it the best?'", echo=FALSE}
 grid.raster(readPNG("figures//746px-Pistol-grip_drill.svg.png"))
 ```
 
 In this context it is useful to think of software as a power-tool (Fig. 1.1). People rarely ask 'is this the BEST possible drill'?.
-More likely a good builder will ask: 'Is this drill *good enough* to get the job done?' 'Is this drill robust?' and 'Will it work in 20 years time?' The same applies to R for Big Data.
+More likely a good builder will ask: 'is this drill *good enough* to get the job done?' 'is this drill robust?' and 'will it work in 20 years time?' The same applies to R for Big Data.
 
 Regardless of the 'big' dataset you hope to use,
 you can be confident of one thing:
@@ -56,39 +56,39 @@ a task that typically takes around
 80% of the effort expended on data analysis projects
 [@tidy-data]. 
 
-# Coping with Big Data in R
+# Coping with big data in R
 
 R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's
-RAM.^[There are, however, packages such as **dplyr** which allow R to access, filter and even process data stored remotely.
-These are described in chapter 5.]
+RAM^[There are, however, packages such as **dplyr** which allow R to access, filter and even process data stored remotely.
+These are described in chapter 5.].
 This was less of a problem twenty years ago, when data sets were small and the main bottleneck on analysis was how quickly a statistician could think. Traditionally, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
 Nowadays datasets that are larger than your laptop's memory are commonplace.
-
-> **Challenge**: How much RAM do you have? Hint: Google if necessary.
 
 Even if the original data set is relatively small data set, the analysis can generate large objects. For example, suppose we went to perform standard cluster analysis. Using the built-in data set `USAarrests`, we can calculate a distance matrix,
 ```{r}
 d = dist(USArrests, method = "euclidean")
 ```
 
-and perform hierarchical clustering to get a dendrogram
+\noindent and perform hierarchical clustering to get a dendrogram
+
 ```{r}
 fit = hclust(d)
 ```
 
-to get a dendrogram
-```{r fig.fullwidth=TRUE, fig.height=2, echo=2, fig.cap="Dendrogram from USArrests data."}
+\noindent to get a dendrogram
+
+```{r denofig.fullwidth=TRUE, fig.height=2, echo=2, fig.cap="Dendrogram from USArrests data."}
 par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,cex=0.5, las=1)
 plot(fit, labels=rownames(d))
 ```
 
-When we inspect the object size of the original data set and the distance object
+\noindent When we inspect the object size of the original data set and the distance object
 ```{r}
-object_size(USArrests)
-object_size(d)
+pryr::object_size(USArrests)
+pryr::object_size(d)
 ```
 
-we have managed to create an object that is three times larger than the original data set. In fact the object `d` is a symmetric $n \times n$ matrix, where $n$ is the number of rows in `USAarrests`. Clearly, as `n` increases the size of `d` increases at rate $O(n^2)$. So if our original data set contained $10,000$ records, the associated distance matrix would contain almost $10^8$ values. Of course, since the matrix is symmetric, this corresponds to almost $50$ million unique values.
+\noindent we have managed to create an object that is three times larger than the original data set\sidenote{The function \texttt{object\_size} is part of the \texttt{pryr} package, which we will cover in chapter 2.}. In fact the object `d` is a symmetric $n \times n$ matrix, where $n$ is the number of rows in `USAarrests`. Clearly, as `n` increases the size of `d` increases at rate $O(n^2)$. So if our original data set contained $10,000$ records, the associated distance matrix would contain almost $10^8$ values. Of course since the matrix is symmetric, this corresponds to around $50$ million unique values.
 
 To tackle big data in R, we review some of the possible strategies available.
 
@@ -114,7 +114,7 @@ Another strategy to improve performance, is to move small parts of the program f
 
 There are packages available that avoid storing data in memory. Instead, objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in find. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
 
-The two most famous packages on CRAN that use this principle are `ff` and ``ffbase`. The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
+The two most famous packages on CRAN that use this principle are `ff` and `ffbase`\sidenote{There is also the `bigmemory` package that does something similar.}. The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
 
 ## Alternative interpreters
 

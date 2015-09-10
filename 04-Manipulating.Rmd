@@ -214,11 +214,49 @@ df <- df[all_na] # subset the dataframe
 > **Challenge:** find out how much space was saved by the above operation using `object.size()`
 
 ```{r, include=FALSE}
-object.size(df)
+object.size(df) /
 object.size(read_csv("data/miniaa"))
 ```
 
 # Data aggregation
+
+Data aggregation is the process of creating summaries of data based on a grouping variable.
+The end result usually has the same number of rows as there are groups.
+Because aggregation is a way of condensing datasets it can be a very useful technique for making sense of large datasets.
+The following code finds the average emissions per country (country being the grouping variable) from the 'GHG' dataset rescued from a spreadsheet and converted into a .csv file in the previous chapter.
+
+```{r}
+df <- read_csv("data/ghg-ems.csv")
+names(df)
+nrow(df)
+length(unique(df$Country))
+```
+
+> **Challenge:** rename the variables 3 to 7 so they are much shorter, followin the pattern `ECO2`, `MCO2` etc. That will make the code for manipulating the dataset easier to write
+
+```{r, echo=FALSE}
+names(df)[3:7] <- c("ECO2", "MCO2", "TCO2", "OCO2", "FCO2")
+```
+
+\noindent After the variable names have been updated, we can aggregate.^[Note the first argument in the function is the vector we're aiming to aggregate and the second is the grouping variable (in this case Countries).
+A quirk of R is that the grouping variable must be supplied as a list.
+Next we'll see a way of writing this that is neater.]
+
+```{r}
+e_ems <- aggregate(df$ECO2, list(df$Country), mean, na.rm = T)
+nrow(e_ems)
+```
+
+Note that the resulting data frame has the same number of rows as there are countries:
+the aggregation has successfully reduced the number of rows we need to deal with.
+Now it is easier to find out per-country statistics, such as the three lowest emitters from electricity production:
+
+```{r}
+head(e_ems[order(e_ems$x),], 3)
+```
+
+An easier way to aggregate data is using the tilde (`~`) sybol instead of specifying grouping variable as a list...
+
 
 
 # dplyr

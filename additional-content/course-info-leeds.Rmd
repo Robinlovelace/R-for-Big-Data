@@ -1,6 +1,6 @@
 ---
 title: "Course Agenda"
-output: html_document
+output: pdf_document
 ---
 
 

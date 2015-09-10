@@ -1,0 +1,39 @@
+---
+title: "Course Agenda"
+output: html_document
+---
+
+
+## Day 1
+
+- 9:00 - 9:30: Registration and refreshments
+
+- Introducing R for Big Data  (9:30 - 11:00)
+
+- Memory matters (11:00 - 12:30)
+
+**LUNCH**
+
+- Preprocessing data outside R (13:30 - 14:30)
+
+- Cleaning untidy data (14:30 - 15:30)
+
+**15:30 - 15:45 Refreshments**
+
+- Visualising Big Data: a taster (15:45 - 16:30)
+
+- An introduction to **dplyr** (16:00 - 16:30)
+
+## Day 2
+
+- RCPP  (9:30 - 11:00)
+
+- Databases (11:00 - 12:30)
+
+**LUNCH**
+
+- Spark (13:30 - 15:30)
+
+**15:30 - 15:45 Refreshments**
+
+- Visualisation (15:45 - 16:30)

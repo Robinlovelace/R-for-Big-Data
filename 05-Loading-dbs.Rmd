@@ -2,5 +2,5 @@
 output: pdf_document
 ---
 
-\chapter{Loading data from databases}
+\chapter{Loading data from Databases}
 

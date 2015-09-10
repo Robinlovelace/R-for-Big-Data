@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 
-\chapter{Rcpp}
+\chapter{The RCpp package}
 
 # Introduction
 

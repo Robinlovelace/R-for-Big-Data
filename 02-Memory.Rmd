@@ -4,15 +4,15 @@ output: pdf_document
 
 \chapter{Memory Matters}
 
-Whenever big data comes up, the obvious question to ask, is, what do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider "big"", Google/Facebook would consider small.
+Whenever big data comes up, the obvious question to ask, is, what do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider "big", Google/Facebook would consider small.
 
 When talking about Big Data, we need a comparison. In this course, **big** is relative to our available resources.
 
 # File sizes
 
-A computer cannot store "numbers" or "letters". The only thing a computer can store and work with is bits. A bit is binary, it is either a $0$ or a $1$\sidenote{Or `TRUE`/`FALSE` or `yes`/`no`.}. In fact, from the computers point of view, a bit is just a blip of electricity that either is or isn't there.
+A computer cannot store "numbers" or "letters". The only thing a computer can store and work with is bits. A bit is binary, it is either a $0$ or a $1$\sidenote{Or `TRUE`/`FALSE` or `yes`/`no`.}. In fact from the computers point of view, a bit is just a blip of electricity that either is or isn't there.
 
-In the past we use the ASCII character set. This set defined $128$ characters including $0$ to $9$, upper and lower case alpha-numeric and a few control characters such as a new line. To store these characters required $8$ bits\sidenote{Actually, it only required $7$ bits since $2^7 = 128$, but $8$ bits were typically used: see \url{http://stackoverflow.com/q/14690159/203420}}. Table \ref{T2.1} gives the binary representation of the first few characters.
+In the past we used the ASCII character set. This set defined $128$ characters including $0$ to $9$, upper and lower case alpha-numeric and a few control characters such as a new line. To store these characters required $8$ bits\sidenote{Actually, it only required $7$ bits since $2^7 = 128$, but $8$ bits were typically used: see \url{http://stackoverflow.com/q/14690159/203420}}. Table \ref{T2.1} gives the binary representation of the first few characters.
 
 \begin{margintable}
 \centering
@@ -21,7 +21,7 @@ In the past we use the ASCII character set. This set defined $128$ characters in
 Bit representation & Character\\
 \midrule
 $01000001$ & A\\
-$01000010$ &	B\\
+$01000010$ & B\\
 $01000011$ & C\\
 $01000100$ & D\\
 $01000101$ & E\\
@@ -34,13 +34,13 @@ $01010010$ & R \\
 
 It's worth pointing out that storing characters has got more sophisticated in recent years. In particular, Unicode was created to try to create a single character set that included every reasonable writing system. See 
 \begin{center}
-\url{http://www.software.com/articles/Unicode.html}
+\url{http://www.joelonsoftware.com/articles/Unicode.html}
 \end{center}
 \noindent for a nice introduction on character encoding.
 
-Eight bits is one byte\sidenote{Four bits is called a nibble}. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data\sidenote{An empty `.docx` file takes about 3.7KB of storage.}.
+Eight bits is one byte\sidenote{Four bits is called a nibble.}. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data\sidenote{An empty `.docx` file takes about 3.7KB of storage.}.
 
-When people first started to think about computer memory, they noticed that $2^{10} \simeq 1000$ and $2^{20} \simeq 10^6$, so they adopted the short hand of kilo- and mega-bytes. Of course, \textit{everyone} new that it was just a short hand, and it was really a binary power. When computers became more wide spread, foolish people like you and me, just assumed the kilo did actually mean $10^3$ bytes.  Fortunately, the IEEE Standards Board decided that IEEE standards will use the conventional, internationally adopted, definitions of the SI prefixes. So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google process around $20$ petabytes of data every day. In 28th August, 2015 over 1 billion\sidenote{I presume this is an American Billion - a giga user?} users logged on to facebook.
+When people first started to think about computer memory, they noticed that $2^{10} \simeq 1000$ and $2^{20} \simeq 10^6$, so they adopted the short hand of kilo- and mega-bytes. Of course, \textit{everyone} new that it was just a short hand, and it was really a binary power. When computers became more wide spread, foolish people like you and me just assumed the kilo did actually mean $10^3$ bytes.  Fortunately, the IEEE Standards Board decided that IEEE standards will use the conventional, internationally adopted, definitions of the SI prefixes. So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google processes around $20$ petabytes of data every day. In 28th August, 2015 over 1 billion\sidenote{I presume this is an American Billion - so one Giga user, or Guser?} users logged on to facebook.
 
 \begin{table}[t]
 \centering
@@ -59,7 +59,7 @@ $2^{50}$&	pebi &	Pi&	Petabinary: &$(2^{10})^5$	 & Peta: $(10^3)^5$ \\
 \caption{Data conversion table \textbf{XXX} \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
 \end{table}
 
-Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We just let R do the thinking and conversion. However, it is helpful to understand why files are large and the limits of the computer system.
+Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We just let R do the thinking and conversion. However it is helpful to understand why files are large and the limits of the computer system.
 
 \begin{margintable}
 \centering
@@ -79,19 +79,19 @@ Double & 8 \\
 \subsection*{Exercises}
 
 \begin{enumerate}
-\item R loads everything into memory, i.e. your computer RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
+\item R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
 \item Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?
-\item Using Google, how much does it cost (in pounds) to double the amount of available RAM? For example, if you have 16GB of RAM, how much does that cost?
+\item Using Google, how much does it cost (in pounds) to double the amount of available RAM?
 \item (Hard) What is the range of values an integer object can represent?
 \end{enumerate}
 
 
 # Object size in R
 
-When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes - for full description see @Wickham2014. For example when we create an R vector, memory is allocated for a number of things:
+When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes - for full description see @Wickham2014. For example when we create an R vector, memory is allocated for a number of things.
 
- * Object meta data: This is information on the base data type and memory management. For example, is the object a logical, character, numeric or complex data type?
- * Three pointers: these are addresses to where memory is stored on the hard drive. One of the pointer is to a list of attributes. The other two pointers help R move between object on your hard drive.
+ * Object meta data: this is information on the base data type and memory management. For example, is the object a logical, character, numeric or complex data type?
+ * Three pointers: these are addresses to where memory is stored on the hard drive. One of the pointers is used to access the attribute list. The other two pointers help R move between object on your hard drive.
  
 \noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
 

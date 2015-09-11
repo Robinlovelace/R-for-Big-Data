@@ -1,0 +1,398 @@
+\chapter{Efficient R coding}
+
+\section{Benchmarking}
+
+Donald Knuth\sidenote{See \url{http://en.wikipedia.org/wiki/Donald_Knuth}} made the following statement on optimization:
+  \begin{quote}
+\textit{"We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil."}
+\end{quote}
+So before we rush headlong into optimising our R code, we will spend some time determining when it is worthwhile optimising. In this chapter, we will look at benchmarking. In computing, a benchmark is obtained by running a set of programs in order to assess their relative performance.
+
+\section{Simple benchmarks}
+
+To construct a benchmark we typically use the following steps
+\begin{enumerate}
+\item Construct a function (or set of functions) around the feature we want to
+benchmark. This function usually has an argument that allows us to vary the
+complexity of the object. For example, a parameter \texttt{n} that alters the data
+size.
+\item Time the function for various values of \texttt{n}.
+\end{enumerate}
+
+\subsection{Example: Creating a sequence of numbers}
+
+Suppose we want to create a sequence of integers\marginnote{This example is
+  purely instructional. If you spend time trying to optimize something this low
+  level, then you have bigger problems!}
+\[
+  0, 1, 2, 3, \ldots, n \;.
+\]
+In R, we could do this in three ways
+```{r eval=FALSE}
+0:n
+seq(0, n)
+seq(0, n, by=1)
+```
+  
+\noindent To time the function calls, we will use \texttt{system.time}:\marginnote{The
+  \texttt{system.time} function actually calls the \texttt{proc.time} function, so see
+  \texttt{?proc.time} for further details.}
+
+```{r cache=TRUE}
+system.time(0:1e7)
+system.time(seq(0, 1e7))
+system.time(seq(0, 1e7, by=1))
+```
+\noindent The function \texttt{system.time} returns a vector with the following
+details:\sidenote{Typically you want user time $>>$ system time.}
+\begin{itemize}
+\item \texttt{user} is the CPU time (in secs) charged for the execution of user
+  instructions of the calling process.
+\item \texttt{system} is the CPU time (in secs) charged for execution by the
+  system on behalf of the calling process.
+\item \texttt{elapsed} is the real elapsed time (in secs) since the process was
+  started.
+\end{itemize}
+However, when benchmarking we typically compare across different test cases. To
+make things easier, we will wrap the operations of interest in functions
+```{r cache=TRUE}
+base = function(n) 0:n
+seq1 = function(n) seq(0, n)
+seq2 = function(n) seq(0, n, by=1)
+```
+\noindent And then benchmark as before:
+```{r results='hide', cache=TRUE}
+n = 1e7
+system.time(base(n))
+system.time(seq1(n))
+system.time(seq2(n))
+```
+\noindent A small point to note is that our timings now include a function call overhead. However, a function call typically adds on an additional 200 nano seconds to each call\sidenote{There are $6\times 10^{10}$ nano seconds in a minute.}, so it's not something we usually worry about.
+
+\subsection{Saving the output}
+
+Sometimes we want to store the output of a benchmark. To do this we use the \verb+<-+ operator\sidenote{See \texttt{?assignOps} for a complete description of assignment operators.} inside the \texttt{system.time} function call
+```{r results='hide', cache=TRUE}
+system.time(x <- base(5))
+```
+\noindent The variable \texttt{x} now contains the output from the \texttt{base(5)} function call.
+
+At this point, things are starting to get messy. For example, we would like to vary \texttt{n} and calculate the relative overhead of the three methods. While this is possible, a better way is to use the \texttt{rbenchmark} package.
+
+\section{Benchmarking with \texttt{rbenchmark}}
+
+The \texttt{rbenchmark} package can be installed in the usual way
+```{r eval=FALSE}
+install.packages("rbenchmark")
+```
+\noindent This package has a single function, \texttt{benchmark}, which is a simple wrapper around \texttt{system.time}. Given a specification of the benchmarking process - such as number of replications and an arbitrary number of expressions - the \texttt{benchmark} function evaluates each of the expressions in the specified environment, replicating the evaluation as many times as specified, and returning the results conveniently wrapped into a data frame. 
+
+Let's consider the sequence example in the previous section. First load the package, 
+```{r}
+library("rbenchmark")
+```
+\noindent then we select how many replications we want of each function and what statistics we are interested in:
+```{r cache=TRUE, tidy=FALSE}
+benchmark(replications=10, 
+    base(n), seq1(n), seq2(n),
+     columns=c("test", "elapsed", "relative"))
+```
+\noindent In this comparison, using the \texttt{base} function is around twenty-five times faster the \texttt{seq2}. However, remember that each function only takes a fraction of a single second to run!
+
+To compare over different values of $n$, we just loop:\sidenote{This piece of code is breaking the number one rule in efficient R programming - see the next chapter for details.}
+```{r cache=TRUE, tidy=FALSE}
+d = NULL
+for(n in 10^(5:7)) {
+    dd = benchmark(replications=10, 
+        base(n), seq1(n), seq2(n),
+        columns=c("test", "elapsed", "relative"))
+    dd$n = n
+    d = rbind(d, dd)
+}
+```
+\noindent The results can be plotted in the usual way
+```{r fig.keep='none', cache=TRUE}
+plot(d$n, d$relative, log="x", col=d$test)
+```
+
+```{r echo=FALSE, eval=FALSE}
+N = 10^seq(2, 5, length.out = 10)
+b = c(0.200, 0.403, 0.891, 1.901, 4.112,8.937,19.050,45.562,120.665,410.480)
+
+fname = "../graphics/f2_1.pdf"
+pdf(fname, width=6, height=6)
+setnicepar()
+mypalette(1)
+plot(N, b, log="xy", xlab="n", ylab="Time(secs)", 
+     ylim=c(0.001, 1000), xlim=c(100, 1e5),
+     axes=FALSE, frame=TRUE, pch=19, col=1)
+axis(1, 10^(2:5), label=c(expression(10^2),
+                          expression(10^3),
+                          expression(10^4),
+                          expression(10^5)))
+axis(2, 10^(-3:3), label=c(expression(10^-3),expression(10^-2),
+    expression(10^-1),
+                          expression(10^0),
+                          expression(10^1),
+                           expression(10^2),
+                          expression(10^3)))
+b1 = c(0.001,0.003,0.005,0.011,0.025,0.054,0.113,0.247,0.533,1.146)
+points(N, b1, col=2, pch=19)
+#mtext("Time(secs)", side = 2, las=3,padj=-2.5)
+#mtext("n", side = 1, padj=2.2)
+grid()
+sink = dev.off()
+system(paste("pdfcrop", fname))
+```
+
+\section{Common pitfalls}
+
+The benefit of using R (as opposed to C or Fortran, say), is that coding time is greatly
+reduced. However if we are not careful, it's very easy to write programs that are
+incredibly slow.
+
+```{r echo=FALSE}
+library(rbenchmark)
+method1 = function(n) {
+    myvec = numeric(0)
+    for(i in 1:n)
+        myvec = c(myvec, i)
+    myvec
+}
+method2 = function(n) {
+    myvec = numeric(n)
+    for(i in 1:n)
+        myvec[i] = i 
+    myvec
+}
+method3 = function(n) 1:n
+```
+
+\section{Object growth}
+
+Let's consider three methods of creating a sequence of numbers.\footnote{This chapter used
+a lot material found in the R inferno.} 
+
+\begin{marginfigure}
+\centering
+\includegraphics[width=\textwidth]{figures/f2_1-crop}
+\caption{Timings (in seconds) comparing method 2 and method 3 of vector creation. Note that both scales are $\log_{10}$.}\label{F2.1}
+\end{marginfigure}
+\noindent \textbf{Method 1} creates an empty vector, and grows the
+object\sidenote{Equivalently, we could have \mbox{\texttt{myvec=c()}} or \mbox{\texttt{mvvec=numeric(0)}}}
+```{R eval=FALSE, echo=TRUE, tidy=FALSE}
+n = 100000
+myvec = NULL
+for(i in 1:n)
+    myvec = c(myvec, i)
+``` 
+\noindent \textbf{Method 2} creates an object of the final length and then changes the
+values in the object by subscripting:
+```{r eval=FALSE, echo=TRUE, tidy=FALSE}
+myvec = numeric(n)
+for(i in 1:n)
+    myvec[i] = i
+```
+\noindent \textbf{Method 3} directly creates the final object:
+```{r eval=FALSE, echo=TRUE}
+myvec = 1:n
+```
+\noindent To compare the three methods we use the \texttt{benchmark} function from the previous chapter
+```{r tidy=FALSE,cache=TRUE}
+n = 1e4
+benchmark(replications=10, 
+    method1(n), method2(n), method3(n),
+     columns=c("test", "elapsed"))
+```
+\noindent Table \ref{T2.1} and figure \ref{F2.1} show the timing in seconds on my machine for these three methods for a
+selection of values of $n$. The relationships for varying $n$ are all roughly linear on a log-log scale, but the timings between methods are drastically different. Notice that the timings are no longer trivial. When $n=10^7$, method 1 takes around an hour whilst method 2 takes 2 seconds and method 3 is almost instantaneous.\sidenote{\textbf{This} is the number 1 rule when programming in R, if possible always pre-allocate your vector then fill in the values.} 
+
+\begin{table}[t]
+\centering
+\begin{tabular}{@{} l r@{.}l ll @{}}
+\toprule
+& \multicolumn{4}{l}{Method} \\
+\cmidrule(l){2-5}
+$n$    & \multicolumn{2}{l}{1} & 2 & 3 \\
+\midrule
+$10^5$ & 0&208    & 0.024    & 0.000 \\
+$10^6$ & 25&50    & 0.220     & 0.000 \\
+$10^7$ & 3827&0     & 2.212    & 0.000\\
+\bottomrule
+\end{tabular}
+\caption{Time in seconds to create sequences. When $n=10^7$, method 1 takes around an hour while methods 2 takes 2 seconds and method 3 almost instantaneous. }\label{T2.1}
+\end{table}
+```{r echo=FALSE}
+n =2
+```
+Object growth can be quite insidious since it is easy to hide growing objects in your
+code. For example:
+```{r tidy=FALSE}
+hit = NULL
+for(i in 1:n) {
+    if(runif(1) < 0.3) 
+        hit[i]  = TRUE
+    else
+        hit[i]  = FALSE
+}
+```
+\noindent \textbf{Morale:} Never increase your object size incrementally. Always try and
+create the object first and fill in the blanks.
+
+
+\subsection{Avoid rbind too!}
+
+A more common - and possibly more dangerous - problem is with \texttt{rbind}.\sidenote{I fell into this trap in chapter 1.} For example:
+```{r eval=FALSE, echo=TRUE, tidy=FALSE}
+df1 = data.frame(a=character(0), b=numeric(0))
+for(i in 1:n)
+    df1 = rbind(df1, 
+            data.frame(a=sample(letters, 1), b=runif(1)))
+```
+\noindent Probably the main reason this is more common is because it is more likely that each
+iteration will have a different number of observations.  However, a reasonable upper bound on the size of the final object is often known. So we can pre-allocate a large data frame and trim if necessary.
+
+\section{Vectorise}
+
+When writing code in R, you need to remember that you are using R and not C (or even F77!). For example,\sidenote{The function \texttt{runif(1000)} generates 1000 random numbers between zero and one.}
+```{r eval=FALSE, echo=TRUE, tidy=FALSE}
+x = runif(1000) + 1
+logsum = 0
+for(i in 1:length(x))
+    logsum = logsum + log(x[i])
+```
+\noindent This is a piece R code that has a strong, unhealthy influence from C.\sidenote{It's not always the case that loops are slow and apply is fast \url{http://stackoverflow.com/q/7142767/203420}} Instead, we should write
+```{r eval=FALSE}
+logsum = sum(log(x))
+```
+
+```{r echo=FALSE}
+x = runif(2)
+```
+
+\noindent Writing code this way has a number of benefits
+\begin{enumerate}
+\item It's faster. When $n = 10^7$ the ``R way'' is about forty times faster.
+\item It's neater.
+\item It doesn't contain a bug when \texttt{x} is of length $0$.
+\end{enumerate}
+Another common example is subsetting a vector. When writing in C, we would have something like:
+```{r tidy=FALSE}
+ans = NULL
+for(i in 1:length(x)) {
+    if(x[i] < 0) 
+        ans = c(ans, x[i])
+}
+```
+\noindent This of course can be done simply with
+```{r}
+ans = x[x < 0]
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+set.seed(1)
+fname = "../graphics/f2_2.pdf"
+pdf(fname, width=6, height=6)
+setnicepar()
+curve(x^2, 0,1, ylab="f(x)", xlab="x")
+grid()
+N= 40
+px = runif(N); py=runif(N)
+points(px[py < px^2], py[py < px^2], pch=19, col=1)
+points(px[py > px^2], py[py > px^2], pch=19, col=2)
+sink = dev.off()
+system(paste("pdfcrop", fname))
+```
+
+
+
+\subsection{Example: Monte-Carlo integration}
+
+
+It's also important to make full use of R functions that use vectors. For
+example, suppose we wish to estimate
+\[
+\int_0^1 x^2 dx
+\]
+using a basic Monte-Carlo method. 
+\begin{marginfigure}
+\centering
+\includegraphics[width=\textwidth]{figures/f2_2-crop}
+\caption{Example of Monte-Carlo integration. To estimate the area under the curve throw random points at the graph and count the number of points that lie under the curve.}\label{F2.2}
+\end{marginfigure}
+The algorithm used to estimate this integral is given in algorithm \ref{A1}. 
+\begin{algorithm}[h]
+\caption{Monte Carlo Integration}\label{A1}
+\begin{enumerate}
+\item Initialise: \texttt{hits = 0}
+\item \textbf{for i in 1:N}
+\item \quad Generate two random numbers, $U_1, U_2$,  between 0 and 1
+\item \quad If $U_2 < U_1^2$, then \texttt{hits = hits + 1}
+\item \textbf{end for}
+\item Area estimate = \texttt{hits/N}.
+\end{enumerate}
+\end{algorithm}
+\noindent A standard C approach to implementing algorithm \ref{A1} would be something like:
+```{r tidy=FALSE}
+N = 500000
+f = function(N){
+    hits = 0
+    for(i in 1:N)  {
+        u1 = runif(1); u2 = runif(1)
+        if(u1^2 > u2)
+            hits = hits + 1
+    }
+    return(hits/N)
+}
+```
+\noindent Which in R takes about 5 seconds:
+```{r cache=TRUE}
+system.time(f(N))
+```
+\noindent However, an R-centric approach is:
+```{r echo=TRUE}
+f1 = function(N){
+    hits = sum(runif(N)^2 > runif(N))
+    return(hits/N)
+}
+```
+\noindent So using vectors we get a 100 times speed-up:
+```{r}
+system.time(f1(N))
+```
+
+
+
+\subsection{If you can't vectorise}
+
+Sometimes it is impossible to vectorise your code. If this is the case, there are a few things you can do:
+\begin{enumerate}
+\item Put any object creation outside the loop. For example
+```{r cache=TRUE, tidy=FALSE}
+jitter = function(x, k) rnorm(1, x, k)
+parts = rnorm(10)
+post = numeric(length(parts))
+
+for(i in 1:length(parts)){
+    k = 1.06*sd(parts)/length(parts)
+    post[i] = jitter(parts[i], k)
+}
+```
+\noindent can be rewritten as
+```{r cache=TRUE, tidy=FALSE}
+k = 1.06*sd(parts)/length(parts)
+for(i in 1:length(parts))
+    post[i] = jitter(parts[i], k)
+```
+\noindent or even better, just
+```{r cache=TRUE}
+post = sapply(parts, jitter, k)
+```
+\item Make the number of iterations as small possible. For example, if you have the choice
+between iterating over factor elements and factor levels. Then factor levels is usually
+better (since there are fewer categories).
+\end{enumerate}
+
+

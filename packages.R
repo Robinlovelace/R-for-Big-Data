@@ -4,7 +4,8 @@ pkgs = c(
   "readr", "gdata", "openxlsx",
   "downloader", "tidyr", "Rcpp",
   "pryr", "grid", "png",
-  "ff", "ffbase", "biglm", "xtable"
+  "ff", "ffbase", "biglm", "xtable",
+  "rbenchmark"
 )
 ## Github packages
 github_pkgs = c("r4bd")

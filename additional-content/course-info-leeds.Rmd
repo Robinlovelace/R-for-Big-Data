@@ -13,37 +13,35 @@ output: pdf_document
  - 14:30 Subsetting
  - 15:30 **Refreshments**
  - 15:45: Practical 2
+ - 16:30 Finish
 
 ## Day 1
 
-- 9:00 - 9:30: Registration and refreshments
-
-- Introducing R for Big Data  (9:30 - 11:00)
-
-- Memory matters (11:00 - 12:30)
-
-**LUNCH**
-
-- Preprocessing data outside R (13:30 - 14:30)
-
-- Cleaning untidy data (14:30 - 15:30)
-
-**15:30 - 15:45 Refreshments**
-
-- Visualising Big Data: a taster (15:45 - 16:30)
-
-- An introduction to **dplyr** (16:00 - 16:30)
+ - 09:00 Registration and refreshments
+ - 09:30 Housekeeping and introduction (probably still a bit long)
+ - 10:15 Memory matters (CSG) - won't take two hours
+ - 12:30 **LUNCH**
+ - 13:30 Preprocessing data outside R (RL)
+ - 14:30 Cleaning untidy data (RL)
+ - 15:30 **Refreshments**
+ - 15:45 Visualising Big Data: a taster (??)
+ - 16:00 An introduction to **dplyr** (RL?)
 
 ## Day 2
 
-- RCPP  (9:30 - 11:00)
+ - 09:00 Registration and refreshments
+ - 09:30 Efficient programming (CSG)
+   - Benchmarking
+   - Vectorising
+   - Rcpp
+ - 12:30 **LUNCH**
+ - 13:30 Out of memory data (CSG)
+   - The ff package
+   - Spark
+ - 15:30 **Refreshments**
+ - 15:45 Visualisation (??)
+ - 16:30 Finish
 
-- Databases (11:00 - 12:30)
 
-**LUNCH**
 
-- Spark (13:30 - 15:30)
 
-**15:30 - 15:45 Refreshments**
-
-- Visualisation (15:45 - 16:30)

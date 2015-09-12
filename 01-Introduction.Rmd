@@ -66,7 +66,7 @@ Nowadays datasets that are larger than your laptop's memory are commonplace.
 
 Even if the original data set is relatively small data set, the analysis can generate large objects. For example, suppose we went to perform standard cluster analysis. Using the built-in data set `USAarrests`, we can calculate a distance matrix,
 ```{r}
-d = dist(USArrests, method = "euclidean")
+d = dist(USArrests)
 ```
 
 \noindent and perform hierarchical clustering to get a dendrogram

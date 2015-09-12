@@ -22,6 +22,11 @@ The Spark stack is composed of the following libraries.
   extend Spark. Over 100 additional libraries have been contributed so far,
   each of which can be rated by the community\sidenote{\url{http://spark-packages.org/}}.
 
+Spark is rapidly becoming the a key component on analysing data sets that have to be distributed across multiple computers. To get an idea of Spark's popularity, browse the page
+\begin{center}
+\url{https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark}
+\end{center}
+The `rmr2` package allows the R to use Hadoop MapReduce. However, development on this package has slowed. The author notes that the lack of activity on `rmr2`  is due to two reasons. First, the package maturity. Second, the general shift away from Hadoop MapReduce towards Spark.
 
 # A first Spark instance
 
@@ -184,10 +189,14 @@ arrange(chicks_cnt, desc(chicks_cnt$count))
 ```
 
 
+
+
+
 # Resources
 
  * Apache Spark homepage\sidenote{\url{https://spark.apache.org/}}
  * Learning Spark [@Karau2015]
  * Advanced analytics with Spark [@Ryza2014]
+ * `dplyr` with `Spark`. Experimental, but worth watching\sidenote{\url{https://github.com/RevolutionAnalytics/dplyr-spark}}
 
 \clearpage

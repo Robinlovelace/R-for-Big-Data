@@ -237,12 +237,22 @@ mem_used()
 
 We can force a call to the garbage collector, via `gc()` or by explicitly deleting the object with `rm`. However, this is almost never needed. R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
 
+We can control the garbage collector by altering the start-up variables `nsize` and `vsize`. The amount of time that R spends in the garbage collector will depend on these values and the trade-off the memory manager makes, when memory fills up, between collecting garbage to free up unused memory and growing these areas. We can adjust the garbage collectors strategy by setting the environment variable `R_GC_MEM_GROW` to an integer value between $0$ and $3$. Typically, we don't alter these variables. However, it is worth remember that if we have large objects in our environment, the garbage collector will be called more often (we have less free space). Hence, even if we aren't manipulating large objects, it may affect the speed of other operations.
+
+
 # Monitoring memory change
 
 There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The lineprof\sidenote{\url{https://github.com/hadley/lineprof}} package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
 
+# Sparse matrices
 
+If we recall the simple clustering example in the last chapter, we calculated a distance matrix via
+```{r}
+d = dist(USArrests)
+```
+\noindent Intuitively, since the matrix `d` is symmetric around the diagonal, it makes sense to exploit this characteristic in terms of storage. In particular, storage should be halved.
 
+A sparse matrix is simply a matrix in where most of the elements are zero. Conversely, if most elements are non-zero, the matrix is considered dense. The proportion of non-zero elements is called the sparsity. Large sparse matrix often crop up when performing numerical calculations. Typically, our data isn't sparse, but the resulting data structures we create may be sparse. There are a number of techniques/methods used to store sparse matrices. Methods for creating sparse matrices can be found in the `Matrix` package.
 
 
 

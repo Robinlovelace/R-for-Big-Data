@@ -31,13 +31,13 @@ output: pdf_document
 
  - 09:00 Registration and refreshments
  - 09:30 Efficient programming (CSG)
-   - Benchmarking
-   - Vectorising
-   - Rcpp
+      - Benchmarking
+      - Vectorising
+      - Rcpp
  - 12:30 **LUNCH**
  - 13:30 Out of memory data (CSG)
-   - The ff package
-   - Spark
+    - The ff package
+    - Spark
  - 15:30 **Refreshments**
  - 15:45 Visualisation (??)
  - 16:30 Finish

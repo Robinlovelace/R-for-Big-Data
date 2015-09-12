@@ -6,7 +6,7 @@ output: word_document
 
 #  Introduction
 
-The `ff`\marginnote{\texttt{ff}: fast file.} package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. This means that we can now load and analyse much larger data sets\sidenote{These days, a standard hard drive is around 1TB, whereas RAM is around 16GB.}. However accessing data from your hard drive is slower than from memory. 
+The `ff`\marginnote{\texttt{ff}: fast file.} package provides access to data stored on your hard desk, i.e. data isn't stored in memory. It allows efficient indexing, retrieval and sorting of vectors. This means that we can now load and analyse much larger data sets\sidenote{These days, a standard hard drive is around $1$TB, whereas RAM is around $16$GB.}. However accessing data from your hard drive is slower than from memory. 
 
 Since we are no longer loading data directly into memory, this results in non-standard R code. The `ff` package only provides the building blocks, that is it doesn't offer many statistical functions and offers no support for characters. 
 

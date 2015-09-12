@@ -56,10 +56,59 @@ $2^{50}$&	pebi &	Pi&	Petabinary: &$(2^{10})^5$	 & Peta: $(10^3)^5$ \\
 \bottomrule
 \end{tabular}
 \vspace{0.2cm}
-\caption{Data conversion table \textbf{XXX} \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
+\caption{Data conversion table. Credit: \url{http://physics.nist.gov/cuu/Units/binary.html}}\label{T2.2}
 \end{table}
 
-Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We just let R do the thinking and conversion. However it is helpful to understand why files are large and the limits of the computer system.
+Even though there is an agreed IEE standard, that doesn't mean that everyone follows it. For example, Microsoft windows uses 1MB to mean $2^{20}$B. Even more confusing, the capacity of a $1.44$MB floppy disk is a mixture, $1\text{MB} = 10^3 \times 2^{10}$B.
+
+\subsection*{Exercises}
+
+1. R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
+2. Using Google, how much does it cost (in pounds) to double the amount of available RAM? How much does it cost to rent a machine comparable to your laptop in the cloud?
+
+# HDD vs SSD
+
+Unless you have a fairly expensive laptop, you've probably got a standard hard disk drive (HDD). HDDs were first introduced by IBM in 1956. Data is stored using magnetism on a rotating platter. The faster the platter spins, the faster the HDD can perform. Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM. The major advantage of HDD is that they are cheap; a 1TB laptop is becoming standard.
+
+\begin{marginfigure}
+\centering
+\includegraphics[]{figures/Laptop-hard-drive-exposed.jpg}
+\caption{A standard 2.5" hard drive, found in most laptops. Figure credit: \url{https://en.wikipedia.org/wiki/Hard_disk_drive}.}
+\end{marginfigure}
+
+Solid state drives (SSD), can be thought of large, but more sophisticated versions of your USB stick. They have no moving parts and information is stored in microchips. Since there are no moving parts, reading/writing is much quicker\sidenote{SSDs have other benefits, such as being quieter, faster booting time for the OS, required less power (more battery life).}.
+
+The read/write speed for a standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. If you're wondering, read/write speeds for RAM is around 2-20GB/s. So at best, SSDs are at least one order of magnitude slower than RAM, but still faster than standard HDDs.
+
+# Operating systems: 32 bit or 64 bit
+
+When we suggest that you should just buy more RAM, this assumes that you are using a 64 bit operating system. A 32 bit machine can only access at most 4GB RAM. Although some CPUs offer solutions to this limitation, i.e. the OS can access more memory. If you are running a 32 bit operating system, then R is limited to around\sidenote{I'm using the word *around* to avoid making distinctions between Unix and Windows. There differences between the two operating systems, but they are roughly the same.} 3GB RAM. If you are running a 64 bit operating system, but only a 32 bit version R, then you have access to slightly more memory (but not much). Hopefully, you are running a 64 bit operating system, with a 64 bit version of R. Your limit is now measured in Terabytes. 
+
+To find precise details, consult the help pages, `help("Memory-limits")` and `help("Memory")`.
+
+\subsection*{Exercises}
+
+1. Are you using a 32 bit or 64 bit operating system?
+2. Are you using 32 bit or 64 bit version of R?
+3. What are the results of running the command
+    ```{r results="hide", message=FALSE, warning=FALSE}
+    memory.limit()
+    ```
+
+
+# R data types
+
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting to look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that programme length is longer. In R we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
+  
+  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
+  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
+  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
+    ```{r}
+    args(head.matrix)
+    ```
+    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
+
+Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We tend to just let R do the thinking and conversion. However it is helpful to understand why files are large and the limits of the computer system.
 
 \begin{margintable}
 \centering
@@ -76,24 +125,6 @@ Double & 8 \\
 \caption{Storage space for standard data types}\label{T2.3}
 \end{margintable}
 
-\subsection*{Exercises}
-
-1. R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
-2. Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?\marginnote{A vague rule of thumb is that need the RAM to be three times the size of the data set.} 
-3. Using Google, how much does it cost (in pounds) to double the amount of available RAM? How much does it cost to rent a machine comparable to your laptop in the cloud?
-4. (Hard) What is the range of values an integer object can represent?
-
-# R data types
-
-When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting to look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that programme length is longer. In R we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
-  
-  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
-  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
-  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
-    ```{r}
-    args(head.matrix)
-    ```
-    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
     
 \subsection*{Exercises}
 
@@ -102,21 +133,9 @@ When programming in C or FORTRAN, we have to specify the data type of every obje
     * `[.data.frame`
     * `lm`
 2. How does the function `seq.int`, which was used in the `tail.matrix` function, differ to the standard `seq` function? 
+3. Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?\marginnote{A vague rule of thumb is that need the RAM to be three times the size of the data set.} 
+4. (Hard) What is the range of values an integer object can represent?
 
-# Operating systems: 32 bit or 64 bit
-
-When we suggest that you should just buy more RAM, this assumes that you are using a 64 bit operating system. A 32 bit machine can only access at most 4GB RAM. Although some CPUs offer solutions to this limitation, i.e. the OS can access more memory. If you are running a 32 bit operating system, then R is limited to around\sidenote{I'm using the word *around* to avoid making distinctions between Unix and Windows. There differences between the two operating systems, but they are roughly the same.} 3GB RAM. If you are running a 64 bit operating system, but only a 32 bit version R, then you have access to slightly more memory (but not much). Hopefully, you are running a 64 bit operating system, with a 64 bit version of R. Your limit is now measured in Terabytes. 
-
-To find precise details, consult the help pages, `help("Memory-limits")` and `help("Memory")`.
-
-\subsection*{Exercises}
-
-1. Are you using a 32 bit or 64 bit operating system?
-2. Are you using 32 bit or 64 bit version of R?
-3. What are the results of running the command
-    ```{r results="hide", message=FALSE, warning=FALSE}
-    memory.limit()
-    ```
 
 # Object size in R
 
@@ -221,27 +240,6 @@ We can force a call to the garbage collector, via `gc()` or by explicitly deleti
 # Monitoring memory change
 
 There are tools available to dynamically monitor changes in memory. The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. However, the resulting outputting is tricky to understand. The lineprof\sidenote{\url{https://github.com/hadley/lineprof}} package is more user friendly. However, it is currently only available from github and requires a development environment, i.e. a C compiler. The development environment is only an issue for Windows users.
-
-# HDD vs SSD
-
-Unless you have a fairly expensive laptop, you've probably got a standard hard disk drive (HDD). HDDs were first introduced by IBM in 1956. Data is stored using magnetism on a rotating platter. The faster the platter spins, the faster the HDD can perform. Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM. The major advantage of HDD is that they are cheap; a 1TB laptop is becoming standard.
-
-\begin{marginfigure}
-\centering
-\includegraphics[]{figures/Laptop-hard-drive-exposed.jpg}
-\caption{A standard 2.5" hard drive, found in most laptops. Figure credit: \url{https://en.wikipedia.org/wiki/Hard_disk_drive}.}
-\end{marginfigure}
-
-Solid state drives (SSD), can be thought of large, but more sophisticated versions of your USB stick. They have no moving parts and information is stored in microchips. Since there are no moving parts, reading/writing is much quicker\sidenote{SSDs have other benefits, such as being quieter, faster booting time for the OS, required less power (more battery life).}.
-
-The read/write speed for a standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. If you're wondering, read/write speeds for RAM is around 2-20GB/s. So at best, SSDs are at least one order of magnitude slower than RAM, but still faster than standard HDDs.
-
-
-
-
-
-
-
 
 
 

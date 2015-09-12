@@ -4,9 +4,9 @@ output: pdf_document
 
 \chapter{Memory Matters}
 
-Whenever big data comes up, the obvious question to ask, is, what do you mean by big? The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider "big", Google/Facebook would consider small.
+Whenever big data comes up the obvious question to ask is, what do you mean by big?\sidenote{At a recent conference I was at, someone's definition was 20\% of your RAM!} The answer to this question is that everything is relative. For example, a big data set from thirty years ago, could probably be processed with ease using todays computers. Indeed, a data set we consider "big", Google/Facebook would consider small.
 
-When talking about Big Data, we need a comparison. In this course, **big** is relative to our available resources.
+When talking about big data we need a comparison. In this course, **big** is relative to our available resources.
 
 # File sizes
 
@@ -40,7 +40,7 @@ It's worth pointing out that storing characters has got more sophisticated in re
 
 Eight bits is one byte\sidenote{Four bits is called a nibble.}. So two characters would use two bytes or 16 bits. A document containing $100$ characters would use $100$ bytes ($800$ bits). This assumes that the file didn't have any other memory overhead, such as font information or meta-data\sidenote{An empty `.docx` file takes about 3.7KB of storage.}.
 
-When people first started to think about computer memory, they noticed that $2^{10} \simeq 1000$ and $2^{20} \simeq 10^6$, so they adopted the short hand of kilo- and mega-bytes. Of course, \textit{everyone} new that it was just a short hand, and it was really a binary power. When computers became more wide spread, foolish people like you and me just assumed the kilo did actually mean $10^3$ bytes.  Fortunately, the IEEE Standards Board decided that IEEE standards will use the conventional, internationally adopted, definitions of the SI prefixes. So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google processes around $20$ petabytes of data every day. In 28th August, 2015 over 1 billion\sidenote{I presume this is an American Billion - so one Giga user, or Guser?} users logged on to facebook.
+When people first started to think about computer memory, they noticed that $2^{10} = 1024 \simeq 1000$ and $2^{20} =1,048,576\simeq 10^6$, so they adopted the short hand of kilo- and mega-bytes. Of course, \textit{everyone} knew that it was just a short hand, and it was really a binary power. When computers became more wide spread, foolish people like you and me just assumed the kilo did actually mean $10^3$ bytes.  Fortunately, the IEEE Standards Board decided that IEEE standards will use the conventional, internationally adopted, definitions of the SI prefixes. So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes (see table \ref{T2.2}). A petabyte is approximately 100 million drawers filled with text. Astonishingly, Google processes around $20$ petabytes of data every day. In 28th August, 2015 over 1 billion\sidenote{I presume this is an American billion - so one Giga user, or Guser?} users logged on to facebook.
 
 \begin{table}[t]
 \centering
@@ -78,13 +78,45 @@ Double & 8 \\
 
 \subsection*{Exercises}
 
-\begin{enumerate}
-\item R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
-\item Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?
-\item Using Google, how much does it cost (in pounds) to double the amount of available RAM?
-\item (Hard) What is the range of values an integer object can represent?
-\end{enumerate}
+1. R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
+2. Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?\marginnote{A vague rule of thumb is that need the RAM to be three times the size of the data set.} 
+3. Using Google, how much does it cost (in pounds) to double the amount of available RAM? How much does it cost to rent a machine comparable to your laptop in the cloud?
+4. (Hard) What is the range of values an integer object can represent?
 
+# R data types
+
+When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting to look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that programme length is longer. In R we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
+  
+  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
+  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
+  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
+    ```{r}
+    args(head.matrix)
+    ```
+    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
+    
+\subsection*{Exercises}
+
+1. To get an idea of when to use the integer data type, it is helpful to look at the source code of some commonly used functions. Have a look at the following function definitions:
+    * `tail.matrix`
+    * `[.data.frame`
+    * `lm`
+2. How does the function `seq.int`, which was used in the `tail.matrix` function, differ to the standard `seq` function? 
+
+# Operating systems: 32 bit or 64 bit
+
+When we suggest that you should just buy more RAM, this assumes that you are using a 64 bit operating system. A 32 bit machine can only access at most 4GB RAM. Although some CPUs offer solutions to this limitation, i.e. the OS can access more memory. If you are running a 32 bit operating system, then R is limited to around\sidenote{I'm using the word *around* to avoid making distinctions between Unix and Windows. There differences between the two operating systems, but they are roughly the same.} 3GB RAM. If you are running a 64 bit operating system, but only a 32 bit version R, then you have access to slightly more memory (but not much). Hopefully, you are running a 64 bit operating system, with a 64 bit version of R. Your limit is now measured in Terabytes. 
+
+To find precise details, consult the help pages, `help("Memory-limits")` and `help("Memory")`.
+
+\subsection*{Exercises}
+
+1. Are you using a 32 bit or 64 bit operating system?
+2. Are you using 32 bit or 64 bit version of R?
+3. What are the results of running the command
+    ```{r results="hide", message=FALSE, warning=FALSE}
+    memory.limit()
+    ```
 
 # Object size in R
 
@@ -92,10 +124,19 @@ When thinking about sizes of objects in R, it's a little bit more complicated th
 
  * Object meta data: this is information on the base data type and memory management. For example, is the object a logical, character, numeric or complex data type?
  * Three pointers: these are addresses to where memory is stored on the hard drive. One of the pointers is used to access the attribute list. The other two pointers help R move between object on your hard drive.
+ * The length of the vector
+ * The data.
  
-\noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+\noindent We can examine the size of an object using the base function `object.size`. However, `object_size` in the `pryr` package is a similar function that counts more accurately and includes the environment size. For example, an empty vector is 40 bytes
 
-We can examine the size of an object using the base function `object.size`. However, `object_size` in the `pryr` package is a similar function that counts more accurately and includes the environment size. Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in $4L$. However, the largest possible integer that can be created is $2^{31}-1$. Try \texttt{as.integer(2$\wedge$31)}.}
+```{r}
+library("pryr")
+object_size(numeric(0))
+```
+
+\noindent Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects. In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $48$ $2^6=64$ or $2^7=128$ bytes long. After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+
+Let's start with a simple vector\marginnote{For most operations we don't worry about integers, but for frequently used functions, there is a small saving. To create an integer explicit in R, we use `L`, as in $4L$. However, the largest possible integer that can be created is $2^{31}-1$. Try \texttt{as.integer(2$\wedge$31)}.}
 ```{r}
 v1 = 1:1e6
 ```
@@ -103,9 +144,8 @@ v1 = 1:1e6
 \[
 4\times 10^6 \,\text{bytes} \simeq  4 \,\text{MB}
 \]
-This corresponds with 
+This corresponds to
 ```{r}
-library("pryr")
 object_size(v1)
 ```
 \noindent If we create a similar vector using the sequence command
@@ -128,25 +168,24 @@ object_size(l2)
 \noindent Moreover, if we look at the combined size of the two lists, 
 ```{r}
 object_size(l1, l2)
-object_size(l1, l2)
 ```
 \noindent we still see that `v1` has only been counted once.
 
-\subsection*{Exercise}
+\subsection*{Exercises}
 
-Create some standard R objects, such as lists, data frames and matrices. Compare their sizes.
-
-# Integers, doubles and other data types
-
-When programming in C or FORTRAN, we have to specify the data type of every object we create. The benefit of this is that the compiler can perform clever optimisation\sidenote{If you have a spare evening, it's interesting to look at the compiler optimisation page on wikipedia: \url{https://en.wikipedia.org/wiki/Optimizing_compiler}. Some of the optimisations are amazing}. The downside is that programme length is longer. In R we don't tend to worry about about data types. For the most part, numbers are stored in double-precision floating-point format. But R does have other ways of storing numbers.\marginnote[1cm]{See \url{https://goo.gl/ZA5R8a} for a description on floating point numbers.}
-  
-  * `numeric`: the `numeric` function is the same as a `double`. However, `is.numeric` is also true for integers.
-  * `single`: R doesn't have a single precision data type. Instead, all real numbers are stored in double precision format. The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
-  * `integer`: Integers exist to be passed to C or Fortran code. Typically, we don't worry about creating integers. However, they are occasionally used to optimise subsetting operations. When we subset a data frame or matrix, we are interacting with C code. If we look at the arguments for the `head` function
-    ```{r}
-    args(head.matrix)
+1. Use the `object_size` function to investigate some standard objects. For example, vectors, data frames, functions and matrices.
+1. Create a matrix, data frame and list. What size are the empty objects? For each object, add two columns/nodes of $10$ random numbers. Comment on the results.
+1. Create three vectors using `seq`, `seq.int` and `:`. Compare the sizes.
+1. Run the following piece of code. Can you interpret the jumps in the graph?
+    ```{r fig.keep='none', tidy=FALSE}
+    n = 20
+    x = numeric(n)
+    for(i in (1:n))
+      x[i] = object_size(numeric(i-1))
+    plot(1:n-1, x, type="l")
     ```
-    The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
+1. Change the first value of the vector in the list `l1`. Rerun the `object_size` commands. What has happened?
+
  
 # Collecting the garbage
 
@@ -154,12 +193,11 @@ The `object_size` function tells you the size of a particular object. The functi
 
 In some languages, such as C, the programmer has the fun task of being in charge of managing memory. Every time the programmer asks for more memory using `malloc`\sidenote{This is the function used in C.} there should be a corresponding call (somewhere) to `free`. When the call to `free` is omitted, this is known as a memory leak. In R we don't have to worry about freeing memory; the garbage collector takes care of it. For example, consider the following example. We define a function `g`.\marginnote{Since we have used `mem\_used` inside a message statement, the automatic rounding disappears, since we are no longer calling `print.Bytes`.} 
 
-```{r}
+```{r tidy=FALSE}
 g = function() {
   z = 1:1e7
-  message("Mem used: ", 
-          round(mem_used()/10^6), "MB")
-  0
+  message("Mem used: ", round(mem_used()/10^6), "MB")
+  TRUE
 }
 ```
 
@@ -169,7 +207,7 @@ g = function() {
 mem_used()
 ```
 
-\noindent When we call `g` and calculate the memory used after the call
+\noindent When we call `g` and calculate the memory used after the call\sidenote{Bonus marks if you figure out why we need to manually round the `mem\_used` function call in \texttt{g}.}
 
 ```{r}
 x = g()

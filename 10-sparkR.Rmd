@@ -17,27 +17,35 @@ The Spark stack is composed of the following libraries.
   * Spark Streaming: Functionality designed to ease the management of data collected in real-time.
   * MLlib: A scalable machine learning library.
   * GraphX: A relatively new component in Spark for representing and analysing phenomena that can be represented as graphs, such as person-to-person links in social media.
-  * Cluster Managers:
+  * Cluster Managers.
   * Third party libraries: Like R and Python, developers are encouraged to
   extend Spark. Over 100 additional libraries have been contributed so far,
-  each of which can be rated by the community\sidenote{\url{http://spark-packages.org/}}.
+  each of which can be rated by the community\sidenote{\url{http://spark-packages.org/}}. 
 
-Spark is rapidly becoming the a key component on analysing data sets that have to be distributed across multiple computers. To get an idea of Spark's popularity, browse the page
+\noindent Spark is rapidly becoming the a key component on analysing data sets that have to be distributed across multiple computers. To get an idea of Spark's popularity, browse the page
 \begin{center}
 \url{https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark}
 \end{center}
 The `rmr2` package allows the R to use Hadoop MapReduce. However, development on this package has slowed. The author notes that the lack of activity on `rmr2`  is due to two reasons. First, the package maturity. Second, the general shift away from Hadoop MapReduce towards Spark.
 
+The associated Spark R package, `SparkR` was released as a separated component of Spark in 2014. In June 2015, the decision was made to merge `SparkR` into the main Spark distribution. However, they are still in the process of deciding on the API of `SparkR`. This has three unfortunate side effects
+
+1. The full functionality of Spark is yet available via `SparkR`.
+1. If you find code online, it's likely not to work since it uses the old `SparkR` package.
+1. These notes will go out of date.
+
+\noindent On a more positive note, since `SparkR` has been folded into the main Spark distribution, it means that it more likely to keep pace with the main Spark stack.
+
 # A first Spark instance
 
-There are a number of preliminary steps we need to take before beginning an analysis. After Spark had been installed we set the environment variable `SPARK_HOME`.\sidenote{There are a number of ways to deploy Spark, the simplest of which is 'Standalone Mode', which simply requires a compiled version of Spark to be available on the machine. Other deployment modes include 'EC2', for use on Amazon's cloud computing infrastructure, and via Apache's cluster management system Mesos and YARN, which is an evolution of Hadoop.} This can be in done in our `bashrc` file, or in R itself, via
+There are a number of preliminary steps we need to take before beginning an analysis. First we need to install Spark. After Spark had been installed we set the environment variable `SPARK_HOME`.\sidenote{There are a number of ways to deploy Spark, the simplest of which is 'Standalone Mode', which simply requires a compiled version of Spark to be available on the machine. Other deployment modes include 'EC2', for use on Amazon's cloud computing infrastructure, and via Apache's cluster management system Mesos and YARN, which is an evolution of Hadoop.} This can be in done in our `bashrc` file, or in R itself, via
 
 ```{r eval=FALSE, echo=1}
 Sys.setenv(SPARK_HOME="/path/to/spark/")
 Sys.setenv(SPARK_HOME="/data/ncsg3/spark-1.4.1-bin-hadoop2.6/")
 ```
 
-\noindent Then we load the `SparkR` package\marginnote{\texttt{SparkR} is bundled with Spark. This means that \texttt{SparkR} is not hosted on CRAN.}
+\noindent Then we load the `SparkR` package\marginnote{\texttt{SparkR} is bundled with Spark. This means that \texttt{SparkR} is not hosted on CRAN, so the usual \texttt{install.packages} won't work.}
 ```{r eval=FALSE}
 library("SparkR")
 ```
@@ -57,9 +65,9 @@ sc = sparkR.init(sparkPackages="com.databricks:spark-csv_2.11:1.0.3")
 sparkR.stop()
 ```
 
-# Resilient Distributed Datasets (RDD)
+# Resilient distributed datasets (RDD)
 
-The core feature of Spark is the resilient distributed dataset (RDD). An RDD is an abstraction\sidenote{By abstraction we simply mean, we don't worry about how or where the data set is stored.} that helps us deal with big data. An RDD is a distributed collection of elements (including data and functions). In Spark, everything we do revolves around RDDs. Typically, we may want to create,  transform or operate on the distributed data set. Spark automatically handles how the data is distributed across your computer/cluster and parallelises operations where possible.
+The core feature of Spark is the resilient distributed dataset (RDD). An RDD is an abstraction\sidenote{By abstraction we simply mean, we don't worry about how or where the data set is stored.} that helps us deal with big data. An RDD is a distributed collection of elements (including data and functions). In Spark everything we do revolves around RDDs. Typically, we may want to create,  transform or operate on the distributed data set. Spark automatically handles how the data is distributed across your computer/cluster and parallelises operations where possible.
 
 ## Example: Moby Dick
 
@@ -187,10 +195,6 @@ head(chicks_cnt, 2)
 ```{r eval=FALSE, tidy=FALSE}
 arrange(chicks_cnt, desc(chicks_cnt$count))
 ```
-
-
-
-
 
 # Resources
 

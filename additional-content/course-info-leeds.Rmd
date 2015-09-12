@@ -18,28 +18,29 @@ output: pdf_document
 ## Day 1
 
  - 09:00 Registration and refreshments
- - 09:30 Housekeeping and introduction (probably still a bit long)
- - 10:15 Memory matters (CSG) - won't take two hours
+ - 09:30 Housekeeping and introduction
+ - 10:15 Memory matters (CSG)
+ - 12:00 Introduction to data formats (RL)
  - 12:30 **LUNCH**
  - 13:30 Preprocessing data outside R (RL)
  - 14:30 Cleaning untidy data (RL)
  - 15:30 **Refreshments**
- - 15:45 Visualising Big Data: a taster (??)
- - 16:00 An introduction to **dplyr** (RL?)
+ - 15:45 Visualising Big Data: a taster (RL)
+ - 16:00 An introduction to **dplyr** (RL)
 
 ## Day 2
 
  - 09:00 Registration and refreshments
  - 09:30 Efficient programming (CSG)
-      - Benchmarking
-      - Vectorising
-      - Rcpp
+    - Benchmarking
+    - Vectorising
+    - Rcpp
  - 12:30 **LUNCH**
  - 13:30 Out of memory data (CSG)
     - The ff package
     - Spark
  - 15:30 **Refreshments**
- - 15:45 Visualisation (??)
+ - 15:45 Visualisation (RL)
  - 16:30 Finish
 
 

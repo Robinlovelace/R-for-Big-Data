@@ -1,6 +1,6 @@
 ---
 title: "Course Agenda"
-output: pdf_document
+output: word_document
 ---
 
 ## Introduction to R
@@ -21,7 +21,7 @@ output: pdf_document
  - 09:30 Housekeeping and introduction
  - 10:15 Memory matters (CSG)
  - 12:00 Introduction to data formats (RL)
- - 12:30 **LUNCH**
+ - 12:30 **Lunch**
  - 13:30 Preprocessing data outside R (RL)
  - 14:30 Cleaning untidy data (RL)
  - 15:30 **Refreshments**
@@ -35,7 +35,7 @@ output: pdf_document
     - Benchmarking
     - Vectorising
     - Rcpp
- - 12:30 **LUNCH**
+ - 12:30 **Lunch**
  - 13:30 Out of memory data (CSG)
     - The ff package
     - Spark

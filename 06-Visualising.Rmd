@@ -1,9 +1,275 @@
 ---
 output: pdf_document
 ---
-<!--
-\newpage
 
-# Big data visualisation
+```{r echo=FALSE}
+library(ggplot2)
+dpi=300
+```
 
--->
+\chapter{Visualisation}
+
+# Introduction to ggplot2
+
+\texttt{ggplot2} is a bit different from other graphics packages. It roughly follows
+the \textit{philosophy} of Wilkinson, 1999.\cite{Wilkinson1999} Essentially, we
+think about plots as layers. By thinking of graphics in terms of layers it is
+easier for the user to iteratively add new components and for a developer to add
+new functionality.
+\begin{marginfigure}
+\centering
+\includegraphics[]{figures/ch6_f1.png}
+\caption{A scatter plot of engine displacement vs average city miles per gallon.
+    The coloured points correspond to different cylinder sizes. The plot was
+    constructed using \texttt{base} graphics.}\label{F6.1}
+\end{marginfigure}
+The \texttt{mpg} data set comes with the \texttt{ggplot2} package and can be using loaded in the usual way
+```{r}
+data(mpg, package="ggplot2")
+```
+\noindent This data set contains statistics on $234$ cars. If we want to to use base graphics to plot the engine displacement against city miles per gallon, colouring the points by the number of cylinders, we would try something like
+
+```{r, echo=2, message=FALSE, results="hide"}
+png("figures/ch6_f1.png", width=5*dpi, height=5*dpi, res=dpi)
+plot(mpg$displ, mpg$cty, col=mpg$cyl)
+dev.off()
+```
+
+\noindent to get figure \ref{F6.1}. Let's now consider the equivalent \texttt{ggplot2} graphic - figure \ref{F2.2}. After loading the necessary library, the plot is generated using the following code:
+
+```{r fig.keep='none', cache=TRUE, echo=2:3}
+png("figures/ch6_2.png", width=5*dpi, height=5*dpi, res=dpi)
+g = ggplot(data=mpg, aes(x=displ, y=cty))
+g + geom_point(aes(colour=factor(cyl)))
+sink=dev.off()
+```
+
+\noindent The \texttt{ggplot2} code is fundamentally different from the \texttt{base} code. The
+\texttt{ggplot} function sets the default data set, and attributes called
+\textbf{aesthetics}. The aesthetics are properties that are perceived on the
+graphic. A particular aesthetic can be mapped to a variable or set to a constant
+value. In figure \ref{F2.2}, the variable \texttt{displ} is mapped to the x-axis and
+\texttt{cty} variable is mapped to the y-axis. 
+
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_2.png}
+  \caption{As figure \ref{F6.1}, but created using \texttt{ggplot2}.}\label{F6.2}
+\end{marginfigure}
+
+The other function, \texttt{geom\_point} adds a layer to the plot. The \texttt{x} and
+\texttt{y} variables are inherited (in this case) from the first function, \texttt{ggplot}, and
+the colour aesthetic is set to the \texttt{cyl} variable. Other possible aesthetics
+are, for example, size, shape and transparency. In figure \ref{F2.2} these
+additional aesthetics are left at their default value.
+
+If instead, we changed the `size` aesthetic
+
+```{r cache=TRUE, echo=2}
+png("figures/ch6_3.png", width=5*dpi, height=5*dpi, res=dpi)
+g + geom_point(aes(size=factor(cyl)))
+sink=dev.off()
+```
+
+\noindent we would get figure \ref{F6.3} where the size of the points vary with `cyl`. Table \ref{T6.1} gives a summary of standard geoms.
+
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Plot Name & Geom  & Base graphic \\
+    \midrule
+    Barchart & bar  & \texttt{barplot}\\
+    Box-and-whisker & boxplot & \texttt{boxplot}\\
+    Histogram & histogram  & \texttt{hist} \\
+    Line plot & line & \texttt{plot} and \texttt{lines}\\
+    Scatter plot & point & \texttt{plot} and \texttt{points}\\
+    \bottomrule
+  \end{tabular}
+  \caption[4\baselineskip]{Basic \texttt{geom}'s and their corresponding standard plot names.}\label{T6.1}
+\end{table}
+
+
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_3.png}
+  \caption{As figure \ref{F6.2}, but where the size aesthetic depends on
+    cylinder size.}\label{F6.3}
+\end{marginfigure}
+  
+# Bigvis
+
+The `bigvis` package provides tools for exploratory data analysis of large datasets (10-100 million obs).
+The goal is that operations should take less than $5$ seconds on a standard computer, even when the sample size is 100 million. The package is currently not available on CRAN and needs to be installed directly from github
+
+```{r eval=FALSE, tidy=FALSE}
+## Needs the devtools package
+devtools::install_github("hadley/bigvis")
+```
+
+\noindent If you are using Windows, you will also need to install Rtools. 
+
+Directly visualising raw big data is pointless. It's a waste of time to create a $100$ million point scatter plot (we would run out of pixels!). If you doubt this, compare these two plots
+
+```{r fig.keep="none"}
+par(mfrow=c(1, 2))
+plot(1, 1,ylab="")
+plot(rep(1, 1e3), rep(1, 1e3), ylab="")
+```
+
+\noindent Except for some anti-aliasing, it's impossible to tell the difference between these two plots. Instead, we need to quickly summarise the data and plot the data in a sensible way.
+
+Similar to `dplyr`, the `bigvis` package is structured around a few key functions. It provides fast C++ functions to manipulate the data, with the resulting output being handled by standard R functions (but optimised for `ggplot2`). The package also provides a few functions for handling outliers, since when visualising big data, outliers may be more of an issue.
+
+
+\subsubsection*{Bin and condense}
+
+The `bin()` and `condense()` functions are used to get compact summaries of the data. For example, suppose we generate $10^5$ random numbers from the $t$ distribution
+```{r echo=2}
+set.seed(1)
+x = rt(1e5, 5)
+```
+
+\noindent The `bin` and `condense` functions create the  binned variable
+```{r message=FALSE}
+library("bigvis")
+## Bin in blocks of 0.01
+x_sum = condense(bin(x, 0.01))
+```
+
+\subsubsection*{Smooth}
+
+After binning, you may want to smooth out any rough estimates (similar to kernel density estimation). The `smooth` function smooths out the binned data 
+
+```{r echo=1:2}
+## h is the binwidth (similar to bin size)
+x_smu = smooth(x_sum, h = 5 / 100)
+png("figures/ch6_4.png", width=5*dpi, height=5*dpi, res=dpi)
+par(mar=c(3,3,2,1), mgp=c(2,0.4,0), tck=-.01,
+                      cex.axis=0.9, las=1)
+plot(x_sum, panel.first=grid(), xlim=c(-12, 12), 
+     ylab="Count", pch=21, cex=0.6)
+lines(x_smu, col=2, lwd=2)
+text(5, 200, "Smoothed line", col=2)
+sink=dev.off()
+```
+
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_4.png}
+  \caption{Black points are the binned data. Red line is the smoothed estimate.}\label{F6.4}
+\end{marginfigure}
+
+\noindent Consult the functions `best_h()` and `rmse_cvs()` to get an idea of a good starting binwidth.
+
+\subsection*{Visualisation}
+
+The output of the the `condense` and `smooth` functions can be visualised using standard plotting packages. The `bigvis` package also contains an `autoplot` function to quickly visualise results
+
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_5.png}
+  \includegraphics[]{figures/ch6_6.png}
+  \caption{Plots generated using `autoplot`. The bottom graph is the `peeled` version of the data.}\label{F6.5}
+\end{marginfigure}
+
+```{r echo=2}
+png("figures/ch6_5.png", width=5*dpi, height=5*dpi, res=dpi)
+autoplot(x_sum)
+sink=dev.off()
+```
+
+\noindent This can be combined with the handy `peel` function, that (by default) just contains the middle 99% of the data
+
+```{r echo=2}
+png("figures/ch6_6.png", width=5*dpi, height=5*dpi, res=dpi)
+autoplot(peel(x_smu))
+sink=dev.off()
+```
+
+<!-- From Alastair Sanderson -->
+
+# IMDB example
+
+The internet movie database (IMDB)\sidenote{\url{http://imdb.com/}} is a website devoted to collecting movie data supplied by studios and fans. It claims to be the biggest movie database on the web and is run by Amazon. A version of the data set comes with the `bigvis` package
+
+```{r}
+data(movies, package="bigvis")
+```
+
+\noindent The dataset is a data frame and has `r NCOL(movies)` columns and `r NROW(movies)` rows. We create bin versions of the movie length and rating using the `condense/bin` trick
+
+```{r tidy=FALSE, message=FALSE}
+n_bins = 1e4
+bin_data = with(movies, 
+    condense(bin(length, find_width(length, n_bins)),
+             bin(rating, find_width(rating, n_bins))))
+```
+
+\noindent This data set can then plotted as a heatmap using
+
+```{r echo=2}
+png("figures/ch6_7.png", width=5*dpi, height=5*dpi, res=dpi)
+ggplot(bin_data, aes(length, rating, fill=.count )) + 
+  geom_raster()
+sink=dev.off()
+```
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/ch6_7.png}%
+  \includegraphics[width=0.5\textwidth]{figures/ch6_8.png}
+  \caption{Movie Rating vs Length. The plot on the right is the peeled version.}\label{F6.6}
+\end{figure}
+
+\noindent The resulting plot isn't helpful, due to a couple of long movies
+
+```{r tidy=FALSE}
+## Longer than one day!!
+subset(movies[ ,c("title", "length", "rating")], 
+       length > 24*60)
+```
+
+\noindent The `ggplot2` package contains a handy function called `last_plot` that allows us to manipulate the last created plot. For this example, we'll manipulate the plot using the `peel `function
+
+```{r echo=1, fig.keep="none"}
+last_plot() %+% peel(bin_data)
+png("figures/ch6_8.png", width=5*dpi, height=5*dpi, res=dpi)
+ggplot(data=peel(bin_data), aes(length, rating, fill=.count )) + 
+  geom_raster()
+sink=dev.off()
+```
+
+\noindent to get a better visualisation.
+
+# Tableplots: the tabplot package
+
+Tableplots are a visualisation technique that can be used to explore and analyse large data sets. These plots can be used to explore variable relationships and check data quality. Tableplots can visualise multivariate datasets with several variables and a large number of records. The `tabplot` package provides has an `ffdf` interface.
+
+We'll begin by loading the `movies` dataset from the `ggplot2` package
+
+```{r}
+data(movies, package="ggplot2")
+```
+
+\noindent In a tableplot, numeric variables are plotted as histograms of the mean values while for categorical variable, stacked bar charts are used to show category proportions. Missing values are also highlighted.
+
+Since `tableplot` can not handle character columns, when plotting we'll remove the first column and for presentation just select three columns
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_9.png}
+  \caption{Tableplot of the movie dataset.}\label{F6.5}
+\end{marginfigure}
+
+```{r, echo=c(1, 3), fig.keep="none", message=FALSE}
+library("tabplot")
+png("figures/ch6_9.png", width=5*dpi, height=5*dpi, res=dpi)
+tableplot(movies[,3:5])
+sink=dev.off()
+```
+
+\noindent By default, the first column is sorted, but this can be altered using the `sortCol` argument
+
+```{r fig.keep="none", message=FALSE, warning=FALSE}
+tableplot(movies[,3:5], sortCol = 3)
+````

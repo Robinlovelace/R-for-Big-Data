@@ -125,7 +125,7 @@ rawt[1:3,]
 
 - Splitting compound variables in two. A classic example is age-sex variables (e.g. `m0-10` and `f0-15` to represent males and females in the 0 to 10 age band). Splitting such variables can be done with `split`:
 
-```{r, results='hide'}
+```{r}
 agesex <- c("m0-10", "f0-10") # create compound variable
 n <- c(3, 5) # create a value for each observation
 df <- data.frame(agesex, n) # create a data frame
@@ -190,9 +190,11 @@ dim(df)
 That's a lot of variables. Do we need them all?
 It's worth taking a glimpse at this dataset to find out:
 
-```{r, results='asis', eval=FALSE}
+```{r, eval=FALSE}
 glimpse(df)
+```
 
+```
 # $ NPI                   (int) 1679576722, ...
 # $ Entity Type Code      (int) 1, 1, 2,    ...
 # $ Replacement NPI       (lgl) NA, NA, NA, ...
@@ -206,7 +208,7 @@ To clean the giant dataset, removing the empty colums, we need to identify which
 # Identify the variable which are all NA
 all_na <- sapply(df, function(x) all(is.na(x)))
 summary(all_na) # summary of the results
-df <- df[all_na] # subset the dataframe
+df <- df[!all_na] # subset the dataframe
 ```
 
 \noindent The new `df` object has fewer than a third of the original columns.
@@ -225,17 +227,17 @@ The end result usually has the same number of rows as there are groups.
 Because aggregation is a way of condensing datasets it can be a very useful technique for making sense of large datasets.
 The following code finds the average emissions per country (country being the grouping variable) from the 'GHG' dataset rescued from a spreadsheet and converted into a .csv file in the previous chapter.
 
-```{r}
+```{r, warning=FALSE}
 df <- read_csv("data/ghg-ems.csv")
 names(df)
 nrow(df)
 length(unique(df$Country))
 ```
 
-> **Challenge:** rename the variables 3 to 7 so they are much shorter, followin the pattern `ECO2`, `MCO2` etc. That will make the code for manipulating the dataset easier to write
+> **Challenge:** rename the variables 4 to 8 so they are much shorter, following the pattern `ECO2`, `MCO2` etc. That will make the code for manipulating the dataset easier to write
 
 ```{r, echo=FALSE}
-names(df)[3:7] <- c("ECO2", "MCO2", "TCO2", "OCO2", "FCO2")
+names(df)[4:8] <- c("ECO2", "MCO2", "TCO2", "OCO2", "FCO2")
 ```
 
 \noindent After the variable names have been updated, we can aggregate.^[Note the first argument in the function is the vector we're aiming to aggregate and the second is the grouping variable (in this case Countries).
@@ -255,25 +257,37 @@ Now it is easier to find out per-country statistics, such as the three lowest em
 head(e_ems[order(e_ems$x),], 3)
 ```
 
-An easier way to aggregate data is using the tilde (`~`) sybol instead of specifying grouping variable as a list...
+\noindent Another way to specify the `by` argument is with the tilde (`~`).
+The following command creates the same object as `e_ems`, but with less typing.
 
+```{r}
+e_ems <- aggregate(ECO2 ~ Country, df, mean, na.rm = T)
+```
 
+The final way to aggregate the dataset uses a totally different syntax, from the **dplyr** package.
+Without worrying exactly how it works (this is described in the next section), try the following.
+
+```{r}
+library(dplyr)
+e_ems <- group_by(df, Country) %>%
+  summarise(mean_eco2 =mean(ECO2, na.rm = T))
+e_ems
+```
 
 # dplyr
 
 **dplyr** has been designed to make data analysis
 fast and intuitive.
-**dplyr** works best with tidy data, as described above with reference to **tidyr**.
+**dplyr** works best with tidy data, as described above.
 Indeed, the two packages were designed to work closely together: **tidyr** creates tidy datasets, **dplyr** analyses
 them.^[As
 an interesting aside, **dplyr** works perfectly on `data.frames` but its default object is the `tbl`, which
 is identical to a `data.frame` but prints
 objects more intuitively.]
 
-```{r, message=FALSE}
+```{r, message=FALSE, results='hide'}
 library(readr)
-idata <- read_csv("data/world-bank-ineq.csv")
-library(dplyr)
+idata <- read.csv("data/world-bank-ineq.csv")
 idata <- tbl_df(idata) # convert the dataset to tbl class
 idata # print the dataset in the dplyr way
 ```
@@ -298,7 +312,7 @@ Note also the syntax:
 `rename` takes the `data.frame` as the first object and then creates new variables by specifying `new_variable_name = original_name`.]
 
 ```{r}
-idata <- rename(idata, Country = `Country Name`)
+idata <- rename(idata, Country = `Country.Name`)
 ```
 
 The standard way to subset data by rows in R is with square brackets, for example:
@@ -331,8 +345,7 @@ names(idata)[5:9] <-
   c("top10", "bot10", "gini", "b40_cons", "gdp_percap")
 ```
 
-\noindent As we will see with Twitter data in a subsequent section,
-the *class* of R objects is critical to how it performs.
+\noindent The *class* of R objects is critical to how it performs.
 If a class is incorrectly specified (if numbers are treated
 as factors, for example), R will likely generate error messages.
 Try typing `mean(idata$gini)`, for example.

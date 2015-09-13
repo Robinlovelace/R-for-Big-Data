@@ -27,3 +27,4 @@ data/largefile.zip
 *.ilg
 book.ind
 *.html
+figures/*

@@ -148,7 +148,10 @@ and their ease of modification: text files are certainly not a highly secure
 data format.
 
 The most common format of text file is the trusty .csv file, in which
-each column is separated by a comma.
+each column is separated by a comma.^[Note that text strings such as
+`"speed"` are enclosed in quote marks whereas raw numbers are not.
+]
+
 
 ```{r}
 write.csv(x = cars[1:3,]) # write a .csv file to the screen
@@ -157,10 +160,6 @@ write.csv(x = cars[1:3,]) # write a .csv file to the screen
 ```{r, echo=FALSE, eval=FALSE}
 write.csv(x = cars[1:3,], "data/minicars.csv") # save to file
 ```
-
-
-Note that in the result from the above operation text strings such as
-`"speed"` are enclosed in quote marks whereas raw numbers are not.
 
 > **Challenge**: Save a .csv file of the full 'cars' dataset and open it with a plain text editor.
 
@@ -174,13 +173,17 @@ saveRDS(object = cars[1:3,], file = "data/minicars.Rds")
 cars_mini <- readRDS("data/minicars.Rds")
 ```
 
-Note that the Rdata version of the same data is a third the size of the csv version:
+Note that the Rdata version of the same data is a third the size of the .csv version:
 
 ```{r}
 # Report the size of a file from within R using file.size()
 file.size("data/minicars.Rds") /
   file.size("data/minicars.csv")
 ```
+
+Often the benefits of being able to see the data without reading it into R may outweigh the cost of additional hard-disc space.^[The bash command `head data/minicars.csv`, for example, instantly show the top 10 rows of the file, regardless of how large the dataset is, without needing to read it into RAM.
+An additional advantage of .csv files over .Rds files is that they display correctly on GitHub.
+]
 
 # Freeing your data from spreadsheets
 

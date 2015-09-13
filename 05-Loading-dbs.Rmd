@@ -1,6 +1,10 @@
 ---
 output: pdf_document
 ---
-
+<!--
 \chapter{Loading data from Databases}
 
+## Notes for the future
+## Comment on standard SQL databases
+## Hive, PIG, nosql
+-->

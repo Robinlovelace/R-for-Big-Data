@@ -8,11 +8,11 @@ library("grid")
 library("png")
 ```
 
-\chapter{Big Data and R}
+\chapter{Big data and R}
 
 # What is Big Data?
 
-A common definition of Big Data is data that
+A common definition of big data is data that
 is:^[Data here is treated as a mass noun, similar to information.
 Purists may insist that 'data' should always plural because it originates from the Latin word datum.
 However, language evolves, we no longer speak Latin and the singular is becoming the norm [@kitchin2014data].]
@@ -21,7 +21,7 @@ However, language evolves, we no longer speak Latin and the singular is becoming
 - Voluminous, occupying much RAM and hard disk space
 - High in velocity: it's always being generated
 
-\noindent Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'Big' is rarely specified, however.
+\noindent Precisely how variable, voluminous and rapidly generated data needs to be before it's classified as 'big' is rarely specified, however.
 Looser definitions recognise that Big Data is an umbrella or 'catch all' term, used to refer to information that is simply tricky to analyse using established methods [@Lovelace2015].
 We use this looser definition in this in this book.
 
@@ -66,7 +66,7 @@ Nowadays datasets that are larger than your laptop's memory are commonplace.
 
 Even if the original data set is relatively small data set, the analysis can generate large objects. For example, suppose we went to perform standard cluster analysis. Using the built-in data set `USAarrests`, we can calculate a distance matrix,
 ```{r}
-d = dist(USArrests, method = "euclidean")
+d = dist(USArrests)
 ```
 
 \noindent and perform hierarchical clustering to get a dendrogram
@@ -95,6 +95,8 @@ To tackle big data in R, we review some of the possible strategies available.
 ## Buy more RAM
 
 Since R keeps all objects in memory, the easiest way to deal with memory issues. Currently, 16GB costs less than £100. This small cost is quickly recuperated on user time. A relatively powerful desktop machine can be purchased for less that £1000. 
+
+Another alternative, could be to use cloud computing. For example, Amazon currently charge around \$0.15 per Gigabyte of RAM. Currently, a $244$GB machine, with 32 cores, costs around \$3.12 per hour\sidenote{\url{https://aws.amazon.com/ec2/pricing/}}.
 
 ## Sampling
 

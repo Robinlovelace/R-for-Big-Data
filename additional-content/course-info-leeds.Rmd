@@ -12,13 +12,13 @@ output: word_document
  - 13:30 Practical 1
  - 14:30 Subsetting
  - 15:30 **Refreshments**
- - 15:45: Practical 2
+ - 15:45 Practical 2
  - 16:30 Finish
 
 ## Day 1
 
  - 09:00 Registration and refreshments
- - 09:30 Housekeeping and introduction
+ - 09:30 Housekeeping and introduction (CSG/RL)
  - 10:15 Memory matters (CSG)
  - 12:00 Introduction to data formats (RL)
  - 12:30 **Lunch**

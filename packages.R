@@ -1,11 +1,16 @@
 ## CRAN packages needed
 pkgs = c(
-  "drat", "dplyr", "readxl",
+  "drat",  "devtools", "ggplot2", # Generic
+  "downloader", "grid", "rbenchmark", # Generic
+  "pryr", ## Memory chapter
+  "dplyr", "readxl",
   "readr", "gdata", "openxlsx",
-  "downloader", "tidyr", "Rcpp",
-  "pryr", "grid", "png",
-  "ff", "ffbase", "biglm", "xtable",
-  "rbenchmark", "tabplot"
+  "tidyr",
+  "Rcpp",## Rcpp chapter
+  "png",
+  "ff", "ffbase", "biglm", ## FF chapter
+  "xtable",
+  "tabplot" ##Graphics chapter
 )
 ## Github Drat packages
 github_pkgs = c("r4bd")

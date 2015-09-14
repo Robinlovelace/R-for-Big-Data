@@ -273,3 +273,41 @@ sink=dev.off()
 ```{r fig.keep="none", message=FALSE, warning=FALSE}
 tableplot(movies[,3:5], sortCol = 3)
 ````
+
+# Interactive visualisations
+
+One of the features of large, complex datasets is that they can be visualised in many ways.
+Sometimes it is only by viewing the relationships between different variables *interactively* that patterns in the data become apparent.
+Interactive visualisation is also a way to communicate the contents of large datasets to others, without needing to transfer huge files from one computer to another.
+Perhaps the main advantage of online interactive visualisation, however, is that the 'heavy lifting' to produce the plots can be done remotely.
+If powerful computers to handle the processing 'server side', the user's computer is freed from the strain that large datasets can put on hard-discs, RAM and CPU.
+
+Because of these advantages interactive visualisation has become increasingly common amongst R users over the last few years.
+It is a rapidly evolving field within R.
+Instead of providing code examples, this section therefore highlights some promising packages and provides concrete examples with reference to additional teaching material, to show what is possible
+
+## Shiny
+
+**shiny** is an R package for easing the development of online, interactive web applications ('apps').
+An example of a **shiny** app for real world use is the Propensity to Cycle Tool (PCT), funded by the UK's Department for Transport (figure 6.10).
+It is necessary to host the visualisation remotely because the target audience (local transport planners) cannot be expected to download all the input data and software dependencies to run the model locally.
+Moreover, most policy makers and not R experts so the visualisation reduces the barriers to entry into exploratory data analysis.
+
+```{r cov, fig.margin=TRUE, fig.cap= "Screenshot of the Propensity to Cycle Tool shiny app", echo=FALSE}
+grid.raster(readPNG("figures/coventry-centroids.png"))
+```
+
+There are many excellent **shiny** teaching resources, the best of which is RStudio's website dedicated to shiny:
+[shiny.rstudio.com/](http://shiny.rstudio.com/).
+
+## ggvis
+
+**ggvis** builds on **ggplot2** to ease the creation of interactive plots that be used locally or pushed online for use by others.
+A user-friendly tutorial teaching **ggvis** basics and showcasing its capabilities can be found online, at
+[ggvis.rstudio.com/ggvis-basics.html](http://ggvis.rstudio.com/ggvis-basics.html).
+
+## taucharts
+
+**taucharts** is a new package for creating interactive graphics using the JavaScript library TauCharts.
+The package has a syntax that is similar to **ggplot2** but provides options for user-interaction.
+Read more about the package at [rpubs.com/hrbrmstr/taucharts](http://rpubs.com/hrbrmstr/taucharts).

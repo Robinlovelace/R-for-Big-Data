@@ -108,7 +108,10 @@ Using the NPI data, the following
 illustrates how csvkit can be used to extract useful information from
 bulky .csv files before loading the results into R.
 
+```{r, echo=FALSE}
 # Preprocessing with the LaF package
+```
+
 
 # Loading static files
 

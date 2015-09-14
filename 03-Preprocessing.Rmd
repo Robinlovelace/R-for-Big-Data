@@ -14,7 +14,7 @@ For data stored in large text files we can use
 *sed*\sidenote{\url{https://www.gnu.org/software/sed/manual/sed.html}}
 (a 'stream editor' included on most Unix-based systems),
 split\sidenote{\url{https://en.wikipedia.org/wiki/Split\_\%28Unix\%29}} and
-csvkit,\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 Gb .csv can be
+csvkit,\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 GB .csv can be
 broken up into smaller chunks before being loaded into R.
 Furthermore, these tools will run well on a puny laptop.
 Here's an 
@@ -79,7 +79,7 @@ split -b100m npidata_20050523-20150809.csv
 ```
 
 Assuming there is sufficient
-disk space, the output of the above operation should be several 100 Mb text
+disk space, the output of the above operation should be several 100 MB text
 files: more manageable. These files are named `aa`, `ab` etc.
 A sample from the results of this operation can be found in the
 `data` folder. This was saved using commands.
@@ -146,7 +146,7 @@ The advantages of plain text files are:
 - Portability: text files are quick and easy to load, save and share
 
 The disadvantages of plain text files for Big Data are that they can become
-unwieldy, even when compressed (remember the 5.6 Gb file from the introduction),
+unwieldy, even when compressed (remember the 5.6 GB file from the introduction),
 and their ease of modification: text files are certainly not a highly secure
 data format.
 

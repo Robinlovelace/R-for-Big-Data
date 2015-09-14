@@ -5,14 +5,14 @@ output: pdf_document
 
 \newpage
 
-# Appendix: Datasets 
+\chapter*{Datasets}
 
 ```{r, echo=FALSE}
 # Plan: put a description of the datasets, and how to load them,
 # in a chapter at the end
 ```
 
-## Mobile Century travel behaviour dataset
+\section*{Mobile Century travel behaviour dataset}
 
 This dataset is the result of an experiment conducted on the 8th February 2008,
 10:00 to 18:00 (PST) on the Interstate 880 road in California.
@@ -23,29 +23,31 @@ set-up to describe and disseminate the data for research purposes:
 [traffic.berkeley.edu/project/](http://traffic.berkeley.edu/project/).
 
 
-```{r}
+```{r }
 if(!file.exists("data/MobileCentury/pems_prop_NB.csv")){
-  url1 <- "http://traffic.berkeley.edu/sites/default/files/downloads/MobileCentury_data_final_ver3.zip?sid=1529"
-  url2 <- "http://traffic.berkeley.edu/sites/default/files/downloads/mobile_century_data_manual.pdf" # the user manual
-  dir.create("data/MobileCentury") # create directory for the data
+  base = "http://traffic.berkeley.edu/sites/default/files/downloads/"
+  url1 = paste0(base, "MobileCentury_data_final_ver3.zip?sid=1529")
+  url2 = paste0(base, "mobile_century_data_manual.pdf")
+  
+  dir.create("data/MobileCentury") 
   downloader::download(url1, destfile = "data/MobileCentury_data_final_ver3.zip")
   downloader::download(url2, destfile = "data/MobileCentury/mobile_century_data_manual.pdf")
   unzip("data/MobileCentury_data_final_ver3.zip", exdir = "data/MobileCentury/")
 }
 ```
 
-## Global emissions data 
+\section*{Global emissions data}
 
 This dataset is an up-to-date compilation of global CO2 emissions, administered by the World Resources Institute (WRI).
 The user must sign-in to access the data from the WRI website.^[See [wri.org/resources/data-sets](http://www.wri.org/resources/data-sets/cait-country-greenhouse-gas-emissions-data).]
 The example serves to show how data can be rescued from spreadsheets and saved in a much more user-friendly format such as .csv.
 The dataset is not big (comprising less that 10,000 rows) but is used to illustrate methods of data manipulation.
 
-## Moby Dick; or The Whale, by Herman Melville
+\section*{Moby Dick; or The Whale, by Herman Melville}
 
 The text file for the ebook of Moby Dick can be downloaded from the Gutenberg.org website\sidenote{\url{https://www.gutenberg.org/files/2701/2701.txt}}
 
-## The National Provider Identifyer
+\section*{The National Provider Identifier}
 
 Providers of health care in the USA are made publicly available by the US government.
 The resulting datasets are large (over 4 GB unzipped) and can be accessed from
@@ -55,4 +57,6 @@ The columns contain information on these providers, including name, address and 
 Because there are so many column variables (329) much of the data is redundant.
 The download and processing of this dataset is described in chapter 3.
 
+\newpage
 
+\chapter*{References}

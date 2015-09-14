@@ -165,7 +165,7 @@ f & 0-10 & 5\\
 \bottomrule
 \end{tabular}
 \vspace{0.2cm}
-\caption{Dataframe after the 'agesex' variable has been split into age and sex.}\label{Tsep}
+\caption{Data frame after the 'agesex' variable has been split into age and sex.}\label{Tsep}
 \end{margintable}
 
 \noindent Note there are other tidying operations that **tidyr** can performed in addition to the two described in this section.
@@ -202,7 +202,7 @@ glimpse(df)
 ```
 
 \noindent Looking at the output, it becomes clear that the majority of the variables only contain `NA`.
-To clean the giant dataset, removing the empty colums, we need to identify which these variables are.
+To clean the giant dataset, removing the empty columns, we need to identify which these variables are.
 
 ```{r}
 # Identify the variable which are all NA

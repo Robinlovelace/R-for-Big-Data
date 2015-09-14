@@ -3,7 +3,8 @@ output: pdf_document
 ---
 
 ```{r echo=FALSE}
-library(ggplot2)
+library("grid")
+library("png")
 dpi=300
 ```
 
@@ -12,7 +13,7 @@ dpi=300
 # Introduction to ggplot2
 
 \texttt{ggplot2} is a bit different from other graphics packages. It roughly follows
-the \textit{philosophy} of Wilkinson, 1999.\cite{Wilkinson1999} Essentially, we
+the \textit{philosophy} of Wilkinson, 1999. Essentially, we
 think about plots as layers. By thinking of graphics in terms of layers it is
 easier for the user to iteratively add new components and for a developer to add
 new functionality.
@@ -23,11 +24,14 @@ new functionality.
     The coloured points correspond to different cylinder sizes. The plot was
     constructed using \texttt{base} graphics.}\label{F6.1}
 \end{marginfigure}
+
+\subsubsection*{Example: the mpg data set}
+
 The \texttt{mpg} data set comes with the \texttt{ggplot2} package and can be using loaded in the usual way
 ```{r}
 data(mpg, package="ggplot2")
 ```
-\noindent This data set contains statistics on $234$ cars. If we want to to use base graphics to plot the engine displacement against city miles per gallon, colouring the points by the number of cylinders, we would try something like
+\noindent This data set contains statistics on $234$ cars. If we want to use base graphics to plot the engine displacement against city miles per gallon, and also colour the points by the number of cylinders, we would try something like
 
 ```{r, echo=2, message=FALSE, results="hide"}
 png("figures/ch6_f1.png", width=5*dpi, height=5*dpi, res=dpi)
@@ -35,7 +39,13 @@ plot(mpg$displ, mpg$cty, col=mpg$cyl)
 dev.off()
 ```
 
-\noindent to get figure \ref{F6.1}. Let's now consider the equivalent \texttt{ggplot2} graphic - figure \ref{F2.2}. After loading the necessary library, the plot is generated using the following code:
+\noindent to get figure \ref{F6.1}. Let's now consider the equivalent \texttt{ggplot2} graphic - figure \ref{F6.2}. After loading the necessary package
+
+```{r message=FALSE}
+library("ggplot2")
+```
+
+\noindent figure \ref{F6.2} is generated using the following code
 
 ```{r fig.keep='none', cache=TRUE, echo=2:3}
 png("figures/ch6_2.png", width=5*dpi, height=5*dpi, res=dpi)
@@ -48,7 +58,7 @@ sink=dev.off()
 \texttt{ggplot} function sets the default data set, and attributes called
 \textbf{aesthetics}. The aesthetics are properties that are perceived on the
 graphic. A particular aesthetic can be mapped to a variable or set to a constant
-value. In figure \ref{F2.2}, the variable \texttt{displ} is mapped to the x-axis and
+value. In figure \ref{F6.2}, the variable \texttt{displ} is mapped to the x-axis and
 \texttt{cty} variable is mapped to the y-axis. 
 
 \begin{marginfigure}
@@ -60,10 +70,10 @@ value. In figure \ref{F2.2}, the variable \texttt{displ} is mapped to the x-axis
 The other function, \texttt{geom\_point} adds a layer to the plot. The \texttt{x} and
 \texttt{y} variables are inherited (in this case) from the first function, \texttt{ggplot}, and
 the colour aesthetic is set to the \texttt{cyl} variable. Other possible aesthetics
-are, for example, size, shape and transparency. In figure \ref{F2.2} these
+are, for example, size, shape and transparency. In figure \ref{F6.2} these
 additional aesthetics are left at their default value.
 
-If instead, we changed the `size` aesthetic
+If instead we changed the `size` aesthetic
 
 ```{r cache=TRUE, echo=2}
 png("figures/ch6_3.png", width=5*dpi, height=5*dpi, res=dpi)
@@ -98,19 +108,18 @@ sink=dev.off()
     cylinder size.}\label{F6.3}
 \end{marginfigure}
   
-# Bigvis
+# The bigvis package
 
-The `bigvis` package provides tools for exploratory data analysis of large datasets (10-100 million obs).
-The goal is that operations should take less than $5$ seconds on a standard computer, even when the sample size is 100 million. The package is currently not available on CRAN and needs to be installed directly from github
+The `bigvis` package provides tools for exploratory data analysis of large datasets ($10-100$ million obs).
+The goal is that operations should take less than $5$ seconds on a standard computer, even when the sample size is $100$ million. The package is currently not available on CRAN and needs to be installed directly from github using the `devtools` package
 
 ```{r eval=FALSE, tidy=FALSE}
-## Needs the devtools package
 devtools::install_github("hadley/bigvis")
 ```
 
 \noindent If you are using Windows, you will also need to install Rtools. 
 
-Directly visualising raw big data is pointless. It's a waste of time to create a $100$ million point scatter plot (we would run out of pixels!). If you doubt this, compare these two plots
+Directly visualising raw big data is pointless. It's a waste of time to create a $100$ million point scatter plot, since we would not be able to distinguish between the points. In fact, we  are likely to run out of pixels! If you doubt this, compare these two plots
 
 ```{r fig.keep="none"}
 par(mfrow=c(1, 2))
@@ -118,9 +127,9 @@ plot(1, 1,ylab="")
 plot(rep(1, 1e3), rep(1, 1e3), ylab="")
 ```
 
-\noindent Except for some anti-aliasing, it's impossible to tell the difference between these two plots. Instead, we need to quickly summarise the data and plot the data in a sensible way.
+\noindent Except for some anti-aliasing issues, it's impossible to tell the difference between these two plots. Instead, we need to quickly summarise the data and plot the data in a sensible way.
 
-Similar to `dplyr`, the `bigvis` package is structured around a few key functions. It provides fast C++ functions to manipulate the data, with the resulting output being handled by standard R functions (but optimised for `ggplot2`). The package also provides a few functions for handling outliers, since when visualising big data, outliers may be more of an issue.
+Similar to `dplyr`, the `bigvis` package is structured around a few key functions. It provides fast C++ functions to manipulate the data, with the resulting output being handled by standard R functions (but optimised for `ggplot2`). The package also provides a few functions for handling outliers, since when visualising big data outliers may be more of an issue.
 
 
 \subsubsection*{Bin and condense}
@@ -140,7 +149,7 @@ x_sum = condense(bin(x, 0.01))
 
 \subsubsection*{Smooth}
 
-After binning, you may want to smooth out any rough estimates (similar to kernel density estimation). The `smooth` function smooths out the binned data 
+After binning you may want to smooth out any rough estimates (similar to kernel density estimation). The `smooth` function smooths out the binned data 
 
 ```{r echo=1:2}
 ## h is the binwidth (similar to bin size)
@@ -190,7 +199,7 @@ sink=dev.off()
 
 <!-- From Alastair Sanderson -->
 
-# IMDB example
+## IMDB example
 
 The internet movie database (IMDB)\sidenote{\url{http://imdb.com/}} is a website devoted to collecting movie data supplied by studios and fans. It claims to be the biggest movie database on the web and is run by Amazon. A version of the data set comes with the `bigvis` package
 
@@ -230,7 +239,7 @@ subset(movies[ ,c("title", "length", "rating")],
        length > 24*60)
 ```
 
-\noindent The `ggplot2` package contains a handy function called `last_plot` that allows us to manipulate the last created plot. For this example, we'll manipulate the plot using the `peel `function
+\noindent The `ggplot2` package contains a handy function called `last_plot` that allows us to manipulate the last created plot. For this example, we'll manipulate the plot using the `peel` function
 
 ```{r echo=1, fig.keep="none"}
 last_plot() %+% peel(bin_data)
@@ -240,26 +249,25 @@ ggplot(data=peel(bin_data), aes(length, rating, fill=.count )) +
 sink=dev.off()
 ```
 
-\noindent to get a better visualisation.
+\noindent to get a better visualisation. The associated paper
+\begin{center}
+\url{http://vita.had.co.nz/papers/bigvis.pdf}
+\end{center}
+\noindent provides a good introduction to the key ideas.
 
 # Tableplots: the tabplot package
 
 Tableplots are a visualisation technique that can be used to explore and analyse large data sets. These plots can be used to explore variable relationships and check data quality. Tableplots can visualise multivariate datasets with several variables and a large number of records. The `tabplot` package provides has an `ffdf` interface.
-
-We'll begin by loading the `movies` dataset from the `ggplot2` package
-
-```{r}
-data(movies, package="ggplot2")
-```
-
-\noindent In a tableplot, numeric variables are plotted as histograms of the mean values while for categorical variable, stacked bar charts are used to show category proportions. Missing values are also highlighted.
-
-Since `tableplot` can not handle character columns, when plotting we'll remove the first column and for presentation just select three columns
 \begin{marginfigure}
   \centering
   \includegraphics[]{figures/ch6_9.png}
   \caption{Tableplot of the movie dataset.}\label{F6.5}
 \end{marginfigure}
+
+In a tableplot, numeric variables are plotted as histograms of the mean values while for categorical variable, stacked bar charts are used to show category proportions. Missing values are also highlighted.
+
+Since `tableplot` can not handle character columns, when plotting we'll remove the first column and for presentation just select three columns
+
 
 ```{r, echo=c(1, 3), fig.keep="none", message=FALSE}
 library("tabplot")
@@ -272,7 +280,26 @@ sink=dev.off()
 
 ```{r fig.keep="none", message=FALSE, warning=FALSE}
 tableplot(movies[,3:5], sortCol = 3)
-````
+```
+
+\noindent It is also possible to zoom into key sections of the plot. For example, if we wanted to zoom into the top 10\% of movies according to rating, then we can use the `from` and `to` arguments. 
+\begin{marginfigure}
+  \centering
+  \includegraphics[]{figures/ch6_10.png}
+  \caption{Tableplot of the movie dataset. Only the top 10\% of movies (based on rating) have been plotted.}\label{F6.8}
+\end{marginfigure}
+
+```{r fig.keep="none", message=FALSE, warning=FALSE, tidy=FALSE, echo=2}
+png("figures/ch6_10.png", width=5*dpi, height=5*dpi, res=dpi)
+tableplot(movies[,3:5], sortCol = 3, from =0, to=10)
+sink=dev.off()
+```
+
+\noindent For a detailed description of the package consult the vignette
+
+```{r eval=FALSE}
+browseVignettes("tabplot")
+```
 
 # Interactive visualisations
 

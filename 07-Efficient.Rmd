@@ -6,7 +6,7 @@ Donald Knuth\sidenote{See \url{http://en.wikipedia.org/wiki/Donald_Knuth}} made 
   \begin{quote}
 \textit{"We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil."}
 \end{quote}
-So before we rush headlong into optimising our R code, we will spend some time determining when it is worthwhile optimising. In this chapter, we will look at benchmarking. In computing, a benchmark is obtained by running a set of programs in order to assess their relative performance.
+\noindent So before we rush headlong into optimising our R code, we will spend some time determining when it is worthwhile optimising. In this chapter, we will look at benchmarking. In computing, a benchmark is obtained by running a set of programs in order to assess their relative performance.
 
 \section{Simple benchmarks}
 
@@ -99,7 +99,7 @@ benchmark(replications=10,
 ```
 \noindent In this comparison, using the \texttt{base} function is around twenty-five times faster the \texttt{seq2}. However, remember that each function only takes a fraction of a single second to run!
 
-To compare over different values of $n$, we just loop:\sidenote{This piece of code is breaking the number one rule in efficient R programming - see the next chapter for details.}
+To compare over different values of $n$, we just loop:\sidenote{This piece of code is breaking the number one rule in efficient R programming, we are growing a data frame. See the next section for details.}
 ```{r cache=TRUE, tidy=FALSE}
 d = NULL
 for(n in 10^(5:7)) {
@@ -368,31 +368,37 @@ system.time(f1(N))
 \subsection{If you can't vectorise}
 
 Sometimes it is impossible to vectorise your code. If this is the case, there are a few things you can do:
-\begin{enumerate}
-\item Put any object creation outside the loop. For example
-```{r cache=TRUE, tidy=FALSE}
-jitter = function(x, k) rnorm(1, x, k)
-parts = rnorm(10)
-post = numeric(length(parts))
 
-for(i in 1:length(parts)){
+1. Put any object creation outside the loop. For example
+
+    ```{r cache=TRUE, tidy=FALSE}
+    jitter = function(x, k) rnorm(1, x, k)
+    parts = rnorm(10)
+    post = numeric(length(parts))
+
+    for(i in 1:length(parts)){
+        k = 1.06*sd(parts)/length(parts)
+        post[i] = jitter(parts[i], k)
+    }
+    ```
+
+    can be rewritten as
+
+    ```{r cache=TRUE, tidy=FALSE}
     k = 1.06*sd(parts)/length(parts)
-    post[i] = jitter(parts[i], k)
-}
-```
-\noindent can be rewritten as
-```{r cache=TRUE, tidy=FALSE}
-k = 1.06*sd(parts)/length(parts)
-for(i in 1:length(parts))
-    post[i] = jitter(parts[i], k)
-```
-\noindent or even better, just
-```{r cache=TRUE}
-post = sapply(parts, jitter, k)
-```
-\item Make the number of iterations as small possible. For example, if you have the choice
+    for(i in 1:length(parts))
+        post[i] = jitter(parts[i], k)
+    ```
+
+    or even better, just
+
+    ```{r cache=TRUE}
+    post = sapply(parts, jitter, k)
+    ```
+
+1. Make the number of iterations as small possible. For example, if you have the choice
 between iterating over factor elements and factor levels. Then factor levels is usually
 better (since there are fewer categories).
-\end{enumerate}
+
 
 

@@ -62,7 +62,7 @@ chunk(ffx, length.out=10)[[1]]
 
 \noindent Since we are now dealing with chunks, this makes standard data analysis a pain. For example, suppose we just want to find the minimum value of the matrix. If `ffx` was a standard data frame, we would just use `min(ffx)`. However, `ffx` isn't a standard R object. Instead, we need to loop over the chunks and keep track of the result, e.g.
 
-```{r}
+```{r tidy=FALSE}
 m = numeric(10)
 chunks = chunk(ffx, length.out=10)
 for(i in seq_along(chunks))
@@ -130,7 +130,7 @@ The `ffbase`\sidenote{\url{http://github.com/edwindj/ffbase} package adds basic 
 * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets.
 * `stream`: Infrastructure for Data Stream Mining.
 
-# The Biglm package
+# Big linear models
 
 Linear models (lm) are one of the most basic statistical models available. The simplest regression model is 
 \[

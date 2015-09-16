@@ -58,7 +58,7 @@ a task that typically takes around
 
 # Coping with big data in R
 
-R has had a difficult relationship with big data. One of R's default key features is that it loads data into the computer's
+R has had a difficult relationship with big data. One of R's key features is that it loads data into the computer's
 RAM^[There are, however, packages such as **dplyr** which allow R to access, filter and even process data stored remotely.
 These are described in chapter 5.].
 This was less of a problem twenty years ago, when data sets were small and the main bottleneck on analysis was how quickly a statistician could think. Traditionally, the development of a statistical model took more time than the computation. When it comes to Big Data, this changes.
@@ -96,7 +96,7 @@ To tackle big data in R, we review some of the possible strategies available.
 
 Since R keeps all objects in memory, the easiest way to deal with memory issues. Currently, 16GB costs less than £100. This small cost is quickly recuperated on user time. A relatively powerful desktop machine can be purchased for less that £1000. 
 
-Another alternative, could be to use cloud computing. For example, Amazon currently charge around \$0.15 per Gigabyte of RAM. Currently, a $244$GB machine, with 32 cores, costs around \$3.12 per hour\sidenote{\url{https://aws.amazon.com/ec2/pricing/}}.
+Another alternative, could be to use cloud computing. For example, Amazon currently charge around 3£0.15 per Gigabyte of RAM. Currently, a $244$GB machine, with 32 cores, costs around £3.12 per hour\sidenote{\url{https://aws.amazon.com/ec2/pricing/}}.
 
 ## Sampling
 
@@ -114,7 +114,7 @@ Another strategy to improve performance, is to move small parts of the program f
 
 ## Avoid storing objects in memory
 
-There are packages available that avoid storing data in memory. Instead, objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in find. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
+There are packages available that avoid storing data in memory. Instead objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in mind. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
 
 The two most famous packages on CRAN that use this principle are `ff` and `ffbase`\sidenote{There is also the `bigmemory` package that does something similar.}. The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
 

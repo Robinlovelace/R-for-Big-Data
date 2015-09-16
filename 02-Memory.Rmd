@@ -108,7 +108,7 @@ When programming in C or FORTRAN, we have to specify the data type of every obje
     ```
     The default argument is `6L` (the `L` is creating an integer object). Since this function is being called by almost everyone that uses R, this low level optimisation is useful.
 
-Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). In R, we don't tend to worry about characters, integers, or doubles. We tend to just let R do the thinking and conversion. However it is helpful to understand why files are large and the limits of the computer system.
+Different data types, such as (ASCII) characters, integers and doubles, have different storage costs (see table \ref{T2.3}). 
 
 \begin{margintable}
 \centering

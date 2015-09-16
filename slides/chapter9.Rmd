@@ -1,0 +1,317 @@
+---
+title: "The ff package"
+author: "Colin Gillespie"
+date: "17-18 September 2015"
+output: ioslides_presentation
+---
+
+##  Introduction
+
+  * The `ff` (fast file) package provides access to data stored on your hard desk
+    * Data isn't stored in memory
+    * Bigger data sets!
+  * It allows efficient indexing, retrieval and sorting of vectors 
+    * But hard drive is slower than RAM
+    
+##  Introduction
+
+  * No longer loading data directly into memory
+    * Non-standard R code
+  * The `ff` package __only__ provides the building blocks
+    * Few statistical functions
+    * No support for characters. 
+
+##  Introduction
+
+  * The `ffbase` package extends `ff`
+    * `c()`, `duplicated()` and `which()`
+  * The successor to `ffbase` is currently available on github 
+    * Integrate `ff` with `dplyr`
+
+## Importing data
+
+  * The `ff` package provides a number of functions to read in data. 
+  * All the `read.*` base R functions have `ff` equivalents that are used in the same way. 
+
+## Importing data
+
+  * There are two key classes in the `ff` package. `ff` for vector and `ffdf` for data frames.
+  * To illustrate we'll use a simple csv file that comes with the `r4bd` package.
+
+    ```{r, cache=FALSE, message=FALSE}
+    library("ff")
+    ## `get_rand()` Returns the full path
+    filename = r4bd::get_rand()
+    ffx = read.csv.ffdf(file=filename, header = TRUE)
+    ```
+
+## Some standard functions
+
+  * We can use (some) standard R functions to query the data set.
+
+    ```{r, results="hide"}
+    ## Only 10000 rows (small) 
+    dim(ffx)
+    ```
+  * But not all
+    ```{r eval=FALSE}
+    colSums(ffx) # produces the following error:
+    
+    ## Error in colSums(ffx) : 'x' must be an array ...
+    ```
+
+## Data chunks
+
+  * The key idea with `ffdf` objects, is that we no longer manipulate objects in one go
+    * Use chunks of data. 
+  * Split the data set up into smaller pieces that can be manipulated by R
+    * Process them one-by-one. 
+  * The `ff` package is a much more efficient solution than the naive approach of manually splitting your data into separate files, and using numerous `read.csv` calls.
+
+## Data chunks
+
+  * The `chunk` function creates a sequence of range indexes using a syntax similar to `seq`.
+  * Since this data set is small, we only have a single chunk
+    ```{r}
+    length(chunk(ffx))
+    ```
+
+## Data chunks
+
+  * To make this section more realistic we'll manually specify the number of chunks using the `length.out`. 
+  * The `chunk` function returns a list of ranges
+    ```{r}
+    chunk(ffx, length.out=10)[[1]]
+    ```
+
+## Data chunks
+
+  * Since we are now dealing with chunks, this makes standard data analysis a pain. 
+  * For example, suppose we just want to find the minimum value of the matrix. 
+  * If `ffx` was a standard data frame, we would just use `min(ffx)`. 
+  
+## Data chunks
+  
+  * However, `ffx` isn't a standard R object. 
+  * Instead, we need to loop over the chunks and keep track of the result, e.g.
+
+    ```{r tidy=FALSE}
+    m = numeric(10)
+    chunks = chunk(ffx, length.out=10)
+    for(i in seq_along(chunks))
+      m[i] = min(ffx[chunks[[i]],])
+    min(m)
+    ```
+
+## Exercise
+
+Suppose we have $n$ chunks. Can you think of how we could calculate
+
+  * The mean
+  * The variance
+  * The median
+
+If it makes things easier, set $n=5$
+
+## Pass by reference
+
+  * Since we are dealing with out of memory objects, standard rules about copying objects no longer apply
+  * In particular when we copy objects, we are passing by reference
+
+## Pass by reference
+
+  * When we change `ffy`
+
+    ```{r}
+    ffy = ffx
+    ffy[1, 1]  = 0
+    ```
+  * we have also changed `ffx`
+
+    ```{r}
+    ffx[1, 1]
+    ```
+
+It's a trade off between large objects and side-effects.  
+
+## ff vs readr
+
+  * At this point it's worthwhile thinking about speed comparisons with `readr`, via a quick benchmark. 
+  * First we create a test data set
+
+    ```{r, echo=FALSE, eval=FALSE}
+    r4bd::create_rand("example.csv", 1e6)
+    ```
+
+## ff vs readr
+
+Then time reading in the files
+```{r, echo=TRUE, eval=FALSE}
+system.time(ffx <- ff::read.csv.ffdf(file="/tmp/tmp.csv", header = TRUE))
+system.time(x <- readr::read_csv("/tmp/tmp.csv"))
+```
+
+## ff vs readr
+
+  * On my machine, the `readr` function is an order of magnitude faster. 
+    * This is what we would expect. 
+  * The `ffdf` version is also preparing the data for future read/write access from the hard drive
+  * Also, the `readr` variant is limited by your RAM
+  * So if your file is too large, you will get an error
+
+    ```{r eval=FALSE, tidy=FALSE}
+    R> x = readr::read_csv("very_big.csv")
+    # Error: cannot allocate vector of size 12.8 Gb
+    ```
+
+
+## ff Storage
+
+  * When data is the `ff` format, processing is faster than using the standard `read.csv`/`write.csv` combination. 
+  * However, converting data into `ff` format can be time consuming; so keeping data in `ff` format is helpful. 
+  * When you load in an `ff` object, there is a corresponding file(s) created on your hard disk
+
+    ```{r} 
+    filename(ffx)
+    ```
+
+## ff Storage
+
+  * This make moving data around a bit more complicated. 
+  * The package provides helper functions, `ffsave` and `ffload`, which zips/unzips `ff` object files. 
+  * However the `ff` files are not platform-independent, so some care is needed when changing operating systems.
+
+# The ffbase package
+## The ffbase package
+
+  * The `ff` package supplies the tools for manipulating large data sets, but provides few statistical functions. 
+  * Conceptually, chunking algorithms are straightforward. 
+  * The program reads a chunk of data into memory, performs intermediate calculations, saves the results and reads the next chunk. 
+  * This process repeats until the entire dataset is processed. 
+  * Unfortunately, many statistical algorithms have not been written with chunking in mind.
+  
+## The ffbase package
+
+  * The `ffbase` package adds basic statistical functions to `ff` and `ffdf` objects.
+  * It tries to make the code more R like and smooth away the pain of working with `ff` objects. 
+  * It also provides an interface with `big*` methods.
+
+## The ffbase package
+
+  * `ffbase` provides S3 methods for a number of standard functions
+    * `mean`, `min`, `max`, and standard arithmetic operators  for `ff` objects
+    * See `?ffbase` for a complete list
+  * This removes some of the pain when dealing with `ff` objects. 
+
+## The ffbase package
+
+  * The `ffbase` package also provide access to other packages that handle large data sets
+    * `biglm`: Regression for data too large to fit in memory;
+    * `biglars`: Scalable Least-Angle Regression and Lasso.
+    * `bigrf`: Big Random Forests: Classification and Regression Forests for Large Data Sets.
+    * `stream`: Infrastructure for Data Stream Mining.
+
+## Big linear models
+
+  * Linear models (lm) are one of the most basic statistical models available. 
+  * The simplest regression model is 
+\[
+Y_i = \beta_0 + \beta_1 x_i + \epsilon_i
+\]
+where $\epsilon_i \sim N(0, \sigma^2)$. 
+  * This corresponds to fitting a straight line through some points. 
+  * So $\beta_0$ is the  $y$-intercept and $\beta_1$ is the gradient. 
+  * The aim is to estimate $\beta_0$ and $\beta_1$. 
+
+## Big linear models
+
+  * In the more general multiple regression model, there are $p$ predictor variables
+\[
+Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip} + \epsilon_i, 
+\]
+where $x_{ij}$ is the $i^\text{th}$ observation on the $j^\text{th}$ independent variable.
+
+
+## Big linear models
+
+The above equation can be written neatly in matrix notation as
+\[
+Y = X \beta + \epsilon
+\]
+with dimensions
+\[
+[n\times 1]= [n\times (p+1)] ~[(p+1)\times 1] + [n \times 1 ]\;,
+\]
+where
+
+  * $Y$ is the response vector - (dimensions $n \times 1$)
+  * $X$ is the design matrix - (dimensions $n \times (p+1)$)
+  * $\beta$ is the parameter vector - (dimensions $(p+1) \times 1$)
+  * $\epsilon$ is the error vector - (dimensions $n \times 1$)
+
+## Big linear models
+
+The goal of regression is to estimate $\beta$ with $\hat\beta$. It can be shown that 
+\[
+\hat\beta = (X^T X)^{-1} X^T Y.
+\]
+Our estimate of $\hat \beta$ will exist provided that $(X^T X)^{-1}$
+exists, i.e. no column of $X$ is a linear combination of other columns.
+
+## Big linear models
+
+For a least squares regression with a simple size of $n$ training examples and $p$ predictors, it takes:
+
+ * $O(p^2n)$ to multiply $X^T$ by $X$;
+ * $O(pn)$ to multiply $X^T$ by $Y$;
+ * $O(p^3)$ to compute the LU (or Cholesky) factorization of $X^TX$ that is used to compute the product of $(X^TX)^{-1} (X^T Y)$.
+
+## Big linear models
+
+  * Since $n >> p$, this means that the algorithm scales with order $O(p^2 n)$. 
+  * As well as taking a long time to calculate, the memory required also increases. 
+  * The R implementation of `lm` requires $O(np + p^2)$ in memory.
+  * But this can be reduced by constructing the model matrix in chunks. 
+
+
+## Big linear models
+
+  * It works by updating the Cholesky decomposition with new observations. 
+  * So for a model with $p$ variables, only the $p \times p$ (triangular) Cholesky factor and a single row of data needs to be in the memory at any given time. 
+  * The `biglm` pack age does not do the chunking for you, but `ffbase` provides a handy S3 wrapper, `bigglm.ffdf`.
+
+For an example of using `biglm`, see the blog post at \url{http://goo.gl/iBPkTp} by Bnosac.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

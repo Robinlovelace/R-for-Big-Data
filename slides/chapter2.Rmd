@@ -1,0 +1,384 @@
+---
+title: "Memory"
+author: "Colin Gillespie"
+date: "17-18 September 2015"
+output: ioslides_presentation
+---
+
+# Chapter 2: Memory matters
+## Memory
+
+  * What is big? 
+  * Everything is relative. 
+      * A big data set from thirty years ago could probably be processed with ease using todays computers. 
+  * A data set we consider "big"
+    * Google/Facebook would consider small.
+  * When talking about big data we need a comparison. 
+  * In this course, __big__ is relative to our available resources.
+
+## 2.1 File sizes
+
+  * A computer cannot store "numbers" or "letters"
+  * The only thing a computer can store and work with is bits. 
+  * A bit is binary, it is either a $0$ or a $1$. 
+  * In the past we used the ASCII character set. 
+    * This set defined $128$ characters including $0$ to $9$, 
+    * Upper and lower case alpha-numeric 
+    * A few control characters such as a new line. 
+    * To store these characters required $8$ bits
+
+## Bit Representation
+
+Bit representation | Character
+-------------------|---------
+$01000001$ | A
+$01000010$ | B
+$01000011$ | C
+$01000100$ | D
+$01000101$ | E
+$01010010$ | R
+
+## Encoding
+
+ * It's worth pointing out that storing characters has got more sophisticated in recent years. 
+ * UTF-8, UTF-16, ...
+ * In particular, Unicode was created to try to create a single character set that included every reasonable writing system. 
+    * http://www.joelonsoftware.com/articles/Unicode.html for a nice introduction on character encoding.
+
+## Bits and bytes
+
+  * Eight bits is one byte
+    * Four bits is called a nibble
+  * So two characters would use two bytes or 16 bits. 
+  * A document containing $100$ characters would use $100$ bytes ($800$ bits). 
+    * This assumes that the file didn't have any other memory overhead, such as font information or meta-data
+    * An empty `.docx` file takes about 3.7KB of storage
+
+## Standards
+
+When people first started to think about computer memory, they noticed that 
+\[
+2^{10} = 1024 \simeq 1000
+\]
+and
+\[
+2^{20} =1,048,576\simeq 10^6
+\]
+so they adopted the short hand of kilo- and mega-bytes. 
+
+## Standards
+
+  * Of course, everyone knew that it was just a short hand, and it was really a binary power.   
+  * When computers became more wide spread, foolish people like you and me just assumed the kilo did actually mean $10^3$ bytes.  
+  * The IEEE Standards Board decided that IEEE standards will use the SI prefixes. 
+
+## Standards
+
+  * So a kilobyte (KB) is 1000 bytes and a megabyte (MB) is 1000 kilobytes 
+  * A petabyte is approximately 100 million drawers filled with text. 
+  * Astonishingly, Google processes around $20$ petabytes of data every day
+    * In 28th August, 2015 over 1 billion\ users logged on to facebook.
+
+## Data conversion table
+
+Factor | 	Name |	Symbol |	Origin|Factor |Derivation 
+-------|-------|---------|--------|-------|-------------
+$2^{10}$| kibi |	Ki|	Kilobinary: |$(2^{10})^1$ 	| Kilo: $(10^3)^1$ 
+$2^{20}$|	mebi |	Mi|	Megabinary: |$(2^{10})^2$ 	| Mega: $(10^3)^2$ 
+$2^{30}$|	gibi |	Gi|	Gigabinary: |$(2^{10})^3$	 | Giga: $(10^3)^3$ 
+$2^{40}$|	tebi |	Ti|	Terabinary: |$(2^{10})^4$	 | Tera: $(10^3)^4$ 
+$2^{50}$|	pebi |	Pi|	Petabinary: |$(2^{10})^5$	 | Peta: $(10^3)^5$ 
+
+## IEE Standards (more or less)
+
+  * Even though there is an agreed IEE standard, that doesn't mean that everyone follows it. 
+  * For example, Microsoft windows uses 1MB to mean $2^{20}$B. 
+  * Even more confusing, the capacity of a $1.44$MB floppy disk is a mixture, $1\text{MB} = 10^3 \times 2^{10}$B.
+
+## Exercises
+
+1. R loads everything into memory, i.e. your computers RAM. How much RAM do you have\sidenote{Feel free to Google, "How much RAM do I have?"}?
+2. Using Google, how much does it cost (in pounds) to double the amount of available RAM? 
+3. How much does it cost to rent a machine comparable to your laptop in the cloud (Amazon AWS)?
+
+## 2.2 Hard Disk Drive (HDD)
+
+  * Unless you have a fairly expensive laptop, you've probably got a standard hard disk drive (HDD)
+  * HDDs were first introduced by IBM in 1956. 
+    * Data is stored using magnetism on a rotating platter
+  * The faster the platter spins, the faster the HDD can perform. 
+  * Many laptop drives spin at either 5400RPM (Revolutions per Minute) or 7200RPM
+  * The major advantage of HDD is that they are cheap; 
+    * A 1TB laptop is becoming standard.
+
+## Solid state drives (SSD)
+
+  * SSDs can be thought of large, but more sophisticated versions of your USB stick. 
+  * They have no moving parts and information is stored in microchips
+  * Since there are no moving parts, reading/writing is much quicker
+
+## Read/write speeds
+
+  * The read/write speed for a standard HDD is usually in the region of 50-120MB/s (usually nearer the 50 than the 120). 
+  * For SSDs, speeds are typically over 200MB/s and for top of the range models, it is closer to 500MB/s. 
+  * If you're wondering, read/write speeds for RAM is around 2-20GB/s. 
+  * So at best, SSDs are at least one order of magnitude slower than RAM, but still faster than standard HDDs.
+
+# 2.3 Operating systems
+
+## 32 bit or 64 bit
+
+  * When we suggest that you should just buy more RAM, this assumes that you are using a 64 bit operating system
+  * A 32 bit machine can only access at most 4GB RAM. Although some CPUs offer solutions to this limitation, i.e. the OS can access more memory
+  * If you are running a 32 bit operating system, then R is limited to around 3GB RAM
+  * If you are running a 64 bit operating system, but only a 32 bit version R, then you have access to slightly more memory (but not much). 
+  * Hopefully, you are running a 64 bit operating system, with a 64 bit version of R. Your limit is now measured in Terabytes. 
+
+
+## Exercises
+
+1. Are you using a 32 bit or 64 bit operating system?
+2. Are you using 32 bit or 64 bit version of R?
+3. What are the results of running the command
+    ```{r results="hide", message=FALSE, warning=FALSE}
+    memory.limit()
+    ```
+
+
+## R data types
+
+  * When programming in C or FORTRAN, we have to specify the data type of every object we create
+    * The benefit of this is that the compiler can perform clever optimisation. 
+    * The downside is that programme length is longer. 
+  * In R we don't tend to worry about about data types. 
+  * For the most part, numbers are stored in double-precision floating-point format. 
+  * But R does have other ways of storing numbers.
+
+# 2.4 R data types
+
+## `numeric`
+
+  * The `numeric` function is the same as a `double`. 
+  * However, `is.numeric` is also true for integers.
+
+## single
+
+  * R doesn't have a single precision data type. 
+  * All real numbers are stored in double precision format. 
+  * The functions `as.single` and `single` are identical to `as.double` and `double` except they set the attribute `Csingle` that is used in the `.C` and `.Fortran` interface.
+
+## `integer`
+
+  * Integers exist to be passed to C or Fortran code. 
+  * Typically, we don't worry about creating integers. 
+  * However, they are occasionally used to optimise subsetting operations. 
+    * When we subset a data frame or matrix, we are interacting with C code. 
+  * If we look at the arguments for the `head` function
+    ```{r}
+    args(head.matrix)
+    ```
+    The default argument is `6L` (the `L` is creating an integer object). 
+    
+## Storage costs
+
+  * Different data types, such as (ASCII) characters, integers and doubles, have different storage costs 
+  * It is helpful to understand why files are large and the limits of the computer system.
+
+## Storage space for standard data types
+
+Type | Amount (Bytes)
+-----|-----------------
+Character | 1
+Integer | 4
+Double | 8
+
+
+## Exercises
+
+1. To get an idea of when to use the integer data type, it is helpful to look at the source code of some commonly used functions. Have a look at the following function definitions:
+    * `tail.matrix`
+    * `[.data.frame`
+    * `lm`
+2. How does the function `seq.int`, which was used in the `tail.matrix` function, differ to the standard `seq` function? 
+3. Suppose you had a file with a single column of doubles. Approximately, what is the maximum number of rows you could load into R?\marginnote{A vague rule of thumb is that need the RAM to be three times the size of the data set.} 
+4. (Hard) What is the range of values an integer object can represent?
+
+
+## 2.5 Object size in R
+
+  * When thinking about sizes of objects in R, it's a little bit more complicated than simply multiplying the data type by the number of bytes 
+
+## Object size in R
+
+ * Object meta data: this is information on the base data type and memory management. 
+  * For example, is the object a logical, character, or numeric data type?
+ * Three pointers: these are addresses to where memory is stored on the hard drive. One of the pointers is used to access the attribute list. The other two pointers help R move between object on your hard drive.
+ * The length of the vector
+ * The data.
+
+## Object size in R
+
+  * We can examine the size of an object using the base function `object.size`
+  * However, `object_size` in the `pryr` package is a similar function that counts more accurately and includes the environment size
+  * For example, an empty vector is 40 bytes
+
+```{r}
+library("pryr")
+object_size(numeric(0))
+```
+
+## Grow carefully
+
+  * Since asking for more memory is a relatively expensive operation, R asks for more than is needed when growing objects
+  * In particular, R's vectors are always $2^3=8$, $2^4=16$, $2^5=32$, $48$ $2^6=64$ or $2^7=128$ bytes long
+  * After $128$ bytes, R only asks memory in multiples of $8$ bytes.
+
+## Grow carefully
+
+Let's start with a simple vector
+
+```{r}
+v1 = 1:1e6
+```
+
+## Grow carefully
+
+  * When we use the `:` operator, we are actually creating a vector of integers. 
+  * Remember that an integer is only $4$ bytes, so this is more efficient. 
+  * To manually calculate the object size of `v1`, we have
+\[
+4\times 10^6 \,\text{bytes} \simeq  4 \,\text{MB}
+\]
+```{r}
+object_size(v1)
+```
+
+## Sequence
+
+If we create a similar vector using the sequence command
+```{r}
+v2 = seq(1, 1e6, by=1)
+object_size(v2)
+```
+we find that the size of `v2` is double that of `v1`. 
+  * This is because when we use the `:` operator we create a vector with type `integer`, whereas the `seq` command has created a vector of `doubles` (see table \ref{T2.3}).
+
+## Copies
+
+R is also tries to avoid making unnecessary copies of objects. For example, consider the following two lists
+```{r}
+l1 = list(v1, v1)
+l2 = list(v1, v2)
+```
+
+## Copies
+
+When we investigate the object sizes, we see that `v1` hasn't been double counted in `l1`
+```{r}
+object_size(l1)
+object_size(l2)
+```
+Moreover, if we look at the combined size of the two lists, 
+```{r}
+object_size(l1, l2)
+```
+\noindent we still see that `v1` has only been counted once.
+
+## Exercises
+
+1. Use the `object_size` function to investigate some standard objects. For example, vectors, data frames, functions and matrices.
+1. Create a matrix, data frame and list. What size are the empty objects? For each object, add two columns/nodes of $10$ random numbers. Comment on the results.
+1. Create three vectors using `seq`, `seq.int` and `:`. Compare the sizes.
+1. Run the following piece of code. Can you interpret the jumps in the graph?
+    ```{r fig.keep='none', tidy=FALSE}
+    n = 20
+    x = numeric(n)
+    for(i in (1:n))
+      x[i] = object_size(numeric(i-1))
+    plot(1:n-1, x, type="l")
+    ```
+1. Change the first value of the vector in the list `l1`. Rerun the `object_size` commands. What has happened?
+
+ 
+## 2.6 Collecting the garbage
+
+  * The `object_size` function tells you the size of a particular object
+  * The function `mem_used` tells you the amount of memory that is being using by `R`
+  * Since managing memory is a complex process, determining the exact amount of memory used isn't exact; it isn't obvious what we mean by __memory used__
+  * The value returned by `mem_used` only includes objects created by R, not R itself
+  * Also manipulating memory is an expensive operation, so the OS and R are lazy at reclaiming memory (this is a good thing).
+
+## Collecting the garbage
+
+  * In some languages, such as C, the programmer has the fun task of being in charge of managing memory. 
+  * Every time the programmer asks for more memory using `malloc` there should be a corresponding call (somewhere) to `free`. 
+  * When the call to `free` is omitted, this is known as a memory leak. 
+  * In R we don't have to worry about freeing memory; the garbage collector takes care of it. 
+
+## Example: Collecting the garbage
+
+```{r tidy=FALSE}
+g = function() {
+  z = 1:1e7
+  message("Mem used: ", round(mem_used()/10^6), "MB")
+  TRUE
+}
+```
+
+## Example: Collecting the garbage
+
+Calculate the current memory being used
+
+```{r}
+mem_used()
+```
+
+When we call `g` and calculate the memory used after the call
+
+```{r}
+x = g()
+mem_used()
+```
+
+\noindent The memory usage hasn't changed. Since the variable `z` is only referenced inside the function, the associated memory is freed after the function call has ended.
+
+## 2.6 Collecting the garbage
+
+  * We can force a call to the garbage collector, via `gc()` or by explicitly deleting the object with `rm`.
+  * However, this is almost never needed. 
+  * R is perfectly able to manage it's own memory and you need to use `gc()` or `rm()` to clean up.
+  * We can adjust the garbage collectors strategy by setting the environment variable `R_GC_MEM_GROW` to an integer value between $0$ and $3$. 
+    * Typically, we don't alter these variables.
+
+## 2.7 Monitoring memory change
+
+  * There are tools available to dynamically monitor changes in memory. 
+  * The first, `pryr::mem_change`, is useful for determining the effect of an individual command. R also comes with a memory profiler, `utils::Rprof`. 
+  * But see `lineprof` instead (github only)
+
+
+## 2.8 Sparse matrices
+
+If we recall the simple clustering example in the last chapter, we calculated a distance matrix via
+```{r}
+d = dist(USArrests)
+```
+\noindent Intuitively, since the matrix `d` is symmetric around the diagonal, it makes sense to exploit this characteristic in terms of storage. In particular, storage should be halved.
+
+## Sparse matrices
+
+  * A sparse matrix is simply a matrix in where most of the elements are zero. 
+  * Conversely, if most elements are non-zero, the matrix is considered dense. 
+  * The proportion of non-zero elements is called the sparsity. 
+  * Large sparse matrix often crop up when performing numerical calculations. 
+  * Typically, our data isn't sparse, but the resulting data structures we create may be sparse. 
+  * There are a number of techniques/methods used to store sparse matrices. 
+  * Methods for creating sparse matrices can be found in the `Matrix` package.
+
+
+
+
+
+
+
+

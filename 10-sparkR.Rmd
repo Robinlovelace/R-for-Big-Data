@@ -30,7 +30,7 @@ The `rmr2` package allows the R to use Hadoop MapReduce. However, development on
 
 The associated Spark R package, `SparkR` was released as a separated component of Spark in 2014. In June 2015, the decision was made to merge `SparkR` into the main Spark distribution. However, they are still in the process of deciding on the API of `SparkR`. This has three unfortunate side effects
 
-1. The full functionality of Spark is yet available via `SparkR`.
+1. The full functionality of Spark is not yet available via `SparkR`.
 1. If you find code online, it's likely not to work since it uses the old `SparkR` package.
 1. These notes will go out of date.
 

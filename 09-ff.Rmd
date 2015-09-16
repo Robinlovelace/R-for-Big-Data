@@ -32,7 +32,7 @@ ffx = read.csv.ffdf(file=filename, header = TRUE)
 
 \noindent We can use (some) standard R functions to query the data set.
 
-```{r, echo=FALSE}
+```{r, results="hide"}
 ## Only 10000 rows (small) 
 dim(ffx)
 ```

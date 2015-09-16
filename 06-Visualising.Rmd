@@ -25,7 +25,7 @@ new functionality.
     constructed using \texttt{base} graphics.}\label{F6.1}
 \end{marginfigure}
 
-\subsubsection*{Example: the mpg data set}
+\subsection*{Example: the mpg data set}
 
 The \texttt{mpg} data set comes with the \texttt{ggplot2} package and can be using loaded in the usual way
 ```{r}
@@ -132,7 +132,7 @@ plot(rep(1, 1e3), rep(1, 1e3), ylab="")
 Similar to `dplyr`, the `bigvis` package is structured around a few key functions. It provides fast C++ functions to manipulate the data, with the resulting output being handled by standard R functions (but optimised for `ggplot2`). The package also provides a few functions for handling outliers, since when visualising big data outliers may be more of an issue.
 
 
-\subsubsection*{Bin and condense}
+\subsection*{Bin and condense}
 
 The `bin()` and `condense()` functions are used to get compact summaries of the data. For example, suppose we generate $10^5$ random numbers from the $t$ distribution
 ```{r echo=2}
@@ -147,7 +147,7 @@ library("bigvis")
 x_sum = condense(bin(x, 0.01))
 ```
 
-\subsubsection*{Smooth}
+\subsection*{Smooth}
 
 After binning you may want to smooth out any rough estimates (similar to kernel density estimation). The `smooth` function smooths out the binned data 
 

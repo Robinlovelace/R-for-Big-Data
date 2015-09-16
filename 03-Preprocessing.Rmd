@@ -94,7 +94,8 @@ cp miniaa ../data # copy the first into 'sample-data'
 read (part of) a 5.6 GB dataset into R using a puny laptop!
 
 ```{r}
-npi <- read.csv("data/miniaa")
+library(readr)
+npi <- read_csv("data/miniaa")
 dim(npi) # what are the dimensions of this dataset?
 head(npi[c(1, 37)], 3) # view a sample of the data
 ```
@@ -261,4 +262,35 @@ saveRDS(df, "data/ghg-ems.Rds")
 
 Using `file.size()`, we can ascertain that we've made huge space savings by freeing this dataset from a spreadsheet. The .csv version is `r round(file.size("data/CAIT_Country_GHG_Emissions_-_All_Data.xlsx") / file.size("data/ghg-ems.csv"))` times smaller than the original and the .Rds version is `r round(file.size("data/CAIT_Country_GHG_Emissions_-_All_Data.xlsx") / file.size("data/ghg-ems.Rds"))` times smaller.
 These space savings will make a substantial difference to your system resources when dealing with larger datasets gleaned from spreadsheets.
+
+# Batch loading of disparate datasets
+
+Sometimes data is made available as a series of disparate files.
+This is especially likely for historic datasets, when hard disks were smaller.
+In such cases it is useful to load these dataset in a *batch process*, which loads all the files iteratively into a single dataset.
+Building on the 'NPI' data introduced previously, and its subsets `tinyaa` to `tinyad`, the following code loads these four files into a single dataset.
+
+```{r}
+batch_files <- list.files(path = "data", pattern = "tiny", full.names = T)
+b <- read_csv(batch_files[1])
+b[1:3]
+for(i in batch_files[-1]){
+  new <- read_csv(i, col_names = F)
+  names(new) <- names(b)
+  b <- rbind(b, new)
+}
+dim(b) # is this the same as the previously loaded npi object?
+```
+
+The above code works to load in the column names and the 9 rows of data from the `miniaa` dataset described above, by looping through the four files that we split it into.
+Note that this is not a *computationally efficient* way to batch load datasets from disparate sources into R, however.
+This is because it requires creating many new objects and binding them.
+Also, because the end file size is unknown, the code is liable to cause R to crash by using up all available memory on large datasets.
+
+To overcome these issues, R's batch execution mode may be useful.
+Type `?BATCH` to view documentation on this.
+An additional resource, not described here is [**BatchJobs**](https://cran.r-project.org/web/packages/BatchJobs/index.html).
+This is an R package designed for batch processing of large datasets.
+
+
 

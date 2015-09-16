@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 
-\chapter{Preprocessing and Loading Data} {#pre}
+\chapter{Preprocessing Data}
 
 R is ideal for handling many data-related tasks but not everything.
 As mentioned in the introduction, there are various ways to
@@ -18,8 +18,9 @@ csvkit,\sidenote{\url{https://csvkit.readthedocs.org/en/latest/}} a 10 GB .csv c
 broken up into smaller chunks before being loaded into R.
 Furthermore, these tools will run well on a puny laptop.
 Here's an 
-example of trying (and failing!) to load a large dataset into R.
-We recommend you don't
+example of downloading a very large .csv file and then
+trying (and failing!) to load it into R.
+Because of the strain it will put on most systems, we recommend you don't
 run this code:^[For
 more information on the origin and content of this dataset, see chapter 10.]
 
@@ -98,6 +99,18 @@ dim(npi) # what are the dimensions of this dataset?
 head(npi[c(1, 37)], 3) # view a sample of the data
 ```
 
+One of the great things about data analysis using command-line tools is that the same techniques that work on a dataset with 10 lines of code will also work on a dataset of 10 million rows, providing you have the right hardware and efficient implementation.
+Therefore trying 'dry runs' on small subsets of your data before the main analysis is a very good idea.
+The next challenge uses this principle to test your understanding of preprocessing files outside R, without relying on loading the data into R.
+
+> **Challenge (advanced):** Try to further split the csv file saved in `data/miniaa` into chunks called tinyaa, tinyab etc, with only 3 lines of code each.
+Use a method external to R (e.g. `split` if you use Unix) without loading the data into RAM.
+How many `tiny*` files result?
+
+```{r, engine='bash', eval=FALSE, echo=FALSE}
+split -l 3 miniaa tiny
+```
+
 # Filtering with csvkit
 
 [csvkit](https://csvkit.readthedocs.org/en/latest/) is a command-line program
@@ -111,6 +124,12 @@ bulky .csv files before loading the results into R.
 ```{r, echo=FALSE}
 # Preprocessing with the LaF package
 ```
+
+\chapter{Loading data into R}
+
+# An introduction to file formats
+
+
 
 
 # Loading static files

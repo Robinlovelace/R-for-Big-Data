@@ -22,7 +22,8 @@ output: word_document
  - 10:15 Memory matters (CSG)
  - 12:00 Introduction to data formats (RL)
  - 12:30 **Lunch**
- - 13:30 Preprocessing data outside R (RL)
+ - 13:30 Loading data into R (RL)
+ - 14:00 Preprocessing data outside R (RL)
  - 14:30 Cleaning untidy data (RL)
  - 15:30 **Refreshments**
  - 15:45 Visualising Big Data: a taster (RL)

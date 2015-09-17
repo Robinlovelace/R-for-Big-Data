@@ -22,7 +22,16 @@ library("png")
   * Dr Robin Lovelace
     * Research Fellow, Leeds Institute for Data Analytics (LIDA)
     * Data processing and 'analytics', focus on geographical data and sustainable transport
-    
+
+## Schedule
+
+  * The next two days contains bleeding edge material
+    * Hard to get practicals
+  * Regular breaks split up the day
+  * First time this course has run
+  * Have too much material - prioritize
+
+
 ## What is Big Data?
 
 > - Number of rows (volume)?
@@ -48,7 +57,7 @@ Think of data processing as DIY
     * Main bottleneck  was thinking
   * Traditionally the development of a statistical model took more time than the computation. 
   * When it comes to big data, this changes.
-  * Nowadays datasets that are larger than your laptop's memory are commonplace.
+  * Nowadays data sets that are larger than your laptop's memory are commonplace.
 
 ## Example: Clustering
 
@@ -112,7 +121,7 @@ pryr::object_size(d)
 
 ## Sampling
 
-  * If your dataset is too large to read into RAM, it may need to be
+  * If your data set is too large to read into RAM, it may need to be
 *preprocessed* or *filtered* using tools external to R before
 reading it in. 
   * This is the topic of chapter 3 and 6
@@ -121,7 +130,7 @@ reading it in.
 
   * Move small parts of the program from R to another, faster language, such as C++ or Java. 
     * The goal is to keep R's neat way of handling data, with the higher performance offered by other languages. 
-  * Many of R's base functions are written in C or Fortran. 
+  * Many of R's base functions are written in C or FORTRAN. 
   * This outsourcing of code to another language can be easily hidden in another function. 
 
 ## Avoid storing objects in memory
@@ -166,8 +175,15 @@ reading it in.
     install.packages("drat")
     drat::addRepo("rcourses")
     install.packages("r4bd")
-  ```
+    ```
 
+## Notes
+
+  * The intention is to add more material to the notes
+    * Currently hosted on github.com
+  * If you would like access, email Robin your github username
+  * Comments/corrections welcome
+  
 
 
 

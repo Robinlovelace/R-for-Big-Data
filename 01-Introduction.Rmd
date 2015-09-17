@@ -6,6 +6,8 @@ output: pdf_document
 library("pryr")
 library("grid")
 library("png")
+library("Rcpp")
+library("bigvis")
 ```
 
 \chapter{Big data and R}

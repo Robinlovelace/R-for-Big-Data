@@ -20,8 +20,23 @@ library("png")
     * Statistics Lecturer, Newcastle University
     * Research interest in high performance and parallel computing
   * Dr Robin Lovelace
+    * Research Fellow, Leeds Institute for Data Analytics (LIDA)
+    * Data processing and 'analytics', focus on geographical data and sustainable transport
+    
+## What is Big Data?
 
+> - Number of rows (volume)?
+> - Rate of build-up (velocity)?
+> - Number of nested list items (variety)?
 
+- **Example:** http://geo8.webarch.net/
+> - Is this Big Data? 
+
+## Software choices
+
+Think of data processing as DIY
+
+![](../figures/746px-Pistol-grip_drill.svg.png)
 
 
 ## Coping with big data in R

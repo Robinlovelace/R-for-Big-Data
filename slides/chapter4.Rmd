@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+author: "Robin Lovelace"
+date: "September 17, 2015"
+output: ioslides_presentation
+---
+
+## R Markdown
+
+Keeping it tidy!
+
+![](http://www.stevenson-engineers.co.uk/files/tidy_shop1.jpg)
+
+## General principles
+
+- Concise, meaningful variable names
+- Short and simple factor names
+- Consistency
+- Long and not wide!
+
+## Untidy data
+
+```{r}
+library(readr)
+raw <- read_csv("../data/pew.csv")
+dim(raw)
+raw[1:4, 1:5]
+```
+
+## Tidyr
+
+```{r}
+library(tidyr)
+rawt <- gather(raw, Income, Count, -religion)
+head(rawt, 3)
+```
+
+## Practical example
+
+- 5.1
+
+## Filtering columns
+
+## Data aggregation
+
+## dplyr
+
+
+
+
+
+
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+

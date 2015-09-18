@@ -108,7 +108,6 @@ output: ioslides_presentation
 Suppose we have $n$ chunks. Can you think of how we could calculate
 
   * The mean
-  * The variance
   * The median
 
 If it makes things easier, set $n=5$

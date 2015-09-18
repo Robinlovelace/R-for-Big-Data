@@ -6,6 +6,12 @@ output: ioslides_presentation
 ---
 
 # Chapter 2: Memory matters
+
+## Why include this material?
+
+  * Explain data sizes
+  * If we want a new computer, what should we ask for?
+
 ## Memory
 
   * What is big? 

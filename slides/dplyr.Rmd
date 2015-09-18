@@ -1,0 +1,126 @@
+---
+title: "dplyr"
+author: "Robin Lovelace"
+date: "September 18, 2015"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "../")
+```
+
+## Where we got to last time
+
+```{r, message=FALSE}
+pkgs <- c("tidyr", "readr", "dplyr")
+pkld <- lapply(pkgs, require, character.only = TRUE)
+raw <- read_csv("data/pew.csv")
+rawt <- gather(raw, Income, Count, -religion)
+head(rawt, 3)
+```
+
+## Filtering columns
+
+```{r}
+df <- read_csv("data/miniaa") # load imaginary large data
+dim(df)
+all_na <- sapply(df, function(x) all(is.na(x)))
+df1 <- df[!all_na] # subset the dataframe
+dim(df1)
+df2 <- df[complete.cases(t(df))]
+dim(df2)
+```
+
+## Aggregation
+
+```{r, warning=FALSE}
+df <- read_csv("data/ghg-ems.csv")
+glimpse(df)
+```
+
+## What to aggregate?
+
+```{r}
+df <- rename(df, ECO2 = `Electricity/Heat (CO2) (MtCO2)`)
+length(unique(df$Country))
+sapply(df, function(x) length(unique(x)))
+```
+
+## Aggregation with base R
+
+```{r}
+e_ems <- aggregate(df$ECO2, list(df$Country), mean, na.rm = T)
+nrow(e_ems)
+head(e_ems) # not particularly beautiful output
+```
+
+## Making base R code nicer
+
+```{r}
+e_ems <- aggregate(ECO2 ~ Country, df, mean, na.rm = T)
+head(e_ems)
+```
+
+## Enter dplyr
+
+```{r}
+e_ems <- group_by(df, Country) %>%
+  summarise(mean_eco2 = mean(ECO2, na.rm = T))
+e_ems
+```
+
+## dplyr: data processing made easy
+
+```{r}
+glimpse(e_ems)
+```
+
+# Practical: work through chapter 5.3 and 5.4 (15 minutes)
+
+## First thing to do
+
+> - Rename the 4th column of the data
+> - Optional challenge: do this in the dplyr way
+> - Advanced: Find the top and bottom 3 emitters in each category
+
+```{r}
+df <- read_csv("data/ghg-ems.csv")
+names(df)
+names(df)[4] <- "ECO2"
+```
+
+## Command chaining I
+
+Which do you prefer:
+
+> - This?
+
+```{r, eval=FALSE}
+top_n(
+  arrange(
+    summarise(
+      group_by(
+        filter(idata, grepl("g", Country)),
+        Year),
+      gini = mean(gini, na.rm = T)),
+    desc(gini)),
+  n = 5)
+```
+
+
+## Command chaining II
+
+> - Or this?
+
+```{r, eval=FALSE}
+idata %>%
+  filter(grepl("g", Country)) %>%
+  group_by(Year) %>%
+  summarise(gini = mean(gini, na.rm = T)) %>%
+  arrange(desc(gini)) %>%
+  top_n(n = 5)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Practical: Section 5.5 (10 minutes)

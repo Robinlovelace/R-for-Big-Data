@@ -1,0 +1,15 @@
+1) Find all earthquakes with a magnitude greater than 5 and are from California
+
+2) Remove unwanted columns
+
+3) Summary statistics
+
+4) Histograms
+
+5) Cluster
+
+6) Find all earthquakes that occurred in California
+
+7) Barchart
+
+8) Statistical Testing 

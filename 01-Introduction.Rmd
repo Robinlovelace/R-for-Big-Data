@@ -1,5 +1,6 @@
 ---
 output: pdf_document
+bibliography: r4bd.bib
 ---
 
 ```{r echo=FALSE}
@@ -10,9 +11,9 @@ library("pryr")
 library("bigvis")
 ```
 
-Big data and R
+# Introduction
 
-# What is Big Data?
+## What is Big Data?
 
 A common definition of big data is data that
 is:^[Data here is treated as a mass noun, similar to information.
@@ -58,7 +59,7 @@ a task that typically takes around
 80% of the effort expended on data analysis projects
 [@tidy-data]. 
 
-# Coping with big data in R
+## Coping with big data in R
 
 R has had a difficult relationship with big data. One of R's key features is that it loads data into the computer's
 RAM^[There are, however, packages such as **dplyr** which allow R to access, filter and even process data stored remotely.
@@ -94,13 +95,13 @@ pryr::object_size(d)
 
 To tackle big data in R, we review some of the possible strategies available.
 
-## Buy more RAM
+### Buy more RAM
 
 Since R keeps all objects in memory, the easiest way to deal with memory issues. Currently, 16GB costs less than £100. This small cost is quickly recuperated on user time. A relatively powerful desktop machine can be purchased for less that £1000. 
 
 Another alternative, could be to use cloud computing. For example, Amazon currently charge around 3£0.15 per Gigabyte of RAM. Currently, a $244$GB machine, with 32 cores, costs around £3.12 per hour (see [aws.amazon.com/ec2/pricing/](https://aws.amazon.com/ec2/pricing/).
 
-## Sampling
+### Sampling
 
 Do you **really** need to load all of data at once? For example, if your data contains information regarding sales, does it make sense to aggregate across countries, or should the data be split up? Assuming that you need to analyse all of your data, then random sampling could provide an easy way to perform your analysis. In fact, it is almost always sensible to sample your data set at the beginning of an analysis until your analysis pipeline is in reasonable shape.
 
@@ -110,17 +111,17 @@ reading it in. This is the topic of chapter 3.
 For databases we can filter when asking for the data from within R
 (described in chapter 6).
 
-## Integration with C++ or Java
+### Integration with C++ or Java
 
 Another strategy to improve performance, is to move small parts of the program from R to another, faster language, such as C++ or Java. The goal is to keep R's neat way of handling data, with the higher performance offered by other languages. Indeed, many of R's base functions are written in C or Fortran. This outsourcing of code to another language can be easily hidden in another function. 
 
-## Avoid storing objects in memory
+### Avoid storing objects in memory
 
 There are packages available that avoid storing data in memory. Instead objects are stored on your hard disc and analysed in blocks or chunks. Hadoop is an example of this technique. This strategy is perfect for dealing with large amounts of data. Unfortunately, many algorithms haven't been designed with this principle in mind. This means that only a few R functions that have been explicitly created to deal with specific chunk data types will work.
 
 The two most famous packages on CRAN that use this principle are `ff` and `ffbase`.^[There is also the `bigmemory` package that does something similar.] The commercial product,  Revolution R Enterprise, also uses the chunk strategy in their `scaleR` package.
 
-## Alternative interpreters
+### Alternative interpreters
 
 Due to the popularity of R, it now possible to use alternative interpreters (the interpreter is where the code is run). There are currently four possibilities
 
@@ -132,7 +133,7 @@ Due to the popularity of R, it now possible to use alternative interpreters (the
 
   * Oracle also offer an R-interpreter, that uses  Intel's mathematics library and therefore achieves a higher performance without changing R's core. 
 
-# Course R package
+## Course R package
 
 There is companion R package for this course. The package contains some example data sets, and also a few helper functions. To install the package, first install `drat`.^[The `drat` package provides a nice way of accessing other package repositories.]
 

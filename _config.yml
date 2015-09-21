@@ -1,0 +1,5 @@
+name: R for Big Data
+markdown: redcarpet
+highlighter: pygments
+
+exclude: ["README.md", "book"]

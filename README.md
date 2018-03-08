@@ -1,3 +1,3 @@
 # R-for-Big-Data
 
-Teaching materials for handling large datasets in R. Currently the lecture notes are formatted using markdown with Tufte. In the near future (days), the tufte format will be removed.
+Teaching materials for handling large datasets in R. Now superceded by [Efficient R Programming](https://github.com/csgillespie/efficientR) but archived for posterity.
